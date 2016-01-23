@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<title>Cellular Automota</title>
+<link rel="stylesheet" href="main.css">
+</head>
+
+<body onresize = "resizeFunction()">
+
+<canvas id="canvas" onclick="clickEvent(event)" >
+Too bad your browser does not support the HTML5 canvas.
+</canvas>
+
+<button onclick="stepSim()"		> Step 	</button>
+<button onclick="startSim()"	> Start </button>
+<button onclick="pauseSim()"	> Stop  </button>
+<button onclick="killAll()"		> Clear </button>
+
+<script src="vector.js"	></script>
+<script src="cells.js"			></script>
+<script src="canvas.js"			></script>
+<script src="ca_main.js"		></script>
+
+</body>
+
+</html>
