@@ -16,9 +16,12 @@ function createCells(){
 		}
 	}
 }
-
+ 
 // Update cells state
 cell.prototype.update =function(){
+	
+	// Check states of neighbouring cells, topologically this is currently a torus
+	
 	var count = 0;
 	if ( CELLS[ ( this.location.x -1 + numCellsWidth ) % numCellsWidth ][ ( this.location.y -1 + numCellsHeight ) % numCellsHeight ].current == true ){ count +=1; }
 	if ( CELLS[ ( this.location.x -1 + numCellsWidth ) % numCellsWidth ][   this.location.y                                        ].current == true ){ count +=1; }
@@ -28,11 +31,19 @@ cell.prototype.update =function(){
 	if ( CELLS[ ( this.location.x +1 ) % numCellsWidth                 ][ ( this.location.y -1 + numCellsHeight ) % numCellsHeight ].current == true ){ count +=1; }
 	if ( CELLS[ ( this.location.x +1 ) % numCellsWidth                 ][   this.location.y                                        ].current == true ){ count +=1; }
 	if ( CELLS[ ( this.location.x +1 ) % numCellsWidth                 ][ ( this.location.y +1 ) % numCellsHeight                  ].current == true ){ count +=1; }
-	if 		( count < 3 ){ this.future = false; }
-	else if ( count < 6 ){ this.future = true;  }
-	else 				 { this.future = false; }
+	
+	// Cellular automota rules are used below (values taken from HTML form)
+	
+	if ( this.current == true ){
+		if 		( count <  document.getElementById("aliveDeadBelowValue").value ){ this.future = false; }
+		else if ( count <  document.getElementById("aliveAliveBelowValue").value ){ this.future = true;  }
+		else 	{ this.future = false; }
+	}
+	else if (  count == document.getElementById("deadAliveAt").value ){ this.future = true; }
+	else { this.future = false; } 
 }
 
+// Array method for iterating through all members and applying function (foo)
 Array.prototype.forAll = function( foo ){
 	for ( var n = 0; n < numCellsWidth; n++ ){
 		for ( var m = 0; m < numCellsHeight; m++ ){
@@ -41,17 +52,22 @@ Array.prototype.forAll = function( foo ){
 	}
 }
 
-// Render cell function
+// Render individual cell function
 cell.prototype.render = function(){
-	if ( this.current == true ){ renderCell( this.location, '#ff0000' ); }
-	else { renderCell( this.location, '#0000ff' ); } 
+	if ( this.current == true ){ renderCell( this.location, aliveColor ); }
+	else { renderCell( this.location, deadColor ); } 
 }
 
+// Switch state of individual cell
 cell.prototype.switch = function(){ this.current =!this.current; }
+// Update individual cells current state
 cell.prototype.futureToCurrent = function(){ this.current = this.future; }
-cell.prototype.kill = function(){ this.current = false; }
+// Kill individual cell
+cell.prototype.kill = function(){ 
+	this.current = false;
+}
 
-// Render cells
+// Render all cells
 function renderAllCells(){ CELLS.forAll( testCell.render ); }
 
 // Update all cells
@@ -60,4 +76,8 @@ function updateAllCells(){
 	CELLS.forAll( testCell.futureToCurrent );
 }
 
-function killAll(){ CELLS.forAll( testCell.kill ); renderAllCells(); }
+// Kill (reset) all cells
+function killAll(){ 
+	CELLS.forAll( testCell.kill ); 
+	renderAllCells(); 
+}

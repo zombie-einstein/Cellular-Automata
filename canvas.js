@@ -2,6 +2,18 @@
 
 // ************ Functions ******************
 
+// Update number and size of cells
+function updateGrid(){
+	pauseSim();
+	numCellsWidth 	= Math.floor(document.getElementById("numCellsWidthForm").value);
+	numCellsHeight 	= Math.floor(document.getElementById("numCellsHeightForm").value);
+	cellWidth 		= canvasWidth / numCellsWidth; 
+	cellHeight 		= canvasHeight / numCellsHeight;
+	CELLS = [];
+	createCells();
+	renderAllCells(); 
+}
+
 // Animate
 function animate(){
 	updateAllCells();
@@ -68,26 +80,40 @@ function resizeFunction() {
 	renderAllCells();
 }
 
-// Click to change boid state
+// Click to change cell state
 function clickEvent(event){
 	if ( paused == false ){ return; }
 	var mousePos 	= getMousePos( canvas, event );
 	var x = Math.floor(mousePos.x/cellWidth);
 	var y = Math.floor(mousePos.y/cellHeight);
-	CELLS[x][y].switch();
-	CELLS[x][y].render();
-}	
+	var mouseVec = new vec( x, y );
 
-// Add boid at mouse click
-function addBoidAtClick(event){
-	var mousePos 	= getMousePos( canvas, event );
-	var mouseVec 	= new vec( mousePos.x, mousePos.y )
-	if ( mousePos.obstacleDetect(5) == true ){ return; }
-	var temp 	 	= new boid();
-	temp.position 	= mouseVec;
-	temp.velocity 	= randomVelocity( maxVelocity );
-	Boids.push(temp);
-	Boids[Boids.length-1].render();
-	numBoids++;
-	document.getElementById("boidNumber").innerHTML = numBoids;
+	switch ( document.getElementById("presets").value ){
+
+		case "single":
+			CELLS[mouseVec.x][mouseVec.y].switch();
+			CELLS[mouseVec.x][mouseVec.y].render();
+			break;
+
+		case "glider":
+			var glider = createGlider();
+			CELLS.printPattern( mouseVec, glider );
+			break;
+
+		case "block":
+			var block = createBlock();
+			CELLS.printPattern( mouseVec, block );
+			break;
+
+		case "beehive":
+			var beehive = createBeehive();
+			CELLS.printPattern( mouseVec, beehive );
+			break;
+	}
+}
+
+function makeTitle(){
+	var titleLocation = new vec(5,5);
+	var title = createTitle();
+	CELLS.printPattern( titleLocation, title );
 }

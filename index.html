@@ -18,9 +18,44 @@ Too bad your browser does not support the HTML5 canvas.
 <button onclick="pauseSim()"	> Stop  </button>
 <button onclick="killAll()"		> Clear </button>
 
-<script src="vector.js"	></script>
+<form style="display: inline;" >
+  Width:
+  <input type="number" id="numCellsWidthForm" min="2" max="200" value ="100" step="1" >
+  cells
+</form>
+<form style="display: inline;" >
+  Height:
+  <input type="number" id="numCellsHeightForm" min="2" max="100" value ="50" step="1" >
+  cells
+</form>
+<button onclick="updateGrid()"		> Update </button>
+
+<form style="display: inline;">
+  If Alive - Dead Below:
+  <input type="number" id="aliveDeadBelowValue" min="0" max="9" value ="2" step="1" >
+
+  Alive Below:
+  <input type="number" id="aliveAliveBelowValue" min="0" max="9" value ="4" step="1" >
+
+  If Dead - Alive if:
+  <input type="number" id="deadAliveAt" min="0" max="9" value ="3" step="1" >
+</form>
+
+<form>
+Presets:
+<select name="Presets" id="presets">
+  <option value="single" >	single on/off	</option>
+  <option value="block"	 >	block			</option>
+  <option value="glider" >	glider			</option>
+  <option value="beehive" >	beehive			</option>
+
+</select>
+</form>
+
+<script src="vector.js"			></script>
 <script src="cells.js"			></script>
 <script src="canvas.js"			></script>
+<script src="patterns.js"		></script>
 <script src="ca_main.js"		></script>
 
 </body>
