@@ -89,7 +89,7 @@ function createTitle(){
 	title.map[16]	= 'OOOOOO'+'X'+'XXXXXX'+'X'+'OXOXXO';
 	title.map[17]	= 'OXOXXO'+'X'+'XXXXXX'+'X'+'OXOXXO';
 	title.map[18]	= 'OXOXXO'+'X'+'XXXXXX'+'X'+'OXXXXO';
-	title.map[29]	= 'OXXXXO'+'X'+'XXXXXX'+'X'+'XXXXXX';
+	title.map[19]	= 'OXXXXO'+'X'+'XXXXXX'+'X'+'XXXXXX';
 
 	return title;
 }

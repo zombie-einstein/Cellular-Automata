@@ -14,6 +14,21 @@ function updateGrid(){
 	renderAllCells(); 
 }
 
+function changeUpdateMethod(){
+	updateMethod	= document.getElementById("updating").value;
+
+	if ( updateMethod == "signal"){
+		for ( var n = 0; n < numCellsWidth; n++ ){
+			for ( var m = 0; m < numCellsHeight; m++ ){
+				if ( CELLS[n][m].current == true ){
+					CELLS[n][m].updateSignal = true;
+					CELLS[n][m].pauseUpdate = true;
+				}
+			}
+		}
+	}
+}
+
 // Animate
 function animate(){
 	updateAllCells();

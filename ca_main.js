@@ -8,6 +8,8 @@ var numCellsHeight 	= Math.floor(document.getElementById("numCellsHeightForm").v
 var aliveColor		= '#ff0000';
 var deadColor		= '#0000ff';
 
+var updateMethod	= document.getElementById("updating").value;
+
 var timeStep;
 var paused 			= true;
 
