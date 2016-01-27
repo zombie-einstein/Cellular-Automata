@@ -20,12 +20,12 @@ Too bad your browser does not support the HTML5 canvas.
 
 <form style="display: inline;" >
   Width:
-  <input type="number" id="numCellsWidthForm" min="2" max="200" value ="100" step="1" >
+  <input type="number" id="numCellsWidthForm" min="2" max="1000" value ="100" step="1" >
   cells
 </form>
 <form style="display: inline;" >
   Height:
-  <input type="number" id="numCellsHeightForm" min="2" max="100" value ="50" step="1" >
+  <input type="number" id="numCellsHeightForm" min="2" max="500" value ="50" step="1" >
   cells
 </form>
 <button onclick="updateGrid()"		> Update </button>
@@ -42,18 +42,28 @@ Too bad your browser does not support the HTML5 canvas.
 </form>
 
 <form>
+
 Presets:
 <select name="Presets" id="presets">
   <option value="single" >	single on/off	</option>
+  <option disabled       > ─── Stationary ───</option>
   <option value="block"	 >	block			</option>
+  <option value="beehive">	beehive			</option>
+  <option disabled 		 > ─── Spaceship ───</option>
   <option value="glider" >	glider			</option>
-  <option value="beehive" >	beehive			</option>
+  <option value="LWSS"	 > 	LWSS			</option>
 </select>
 Updating:
 <select name="Updating" id="updating" onchange="changeUpdateMethod()">
   <option value="simultaneous" >  simultaneous </option>
-  <option value="signal"       >  signal         </option>
+  <option value="signal"       >  signal       </option>
 </select>
+Topology:
+<select name="Topology" id="topology" onchange="changeTopology()">
+  <option value="torus" >  torus </option>
+  <option value="flat"  >  flat  </option>
+</select>
+
 </form>
 
 <script src="vector.js"			></script>

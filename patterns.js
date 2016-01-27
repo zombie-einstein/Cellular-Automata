@@ -27,6 +27,18 @@ Array.prototype.printPattern = function( location, pattern ){
 	}
 }
 
+function createLWSS(){
+	var LWSS = new pattern(5,4);
+
+	LWSS.map[0]		= 'OXOX';
+	LWSS.map[1]		= 'XXXO';
+	LWSS.map[2]		= 'XXXO';
+	LWSS.map[3]		= 'OXXO';
+	LWSS.map[4]		= 'XOOO';
+
+	return LWSS;
+}
+
 function createGlider(){
 	var glider = new pattern(3,2);
 

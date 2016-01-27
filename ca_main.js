@@ -21,19 +21,21 @@ var canvasWidth 	= canvas.width;
 var canvasHeight 	= canvas.height;		
 
 var cellWidth 		= canvasWidth / numCellsWidth;
-var cellHeight 		= canvasHeight / numCellsHeight; 
+var cellHeight 		= canvasHeight / numCellsHeight;
+
+var topology		= document.getElementById("topology").value;
 
 
 var CELLS = [];
 
 createCells();
 
-var testCell = new cell(0,0);
+var testCell = new cell(0,0);	// blank cell to generate methods to apply
 
 renderAllCells();
 
 makeTitle();
 
-alert("Loaded Succesfully");
+console.log("Loaded Succesfully");
 
 

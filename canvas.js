@@ -2,7 +2,7 @@
 
 // ************ Functions ******************
 
-// Update number and size of cells
+// Update number and size of cells when changed
 function updateGrid(){
 	pauseSim();
 	numCellsWidth 	= Math.floor(document.getElementById("numCellsWidthForm").value);
@@ -15,7 +15,7 @@ function updateGrid(){
 }
 
 function changeUpdateMethod(){
-	updateMethod	= document.getElementById("updating").value;
+	updateMethod = document.getElementById("updating").value;
 
 	if ( updateMethod == "signal"){
 		for ( var n = 0; n < numCellsWidth; n++ ){
@@ -29,6 +29,14 @@ function changeUpdateMethod(){
 	}
 }
 
+function changeTopology(){
+	topology = document.getElementById("topology").value;
+	pauseSim();
+	CELLS = [];
+	createCells();
+	renderAllCells();
+}
+
 // Animate
 function animate(){
 	updateAllCells();
@@ -38,7 +46,7 @@ function animate(){
 // Step simulation
 function stepSim(){ animate(); }
 
-// Render square cell
+// Render a square cell at a vector location
 function renderCell( location , color ){
 	ctx.beginPath();
 	ctx.moveTo( location.x*cellWidth, location.y*cellHeight );
@@ -59,7 +67,7 @@ function renderLine( start, end, color ){
 }
 
 // Run simulation function
-function startSim(){ 
+function startSim(){
 	if( paused == true ){ 
 	timeStep = setInterval( animate, 200 ); 
 	paused	 = false; 
@@ -95,7 +103,7 @@ function resizeFunction() {
 	renderAllCells();
 }
 
-// Click to change cell state
+// Click to change cell state or add preset pattern
 function clickEvent(event){
 	if ( paused == false ){ return; }
 	var mousePos 	= getMousePos( canvas, event );
@@ -123,6 +131,11 @@ function clickEvent(event){
 		case "beehive":
 			var beehive = createBeehive();
 			CELLS.printPattern( mouseVec, beehive );
+			break;
+
+		case "LWSS":
+			var LWSS = createLWSS();
+			CELLS.printPattern( mouseVec, LWSS );
 			break;
 	}
 }
