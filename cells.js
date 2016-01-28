@@ -50,6 +50,13 @@ cell.prototype.findNeighbours = function( x, y ){
 			this.neighbours = this.neighbours.filter( isInside );
 
 		break;
+
+		case "1-D":
+			
+			this.neighbours[0] = new vec( ( x -1 +numCellsWidth ) %numCellsWidth , ( y -1 +numCellsHeight ) %numCellsHeight );
+			this.neighbours[1] = new vec( ( x -1 +numCellsWidth ) %numCellsWidth , ( y +1 ) %numCellsHeight                 );
+
+		break;
 	}
 }
 
@@ -83,8 +90,6 @@ function createCells(){
 
 cell.prototype.update =function(){
 	
-	//var count = 0;	// Counts alive neighbours
-	
 	if ( !this.neighbours.length ){ alert("error"); }	// Check, cell should have neighbours!
 
 	for ( var n = 0; n < this.neighbours.length; n++){
@@ -98,12 +103,13 @@ cell.prototype.update =function(){
 
 cell.prototype.applyRules = function(){
 
-	for( var n = 0; n < 3; n++){
+	for( var n = 0; n < rulesIf.length; n++){
 		if( this.current == rulesIf[n] && conditionCheck( this.aliveNeighbours, rulesThan[n], rulesAnd[n]  ) ){
 		this.current = rulesThen[n];
 		}
 	}
 	
+	// reset neigbour count before next loop
 	this.aliveNeighbours = 0;
 }
 
@@ -159,8 +165,13 @@ cell.prototype.render = function(){
 
 // Switch state of individual cell
 cell.prototype.switch = function(){ this.current =!this.current; }
+
 // Kill individual cell
-cell.prototype.kill = function(){ this.current = false; }
+cell.prototype.kill = function(){ 
+	this.current = false; 
+	this.updateSignal = false;
+}
+
 
 // Render all cells
 function renderAllCells(){ CELLS.forAll( testCell.render ); }
@@ -169,6 +180,15 @@ function renderAllCells(){ CELLS.forAll( testCell.render ); }
 function updateAllCells(){ 
 
 	switch ( updateMethod ){
+
+	case "simultaneous" :
+
+		CELLS.forAll( testCell.update );
+		CELLS.forAll( testCell.applyRules );
+
+		console.log("simultaneous update completed")
+
+	break;
 
 	case "signal" :
 		
@@ -210,13 +230,41 @@ function updateAllCells(){
 				}
 			}
 		}
-			
+		console.log("signal update completed")	
+
 	break;
 
-	case "simultaneous" :
+	case "1-D":
+		// First mark cells to be updated this turn
+		// and turn of signal to update next turn
+		for ( var n = 0; n < numCellsWidth; n++ ){
+			for ( var m = 0; m < numCellsHeight; m++ ){
+				if ( CELLS[n][m].updateSignal == true ){
+					
+					CELLS[n][m].updateThisTurn = true;
+					CELLS[n][m].updateSignal = false;
 
-		CELLS.forAll( testCell.update );
-		CELLS.forAll( testCell.applyRules );
+				}
+			}
+		}
+
+		for ( var n = 0; n < numCellsWidth; n++ ){
+			for ( var m = 0; m < numCellsHeight; m++ ){
+				if ( CELLS[n][m].updateThisTurn == true ){
+					
+					// Get current state from previous line
+					CELLS[n][m].current = CELLS[(n-1+numCellsWidth)%numCellsWidth][m].current;
+					// Get neighbour values from previous line
+					CELLS[n][m].update();
+
+					CELLS[n][m].applyRules();
+					// Send update signal to next row
+					CELLS[(n+1)%numCellsWidth][m].updateSignal = true;
+					// Cancel update this turn
+					CELLS[n][m].updateThisTurn = false;
+				}
+			}
+		}
 
 	break;
 
@@ -226,5 +274,6 @@ function updateAllCells(){
 // Kill (reset) all cells
 function killAll(){ 
 	CELLS.forAll( testCell.kill ); 
-	renderAllCells(); 
+	renderAllCells();
+	changeUpdateMethod();
 }

@@ -5,20 +5,28 @@
 // Update number and size of cells when changed
 function updateGrid(){
 	pauseSim();
+
 	numCellsWidth 	= Math.floor(document.getElementById("numCellsWidthForm").value);
 	numCellsHeight 	= Math.floor(document.getElementById("numCellsHeightForm").value);
+
 	cellWidth 		= canvasWidth / numCellsWidth; 
 	cellHeight 		= canvasHeight / numCellsHeight;
+
+
 	CELLS = [];
 	createCells();
 	renderAllCells();
 	console.log("Updated grid succesfully");
 }
 
+// Change the method by which the cells will update
+
 function changeUpdateMethod(){
 	updateMethod = document.getElementById("updating").value;
 
-	if ( updateMethod == "signal"){
+	switch ( updateMethod ){
+
+	case "signal":
 		for ( var n = 0; n < numCellsWidth; n++ ){
 			for ( var m = 0; m < numCellsHeight; m++ ){
 				if ( CELLS[n][m].current == true ){
@@ -26,8 +34,38 @@ function changeUpdateMethod(){
 				}
 			}
 		}
+		console.log("Changed update method to signal");
+
+	break;
+
+	case "1-D":
+
+		topology = "1-D";
+
+		// Clear and find new neighbours of remaining rows and re-render
+		for ( var n = 1; n < numCellsWidth; n++ ){
+			for ( var m = 0; m < numCellsHeight; m++ ){
+					CELLS[n][m].generateNeighbours();
+					CELLS[n][m].kill();
+					CELLS[n][m].render();
+			}
+		}
+
+		// Update the neighbours of the first row and
+		// mark the next row for update next turn 
+		for ( var m = 0; m < numCellsHeight; m++ ){
+					CELLS[0][m].generateNeighbours();
+					CELLS[0][m].updateSignal = false;
+					CELLS[1][m].updateSignal = true;
+		}
+		console.log("Changed update method to 1-D");
+	
+	break;
+
 	}
 }
+
+// Change the topology of the cell space
 
 function changeTopology(){
 	topology = document.getElementById("topology").value;
@@ -35,7 +73,7 @@ function changeTopology(){
 	CELLS.forAll( testCell.generateNeighbours );
 }
 
-// Animate
+// Animate function called at each timestep
 function animate(){
 	updateAllCells();
 	renderAllCells();
@@ -138,11 +176,15 @@ function clickEvent(event){
 	}
 }
 
+// Render a title splash using cells "GAME OF LIFE"
+
 function makeTitle(){
-	var titleLocation = new vec(5,5);
+	var titleLocation = new vec(5,5);	// Top left location of the pattern
 	var title = createTitle();
 	CELLS.printPattern( titleLocation, title );
 }
+
+// Change background & dead cell color from HTML element and re-render
 
 function changeBackgroundColor(){
 	deadColor	= document.getElementById("deadColor").value;
@@ -151,26 +193,35 @@ function changeBackgroundColor(){
 
 	renderAllCells();
 	
+	// Update color of HTML elements
 	var elementsToChange = document.getElementsByClassName("main");
 	for ( var i = 0; i < elementsToChange.length; i++ ){
 		elementsToChange[i].style.backgroundColor = deadColor;
 	}
 }
 
+// Change the color of alive cells and re-render
+
 function changeAliveColor(){
 	aliveColor	= document.getElementById("aliveColor").value;
 	renderAllCells();
 }
 
+// Change text and logo colors using HTML element
+
 function changeTextColor(){
 	var textColor	= document.getElementById("textColor").value;
 	
-	//document.getElementById("svg2").style.fill = textColor;
+	document.getElementById("logo").style.fill = textColor;
 
 	var elementsToChange = document.getElementsByClassName("main");
 	for ( var i = 0; i < elementsToChange.length; i++ ){
 		elementsToChange[i].style.color = textColor;
 		elementsToChange[i].style.borderColor = textColor;
 	}
+	var elementsToChange = document.getElementsByClassName("bordersTop");
+	for ( var i = 0; i < elementsToChange.length; i++ ){
+		elementsToChange[i].style.color = textColor;
+		elementsToChange[i].style.borderColor = textColor;
+	}
 }
-
