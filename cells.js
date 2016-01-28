@@ -98,17 +98,48 @@ cell.prototype.update =function(){
 
 cell.prototype.applyRules = function(){
 
-	if ( this.current == true ){
-		if 		( this.aliveNeighbours <  document.getElementById("aliveDeadBelowValue").value  ){ this.current = false; }
-		else if ( this.aliveNeighbours <  document.getElementById("aliveAliveBelowValue").value ){ this.current = true;  }
-		else 	{ this.current = false; }
+	for( var n = 0; n < 3; n++){
+		if( this.current == rulesIf[n] && conditionCheck( this.aliveNeighbours, rulesThan[n], rulesAnd[n]  ) ){
+		this.current = rulesThen[n];
+		}
 	}
-	else if ( this.aliveNeighbours == document.getElementById("deadAliveAt").value ){ this.current = true; }
-	else { this.current = false; }
-
+	
 	this.aliveNeighbours = 0;
 }
-	
+
+// Check a condition given a string operator
+
+function conditionCheck( count, value, condition ){
+	switch( condition ){
+
+		case "<":
+			return count < value;
+			break;
+
+		case "=":
+			return count == value;
+			break;
+
+		case ">":
+			return count > value;
+			break;
+	}
+}
+
+// update ruleset from HTML
+function updateRuleset(){
+	rulesIf 	= [( document.getElementById("AIf").value == "true"),( document.getElementById("BIf").value == "true"),( document.getElementById("CIf").value == "true")];
+	rulesAnd 	= [ document.getElementById("AAnd").value, document.getElementById("BAnd").value, document.getElementById("CAnd").value];
+	rulesThan 	= [ document.getElementById("AThan").value, document.getElementById("BThan").value, document.getElementById("CThan").value];
+	rulesThen 	= [( document.getElementById("AThen").value == "true"),( document.getElementById("BThen").value == "true"), (document.getElementById("CThen").value == "true")];
+
+	console.log(rulesIf);
+	console.log(rulesAnd);
+	console.log(rulesThan);
+	console.log(rulesThen);
+}
+
+
 // ============ Array method for iterating through all members and applying cell::method (foo) ===========
 
 Array.prototype.forAll = function( foo ){

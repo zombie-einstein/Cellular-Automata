@@ -29,6 +29,15 @@ var paused 			= true;	// Simulation status switch
 		
 var topology		= document.getElementById("topology").value;
 
+// Algorithm boolean conversion from HTML
+
+var rulesIf, rulesAnd, rulesThan, rulesThen	= [];
+//var rulesAnd		
+//var rulesThan
+//var rulesThen
+
+updateRuleset();
+
 // Initialize cells and render
 
 var CELLS = [];

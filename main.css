@@ -10,7 +10,9 @@
 
 .double	 {		border-right: thick double #ffffff; }
 
-.padding{	padding: 2px;	}
+.padding{	padding: 2px;
+			margin: 2px;
+		}
 
 h2	{	font-family:sans-serif;
 		margin:1px;

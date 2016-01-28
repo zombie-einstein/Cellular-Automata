@@ -53,21 +53,74 @@ Fork this project on<br>
 <hr class="main">
 
 <div id="algorithmA" class="main padding">
-Algorithm A:<br>
+Algorithm part A:<br>
+
+<form>
+If cell is
+  <select class="main" id="AIf">
+    <option value= 'true'  > Alive   </option>
+    <option value= 'false' > Dead  </option>
+  </select> and Num live neighbours is 
+  <select class="main" id="AAnd">
+    <option value= "<"  > <  </option>
+    <option value= "="  > =  </option>
+    <option value= ">"  > >  </option>
+  </select>
+  <input type="number" class="main" id="AThan" min="0" max="8" value ="2" step="1" > then the cell will be
+  <select class="main" id="AThen">
+    <option value= 'false' > Dead  </option>
+    <option value= 'true'  > Alive   </option>
+  </select>
+</form>
+
+</div>
+<div id="algorithmB" class="main padding">
+Algorithm part B:<br>
+
+<form>
+If cell is
+  <select class="main" id="BIf">
+    <option value= 'true'  > Alive   </option>
+    <option value= 'false' > Dead  </option>
+  </select> and Num live neighbours is 
+  <select class="main" id="BAnd">
+    <option value= ">"  > >  </option>
+    <option value= "="  > =  </option>
+    <option value= "<"  > <  </option>
+  </select>
+  <input type="number" class="main" id="BThan" min="0" max="8" value ="3" step="1" > then the cell will be
+  <select class="main" id="BThen">
+    <option value= 'false' > Dead  </option>
+    <option value= 'true'  > Alive   </option>
+  </select>
+</form>
 
 </div>
 
+<div id="algorithmC" class="main padding">
+Algorithm part C:<br>
+
+<form>
+If cell is
+  <select class="main" id="CIf">
+    <option value= 'false' > Dead  </option>
+    <option value= 'true'  > Alive   </option>
+  </select> and Num live neighbours is 
+  <select class="main" id="CAnd">
+    <option value= "="  > =  </option>
+    <option value= ">"  > >  </option>
+    <option value= "<"  > <  </option>
+  </select>
+  <input type="number" class="main" id="CThan" min="0" max="8" value ="3" step="1" > then the cell will be
+  <select class="main" id="CThen">
+    <option value= 'true'  > Alive   </option>
+    <option value= 'false' > Dead  </option>
+  </select>
+</form>
+
+</div>
+<button class="main padding" onclick="updateRuleset()"> Update  Ruleset </button><br>
 <form >
-
-  If Alive - Dead Below:
-  <input type="number" class="main" id="aliveDeadBelowValue" min="0" max="9" value ="2" step="1" >
-
-  Alive Below:
-  <input type="number" class="main" id="aliveAliveBelowValue" min="0" max="9" value ="4" step="1" >
-
-  If Dead - Alive if:
-  <input type="number" class="main" id="deadAliveAt" min="0" max="9" value ="3" step="1" ><br>
-
   Updating Method:
   <select name="Updating" id="updating" class="main" onchange="changeUpdateMethod()">
     <option value="simultaneous" >  simultaneous </option>
