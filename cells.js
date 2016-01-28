@@ -10,11 +10,11 @@ function cell( x, y ){
 	
 	this.location			= new vec(x,y);	// grid reference of cell
 
-	this.updateSignal 		= false;		// Indicates whether a cell should update this turn
+	this.updateSignal 		= false;		// Indicates whether a cell should update next turn
 
-	this.neighbours 		= [];			// Array of neighbour vectors, depending on topology
- 	
- 	this.findNeighbours( x, y );
+	this.updateThisTurn		= false;		// Used to flag cell to be updated 
+	
+	this.generateNeighbours( );
 	
 }
 
@@ -53,6 +53,13 @@ cell.prototype.findNeighbours = function( x, y ){
 	}
 }
 
+// ======= Recalculate cell's neighbours =======//
+
+cell.prototype.generateNeighbours = function(){
+	this.neighbours 	= [];
+	this.findNeighbours( this.location.x, this.location.y );
+}
+
 // ======= Test if a co-ordinate outside canvas ======= //
 
 function isInside( vector ){
@@ -87,7 +94,7 @@ cell.prototype.update =function(){
 	}
 }
 
-// ======= // Apply cellular automota rules (values taken from HTML form) ======= //
+// ======= Apply cellular automota rules (values taken from HTML form) ======= //
 
 cell.prototype.applyRules = function(){
 
@@ -112,7 +119,8 @@ Array.prototype.forAll = function( foo ){
 	}
 }
 
-// Render individual cell function
+// ======= Render individual cell function ======= //
+
 cell.prototype.render = function(){
 	if ( this.current == true ){ renderCell( this.location, aliveColor ); }
 	else { renderCell( this.location, deadColor ); } 
@@ -120,12 +128,8 @@ cell.prototype.render = function(){
 
 // Switch state of individual cell
 cell.prototype.switch = function(){ this.current =!this.current; }
-// Update individual cells current state
-cell.prototype.futureToCurrent = function(){ this.current = this.future; }
 // Kill individual cell
-cell.prototype.kill = function(){ 
-	this.current = false;
-}
+cell.prototype.kill = function(){ this.current = false; }
 
 // Render all cells
 function renderAllCells(){ CELLS.forAll( testCell.render ); }
@@ -137,38 +141,45 @@ function updateAllCells(){
 
 	case "signal" :
 		
-		var updateArray = [];
-
+		// First mark cells to be updated this turn
 		for ( var n = 0; n < numCellsWidth; n++ ){
 			for ( var m = 0; m < numCellsHeight; m++ ){
 				if ( CELLS[n][m].updateSignal == true ){
-					updateArray.push( CELLS[n][m].location );
+					
+					CELLS[n][m].updateThisTurn = true;
+
 				}
 			}
 		}
+		// Update marked cells and send signal to neighbour 
+		for ( var n = 0; n < numCellsWidth; n++ ){
+			for ( var m = 0; m < numCellsHeight; m++ ){
+				if ( CELLS[n][m].updateThisTurn == true ){
+					
+					CELLS[n][m].update();
 
-		for ( var n = 0; n < updateArray.length; n++ ){
-			
-			var x = updateArray[n].x;
-			var y = updateArray[n].y;
+					for ( var i = 0; i < CELLS[n][m].neighbours.length; i++ ){
 
-			CELLS[x][y].update();
-
-			for ( var m = 0; m < CELLS[x][y].neighbours.length; m++ ){
-
-					CELLS[CELLS[x][y].neighbours[m].x][CELLS[x][y].neighbours[m].y].updateSignal = true;
+						CELLS[CELLS[n][m].neighbours[i].x][CELLS[n][m].neighbours[i].y].updateSignal = true;
 				
+					}
+
+				}
 			}
-		}	
-
-		for ( var n = 0; n < updateArray.length; n++ ){
-			
-			CELLS[updateArray[n].x][updateArray[n].y].updateSignal = false;
-
-			CELLS[updateArray[n].x][updateArray[n].y].applyRules();
-
 		}
-		
+		// Apply rules to marked cells, and reset their update signal so they don't update next turn
+		for ( var n = 0; n < numCellsWidth; n++ ){
+			for ( var m = 0; m < numCellsHeight; m++ ){
+				if ( CELLS[n][m].updateThisTurn == true ){
+					
+					CELLS[n][m].updateSignal = false;
+					CELLS[n][m].updateThisTurn = false;
+					CELLS[n][m].applyRules();
+
+				}
+			}
+		}
+			
 	break;
 
 	case "simultaneous" :

@@ -3,68 +3,130 @@
 
 <head>
 <meta charset="utf-8">
-<title>Cellular Automota</title>
+<title>Game of Life CA</title>
 <link rel="stylesheet" href="main.css">
 </head>
 
-<body onresize = "resizeFunction()">
+<body id= "body" onresize = "resizeFunction()">
 
-<canvas id="canvas" onclick="clickEvent(event)" >
-Too bad your browser does not support the HTML5 canvas.
-</canvas>
 
-<button onclick="stepSim()"		> Step 	</button>
-<button onclick="startSim()"	> Start </button>
-<button onclick="pauseSim()"	> Stop  </button>
-<button onclick="killAll()"		> Clear </button>
 
-<form style="display: inline;" >
-  Width:
-  <input type="number" id="numCellsWidthForm" min="2" max="1000" value ="100" step="1" >
-  cells
-</form>
-<form style="display: inline;" >
+<div id="menus"  class="main noBorder double">
+<div id="internal" class="main"> 
+<h2>By Zombie-Einstein</h2>
+Fork this project on<br>
+
+
+
+<h2> Controls </h2>
+<hr class="main">
+<button onclick="stepSim()"   class="main" > Step  </button>
+<button onclick="startSim()"  class="main" > Start </button>
+<button onclick="pauseSim()"  class="main" > Stop  </button>
+<button onclick="killAll()"   class="main" > Clear </button>
+
+<h2> Space </h2>
+<hr class="main">
+
+<form class="main">
+
+  Width:&nbsp;
+  <input type="number" class="main" id="numCellsWidthForm" min="2" max="1000" value ="100" step="1" >
+  cells <br>
   Height:
-  <input type="number" id="numCellsHeightForm" min="2" max="500" value ="50" step="1" >
-  cells
+  <input type="number" class="main" id="numCellsHeightForm" min="2" max="500" value ="50" step="1" >
+  cells <br>
+
 </form>
-<button onclick="updateGrid()"		> Update </button>
-
-<form style="display: inline;">
-  If Alive - Dead Below:
-  <input type="number" id="aliveDeadBelowValue" min="0" max="9" value ="2" step="1" >
-
-  Alive Below:
-  <input type="number" id="aliveAliveBelowValue" min="0" max="9" value ="4" step="1" >
-
-  If Dead - Alive if:
-  <input type="number" id="deadAliveAt" min="0" max="9" value ="3" step="1" >
-</form>
-
+  <button class="main" onclick="updateGrid()"> Update size </button>
 <form>
 
-Presets:
-<select name="Presets" id="presets">
-  <option value="single" >	single on/off	</option>
-  <option disabled       > ─── Stationary ───</option>
-  <option value="block"	 >	block			</option>
-  <option value="beehive">	beehive			</option>
-  <option disabled 		 > ─── Spaceship ───</option>
-  <option value="glider" >	glider			</option>
-  <option value="LWSS"	 > 	LWSS			</option>
-</select>
-Updating:
-<select name="Updating" id="updating" onchange="changeUpdateMethod()">
-  <option value="simultaneous" >  simultaneous </option>
-  <option value="signal"       >  signal       </option>
-</select>
-Topology:
-<select name="Topology" id="topology" onchange="changeTopology()">
-  <option value="torus" >  torus </option>
-  <option value="flat"  >  flat  </option>
-</select>
+  Topology:
+  <select name="Topology" class="main" id="topology" onchange="changeTopology()">
+    <option value="torus" >  torus </option>
+    <option value="flat"  >  flat  </option>
+  </select>
 
 </form>
+
+<h2> Algorithm </h2>
+<hr class="main">
+
+<div id="algorithmA" class="main padding">
+Algorithm A:<br>
+
+</div>
+
+<form >
+
+  If Alive - Dead Below:
+  <input type="number" class="main" id="aliveDeadBelowValue" min="0" max="9" value ="2" step="1" >
+
+  Alive Below:
+  <input type="number" class="main" id="aliveAliveBelowValue" min="0" max="9" value ="4" step="1" >
+
+  If Dead - Alive if:
+  <input type="number" class="main" id="deadAliveAt" min="0" max="9" value ="3" step="1" ><br>
+
+  Updating Method:
+  <select name="Updating" id="updating" class="main" onchange="changeUpdateMethod()">
+    <option value="simultaneous" >  simultaneous </option>
+    <option value="signal"       >  signal       </option>
+  </select>
+
+</form>
+
+<h2> Cells </h2>
+<hr class="main">
+Insert:
+<form>
+
+  <select name="Presets" id="presets" class="main" >
+    <option value="single" >  single on/off </option>
+    <option disabled       > ── Stationary ──</option>
+    <option value="block"  >  block     </option>
+    <option value="beehive">  beehive     </option>
+    <option disabled       > ── Spaceship ───</option>
+    <option value="glider" >  glider      </option>
+    <option value="LWSS"   >  LWSS      </option>
+  </select>
+</form>
+
+<h2> Colours</h2>
+<hr class="main">
+
+<form> 
+  Dead Cells
+  <select name="DeadCells" class="main" id="deadColor" onchange="changeBackgroundColor()">
+    <option value="#0000ff"  > Blue   </option>
+    <option value="#006400"  > Green  </option>
+    <option value="#000000"  > Black  </option>
+    <option value="#ffffff"  > White  </option>
+  </select> <br>
+  Alive Cells
+  <select name="AliveCells" class="main" id="aliveColor" onchange="changeAliveColor()">
+    <option value="#ff0000"  > Red   </option>
+    <option value="#FFA500"  > Orange  </option>
+    <option value="#ffffff"  > White  </option>
+    <option value="#000000"  > Black  </option>
+  </select><br>
+  Text
+  <select name="TextColor" class="main" id="textColor" onchange="changeTextColor()">
+    <option value="#ffffff"  > White  </option>
+    <option value="#000000"  > Black  </option>
+    <option value="#ff0000"  > Red   </option>
+    <option value="#FFA500"  > Orange  </option>
+  </select>
+</form>
+
+</div>
+</div>
+
+
+
+<canvas id="canvas" class="main" onclick="clickEvent(event)" >
+Too bad your browser does not support the HTML5 canvas.
+</canvas>
 
 <script src="vector.js"			></script>
 <script src="cells.js"			></script>

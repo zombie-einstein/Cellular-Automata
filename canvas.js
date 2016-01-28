@@ -11,7 +11,8 @@ function updateGrid(){
 	cellHeight 		= canvasHeight / numCellsHeight;
 	CELLS = [];
 	createCells();
-	renderAllCells(); 
+	renderAllCells();
+	console.log("Updated grid succesfully");
 }
 
 function changeUpdateMethod(){
@@ -22,7 +23,6 @@ function changeUpdateMethod(){
 			for ( var m = 0; m < numCellsHeight; m++ ){
 				if ( CELLS[n][m].current == true ){
 					CELLS[n][m].updateSignal = true;
-					CELLS[n][m].pauseUpdate = true;
 				}
 			}
 		}
@@ -31,10 +31,8 @@ function changeUpdateMethod(){
 
 function changeTopology(){
 	topology = document.getElementById("topology").value;
-	pauseSim();
-	CELLS = [];
-	createCells();
-	renderAllCells();
+	pauseSim();	
+	CELLS.forAll( testCell.generateNeighbours );
 }
 
 // Animate
@@ -92,10 +90,10 @@ function getMousePos(canvas, evt) {
 
 // If the window is resized, resize the canvas and shift all the elements
 function resizeFunction() {
-	var xScaling 		= window.innerWidth / canvas.width ;
-	var yScaling 		= (window.innerHeight -100) / canvas.height ;
-	ctx.canvas.width  	= window.innerWidth;
-	ctx.canvas.height 	= window.innerHeight -100;
+	var xScaling 		= (window.innerWidth-document.getElementById("menus").offsetWidth) / canvasWidth ;
+	var yScaling 		= window.innerHeight / canvasHeight ;
+	ctx.canvas.width  	= window.innerWidth-document.getElementById("menus").offsetWidth;
+	ctx.canvas.height 	= window.innerHeight;
 	canvasWidth 		= canvas.width;
 	canvasHeight 		= canvas.height;
 	cellWidth 	*= xScaling;
@@ -145,3 +143,34 @@ function makeTitle(){
 	var title = createTitle();
 	CELLS.printPattern( titleLocation, title );
 }
+
+function changeBackgroundColor(){
+	deadColor	= document.getElementById("deadColor").value;
+	
+	document.getElementById("body").style.backgroundColor = deadColor;
+
+	renderAllCells();
+	
+	var elementsToChange = document.getElementsByClassName("main");
+	for ( var i = 0; i < elementsToChange.length; i++ ){
+		elementsToChange[i].style.backgroundColor = deadColor;
+	}
+}
+
+function changeAliveColor(){
+	aliveColor	= document.getElementById("aliveColor").value;
+	renderAllCells();
+}
+
+function changeTextColor(){
+	var textColor	= document.getElementById("textColor").value;
+	
+	//document.getElementById("svg2").style.fill = textColor;
+
+	var elementsToChange = document.getElementsByClassName("main");
+	for ( var i = 0; i < elementsToChange.length; i++ ){
+		elementsToChange[i].style.color = textColor;
+		elementsToChange[i].style.borderColor = textColor;
+	}
+}
+
