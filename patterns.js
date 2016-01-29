@@ -29,20 +29,21 @@ Array.prototype.printPattern = function( location, pattern ){
 					case 'O':
 
 					this[location.x+n][location.y+m].makeAlive();
-					this[location.x+n][location.y+m].render();
+					//this[location.x+n][location.y+m].render();
 
 					break;
 
 					case 'X':
 
 					this[location.x+n][location.y+m].kill();
-					this[location.x+n][location.y+m].render();
+					//this[location.x+n][location.y+m].render();
 
 					break;
 				
 				}}
 			}
 		}
+		renderAllCells();
 	}
 }
 

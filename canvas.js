@@ -52,13 +52,16 @@ function changeUpdateMethod(){
 
 	case "1-D":
 
+		// Can't be 1-D and von neumann
+		vonNeumann = false;
+		document.getElementById("vonneumann").value = "false";
+
 		// Clear and find new neighbours of remaining rows and re-render
 		for ( var n = 1; n < numCellsWidth; n++ ){
 			for ( var m = 0; m < numCellsHeight; m++ ){
 					CELLS[n][m].generateNeighbours();
 					CELLS[n][m].kill();
 					CELLS[n][m].killSignal();
-					CELLS[n][m].render();
 			}
 		}
 
@@ -69,6 +72,8 @@ function changeUpdateMethod(){
 					CELLS[0][m].killSignal();
 					CELLS[1][m].sendSignal();
 		}
+
+		renderAllCells();
 
 		console.log("Changed update method to 1-D");
 	
@@ -84,6 +89,20 @@ function getSimSpeed(){
 	pauseSim();
 	startSim();
 }
+
+// Change Von Neumann property
+function changeVonNeumann(){
+	pauseSim();
+	vonNeumann = document.getElementById("vonneumann").value == "true";
+	// Can't be von neumann and 1-D
+	if ( updateMethod == "1-D" ){ 
+		vonNeumann = false; 
+		document.getElementById("vonneumann").value = "false";
+		return; 
+	}
+	CELLS.forAll( testCell.generateNeighbours );
+}
+
 
 // Change the topology of the cell space
 
@@ -178,7 +197,8 @@ function clickEvent(event){
 
 		case "single":
 			CELLS[mouseVec.x][mouseVec.y].switch();
-			CELLS[mouseVec.x][mouseVec.y].render();
+			//CELLS[mouseVec.x][mouseVec.y].render();
+			renderAllCells();
 			break;
 
 		case "glider":

@@ -52,6 +52,8 @@ var paused 			= true;	// Simulation status switch
 		
 var topology		= document.getElementById("topology").value;
 
+var vonNeumann		= document.getElementById("vonneumann").value == "true";
+
 // Initialize ruleset variables and convert booleans HTML
 
 var rulesIf, rulesAnd, rulesThan, rulesThen	= [];

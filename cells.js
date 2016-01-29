@@ -34,6 +34,9 @@ cell.prototype.generateNeighbours = function( ){
 	this.neighbours[6] 		= new vec( this.location.x +1, this.location.y    );
 	this.neighbours[7] 		= new vec( this.location.x +1, this.location.y +1 );
 
+	// Restrict cells if von neumann is true
+	if ( vonNeumann ){ this.neighbours = [this.neighbours[1],this.neighbours[3],this.neighbours[4],this.neighbours[6]]; }
+
 	// Restrict cells if using 1-D algorithm
 	if ( updateMethod == "1-D" ){ this.applyOneD( numCellsWidth, numCellsHeight ); }		
 
@@ -177,7 +180,7 @@ function applyMethod( functional, object ){
 
 cell.prototype.render = function(){
 	if ( this.current == true ){ renderCell( this.location, aliveColor ); }
-	else { renderCell( this.location, deadColor ); } 
+	//else { renderCell( this.location, deadColor ); } 
 }
 
 // Switch state of individual cell

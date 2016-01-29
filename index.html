@@ -55,11 +55,15 @@ faster &#8674; slower
 <form>
 
   Topology:
-  <select name="Topology" class="main" id="topology" onchange="changeTopology()">
+  <select class="main" id="topology" onchange="changeTopology()">
     <option value="torus" >  torus </option>
     <option value="flat"  >  flat  </option>
-  </select>
-
+  </select><br>  
+  Von Neumann:
+  <select class="main" id="vonneumann" onchange="changeVonNeumann()">
+    <option value="false" >  false </option>
+    <option value="true"  >  true  </option>
+  </select><br>
 </form>
 
 <h2 class="bordersTop"> Algorithm </h2>
