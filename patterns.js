@@ -1,10 +1,16 @@
 'use strict';
 
+//******** Pattern class, printer and templates ********//
+
+// Blank pattern constructor
+
 function pattern(x,y){
-	this.area = new vec(x,y);
-	this.livePoints = [];
-	this.map = [];
+	this.area = new vec(x,y);	// Size of pattern
+	this.livePoints = [];		// Points to mark for update (not used yet)
+	this.map = [];				// Array of lines for pattern
 }
+
+//  Pattern printer onto cells
 
 Array.prototype.printPattern = function( location, pattern ){
 	if ( pattern.area.x > numCellsWidth || pattern.area.y > numCellsHeight ){
@@ -14,19 +20,95 @@ Array.prototype.printPattern = function( location, pattern ){
 	else{
 		for ( var n = 0; n < pattern.map.length; n++ ){
 			for ( var m = 0; m < pattern.map[n].length; m++ ){
-				if ( pattern.map[n][m] == 'O' ){
-					this[location.x+n][location.y+m].current = true;
+
+				if ( location.x+n >= 0 && location.x+n < numCellsWidth &&  
+					 location.y+m >= 0 && location.y+m < numCellsHeight ){
+
+				switch( pattern.map[n][m] ){
+
+					case 'O':
+
+					this[location.x+n][location.y+m].makeAlive();
 					this[location.x+n][location.y+m].render();
-				}
-				else{
-					this[location.x+n][location.y+m].current = false;
+
+					break;
+
+					case 'X':
+
+					this[location.x+n][location.y+m].kill();
 					this[location.x+n][location.y+m].render();
-				}
+
+					break;
+				
+				}}
 			}
 		}
 	}
 }
 
+// Pattern templates
+// Mainly taken from strutures defined for Conways games of life
+
+function createRandomBlock( x, y ){
+	var randomBlock = new pattern(x,y);
+
+	for ( var n = 0; n < x; n++ ){
+			randomBlock.map[n] = [];
+			for ( var m = 0; m < y; m++){
+				if  ( Math.random() >= 0.5 ){ randomBlock.map[n][m] = 'X'; }
+				else{ randomBlock.map[n][m] = 'O'; }
+			}
+	}
+
+	return randomBlock;
+
+}
+
+// Gosper glider gun
+function createGospelGun(){
+	var gospelGun = new pattern(36,9);
+
+	gospelGun.map[0]		= 'XXXXOOXXX';
+	gospelGun.map[1]		= 'XXXXOOXXX';
+	gospelGun.map[2]		= 'XXXXXXXXX';
+	gospelGun.map[3]		= 'XXXXXXXXX';
+	gospelGun.map[4]		= 'XXXXXXXXX';
+	gospelGun.map[5]		= 'XXXXXXXXX';
+	gospelGun.map[6]		= 'XXXXXXXXX';
+	gospelGun.map[7]		= 'XXXXXXXXX';
+	gospelGun.map[8]		= 'XXXXXXXXX';
+	gospelGun.map[9]		= 'XXXXXXXXX';
+	gospelGun.map[10]		= 'XXXXOOOXX';
+	gospelGun.map[11]		= 'XXXOXXXOX';
+	gospelGun.map[12]		= 'XXOXXXXXO';
+	gospelGun.map[13]		= 'XXOXXXXXO';
+	gospelGun.map[14]		= 'XXXXXOXXX';
+	gospelGun.map[15]		= 'XXXOXXXOX';
+	gospelGun.map[16]		= 'XXXXOOOXX';
+	gospelGun.map[17]		= 'XXXXXOXXX';
+	gospelGun.map[18]		= 'XXXXXXXXX';
+	gospelGun.map[19]		= 'XXXXXXXXX';
+	gospelGun.map[20]		= 'XXOOOXXXX';
+	gospelGun.map[21]		= 'XXOOOXXXX';
+	gospelGun.map[22]		= 'XOXXXOXXX';
+	gospelGun.map[23]		= 'XXXXXXXXX';
+	gospelGun.map[24]		= 'OOXXXOOXX';
+	gospelGun.map[25]		= 'XXXXXXXXX';
+	gospelGun.map[26]		= 'XXXXXXXXX';
+	gospelGun.map[27]		= 'XXXXXXXXX';
+	gospelGun.map[28]		= 'XXXXXXXXX';
+	gospelGun.map[29]		= 'XXXXXXXXX';
+	gospelGun.map[30]		= 'XXXXXXXXX';
+	gospelGun.map[31]		= 'XXXXXXXXX';
+	gospelGun.map[32]		= 'XXXXXXXXX';
+	gospelGun.map[33]		= 'XXXXXXXXX';
+	gospelGun.map[34]		= 'XXOOXXXXX';
+	gospelGun.map[35]		= 'XXOOXXXXX';
+
+	return gospelGun;
+}
+
+// Lightweight spaceship
 function createLWSS(){
 	var LWSS = new pattern(5,4);
 
@@ -39,8 +121,9 @@ function createLWSS(){
 	return LWSS;
 }
 
+// Glider
 function createGlider(){
-	var glider = new pattern(3,2);
+	var glider = new pattern(3,3);
 
 	glider.map[0]	= 'XXO';
 	glider.map[1]	= 'OXO';
@@ -49,6 +132,7 @@ function createGlider(){
 	return glider;
 }
 
+// Stationary Block
 function createBlock(){
 	var block = new pattern(2,2);
 
@@ -58,6 +142,7 @@ function createBlock(){
 	return block;
 }
 
+// Stationary beehive
 function createBeehive(){
 	var beehive = new pattern(4,3);
 
@@ -69,6 +154,7 @@ function createBeehive(){
 	return beehive;
 }
 
+// "Game Of Life Title"
 function createTitle(){
 	var title = new pattern(20,20);
 	// - G - O - L -

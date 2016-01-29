@@ -1,6 +1,15 @@
 'use strict';
 
-// ***** Variable Declerations *****
+//******************************************************//
+// MAIN SCRIPT STARTS HERE:                             //
+// - Set size of canvas                                 //
+// - Set size of cells                                  //
+// - Declare variables that require global scope        //
+// - Generate and render the initial screen             //
+//                                                      // 
+//******************************************************//   
+
+// Set canvas size
 
 var canvas 			= document.getElementById("canvas");
 var ctx 			= canvas.getContext("2d");
@@ -10,31 +19,42 @@ var canvasWidth 	= canvas.width;
 var canvasHeight 	= canvas.height;
 
 // Get number of cells from HTMl and thus calculate height of single cell
+
 var numCellsWidth  	= Math.floor(document.getElementById("numCellsWidthForm").value);
 var cellWidth 		= canvasWidth / numCellsWidth;
 
 // Calculate number of cells that most closely produces an integer number of square cells
+
 var numCellsHeight 	= Math.round( canvasHeight / cellWidth ); 
 document.getElementById("numCellsHeightForm").value = numCellsHeight;
 var cellHeight 		= canvasHeight / numCellsHeight;
 
+// Get cell colouring from HTML
+
 var aliveColor		= document.getElementById("aliveColor").value;
 var deadColor		= document.getElementById("deadColor").value;
 
+// Get updating methid from HTML
+
 var updateMethod	= document.getElementById("updating").value;
 
-var timeStep;	// Initialize timestep variable outside scope of animation function
+// Initialize timestep variable outside scope of animation function
+
+var testCell 		= new cell(0,0);	// blank cell to use for method application
+
+var timeStep;	
+
+var simSpeed 		= document.getElementById("speedRange").value;
 
 var paused 			= true;	// Simulation status switch
+
+// Get topology from HTML
 		
 var topology		= document.getElementById("topology").value;
 
-// Algorithm boolean conversion from HTML
+// Initialize ruleset variables and convert booleans HTML
 
 var rulesIf, rulesAnd, rulesThan, rulesThen	= [];
-//var rulesAnd		
-//var rulesThan
-//var rulesThen
 
 updateRuleset();
 
@@ -42,11 +62,11 @@ updateRuleset();
 
 var CELLS = [];
 
-createCells();
-
-var testCell = new cell(0,0);	// blank cell to generate methods to apply
+CELLS.createCells( numCellsWidth, numCellsHeight );
 
 renderAllCells();
+
+ 
 
 // Write title in cells
 

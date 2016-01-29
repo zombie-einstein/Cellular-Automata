@@ -1,9 +1,11 @@
 'use strict';
 
-// ************ Functions ******************
+// ************ Functions that make changes to the canvas ******************
 
 // Update number and size of cells when changed
+
 function updateGrid(){
+	
 	pauseSim();
 
 	numCellsWidth 	= Math.floor(document.getElementById("numCellsWidthForm").value);
@@ -12,41 +14,50 @@ function updateGrid(){
 	cellWidth 		= canvasWidth / numCellsWidth; 
 	cellHeight 		= canvasHeight / numCellsHeight;
 
-
 	CELLS = [];
-	createCells();
+
+	CELLS.createCells( numCellsWidth, numCellsHeight );
+
 	renderAllCells();
+
 	console.log("Updated grid succesfully");
 }
 
 // Change the method by which the cells will update
 
 function changeUpdateMethod(){
+	
 	updateMethod = document.getElementById("updating").value;
 
 	switch ( updateMethod ){
 
 	case "signal":
+
+		// Kill all update signals then send them to live cells
+
 		for ( var n = 0; n < numCellsWidth; n++ ){
 			for ( var m = 0; m < numCellsHeight; m++ ){
+
+				CELLS[n][m].killSignal();
+
 				if ( CELLS[n][m].current == true ){
-					CELLS[n][m].updateSignal = true;
+					CELLS[n][m].sendSignal();
 				}
 			}
 		}
-		console.log("Changed update method to signal");
+	
+	console.log("Changed update method to signal");
 
 	break;
 
 	case "1-D":
-
-		topology = "1-D";
 
 		// Clear and find new neighbours of remaining rows and re-render
 		for ( var n = 1; n < numCellsWidth; n++ ){
 			for ( var m = 0; m < numCellsHeight; m++ ){
 					CELLS[n][m].generateNeighbours();
 					CELLS[n][m].kill();
+					CELLS[n][m].killSignal();
 					CELLS[n][m].render();
 			}
 		}
@@ -55,14 +66,23 @@ function changeUpdateMethod(){
 		// mark the next row for update next turn 
 		for ( var m = 0; m < numCellsHeight; m++ ){
 					CELLS[0][m].generateNeighbours();
-					CELLS[0][m].updateSignal = false;
-					CELLS[1][m].updateSignal = true;
+					CELLS[0][m].killSignal();
+					CELLS[1][m].sendSignal();
 		}
+
 		console.log("Changed update method to 1-D");
 	
 	break;
 
 	}
+}
+
+// Get sim speed from HTML
+
+function getSimSpeed(){
+	simSpeed = document.getElementById("speedRange").value;
+	pauseSim();
+	startSim();
 }
 
 // Change the topology of the cell space
@@ -74,15 +94,18 @@ function changeTopology(){
 }
 
 // Animate function called at each timestep
+
 function animate(){
 	updateAllCells();
 	renderAllCells();
 }
 
 // Step simulation
+
 function stepSim(){ animate(); }
 
 // Render a square cell at a vector location
+
 function renderCell( location , color ){
 	ctx.beginPath();
 	ctx.moveTo( location.x*cellWidth, location.y*cellHeight );
@@ -94,6 +117,7 @@ function renderCell( location , color ){
 }
 
 // Render Line
+
 function renderLine( start, end, color ){
 	ctx.beginPath();
 	ctx.moveTo( start.x, start.y );
@@ -103,15 +127,17 @@ function renderLine( start, end, color ){
 }
 
 // Run simulation function
+
 function startSim(){
 	if( paused == true ){ 
-	timeStep = setInterval( animate, 200 ); 
+	timeStep = setInterval( animate, simSpeed ); 
 	paused	 = false; 
 	}
 	else { return; }
 }
 
 // Pause Simulation function
+
 function pauseSim(){
 	if( paused == false ){ 
 	clearInterval( timeStep );
@@ -120,6 +146,7 @@ function pauseSim(){
 }
 
 // Mouse position relative to canvas
+
 function getMousePos(canvas, evt) {
     var rect 		= canvas.getBoundingClientRect();
 	var mousePos 	= new vec(evt.clientX - rect.left,evt.clientY - rect.top);
@@ -172,6 +199,26 @@ function clickEvent(event){
 		case "LWSS":
 			var LWSS = createLWSS();
 			CELLS.printPattern( mouseVec, LWSS );
+			break;
+
+		case "gospelgun":
+			var gospelGun = createGospelGun();
+			CELLS.printPattern( mouseVec, gospelGun );
+			break;
+
+		case "random5":
+			var random = createRandomBlock(5,5);
+			CELLS.printPattern( mouseVec, random );
+			break;
+
+		case "random10":
+			var random = createRandomBlock(10,10);
+			CELLS.printPattern( mouseVec, random );
+			break;
+
+		case "random50":
+			var random = createRandomBlock(50,50);
+			CELLS.printPattern( mouseVec, random );
 			break;
 	}
 }

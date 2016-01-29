@@ -35,6 +35,10 @@ Fork this project on<br>
 <button onclick="startSim()"  class="main" > Start </button>
 <button onclick="pauseSim()"  class="main" > Stop  </button>
 <button onclick="killAll()"   class="main" > Clear </button>
+<strong>Speed:</strong>
+faster &#8674; slower
+<input type="range" class="main slider-width100" id="speedRange" value="1000" max="2000" min="5">
+<button onclick="getSimSpeed()"   class="main" > Update </button>
 
 <h2 class="bordersTop"> Space </h2>
 <form class="main">
@@ -154,6 +158,13 @@ When paused, click on a cell to:
     <option disabled       > ── Spaceships ───</option>
     <option value="glider" >  Insert glider      </option>
     <option value="LWSS"   >  Insert LWSS      </option>
+    <option disabled       > ── Guns ───</option>
+    <option value="gospelgun" >  Insert gospel gun      </option>
+    <option disabled       > ── Random blocks ───</option>
+    <option value="random5" >  Insert 5x5      </option>
+    <option value="random10" >  Insert 10x10      </option>
+    <option value="random50" >  Insert 50x50      </option>
+
   </select>
 </form>
 
