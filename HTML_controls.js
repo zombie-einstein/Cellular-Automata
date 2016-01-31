@@ -134,3 +134,104 @@ function updateRuleset(){
 
 	console.log("Rules updated");
 }
+
+// Change the method by which the cells will update
+
+function changeUpdateMethod(){
+	
+	updateMethod = document.getElementById("updating").value;
+
+	switch ( updateMethod ){
+
+	case "signal":
+
+		// Kill all update signals then send them to live cells
+
+		for ( var n = 0; n < numCellsWidth; n++ ){
+			for ( var m = 0; m < numCellsHeight; m++ ){
+
+				CELLS[n][m].killSignal();
+
+				if ( CELLS[n][m].current == true ){
+					CELLS[n][m].sendSignal();
+				}
+			}
+		}
+	
+	console.log("Changed update method to signal");
+
+	break;
+
+	case "1-D":
+
+		// Can't be 1-D and von neumann
+		vonNeumann = false;
+		document.getElementById("vonneumann").value = "false";
+
+		// Clear and find new neighbours of remaining rows and re-render
+		for ( var n = 1; n < numCellsWidth; n++ ){
+			for ( var m = 0; m < numCellsHeight; m++ ){
+					CELLS[n][m].generateNeighbours();
+					CELLS[n][m].kill();
+					CELLS[n][m].killSignal();
+			}
+		}
+
+		// Update the neighbours of the first row and
+		// mark the next row for update next turn 
+		for ( var m = 0; m < numCellsHeight; m++ ){
+					CELLS[0][m].generateNeighbours();
+					CELLS[0][m].killSignal();
+					CELLS[1][m].sendSignal();
+		}
+
+		renderAllCells();
+
+		console.log("Changed update method to 1-D");
+	
+	break;
+
+	}
+}
+
+// Change background & dead cell color from HTML element and re-render
+
+function changeBackgroundColor(){
+	deadColor	= document.getElementById("deadColor").value;
+	
+	document.getElementById("body").style.backgroundColor = deadColor;
+
+	renderAllCells();
+	
+	// Update color of HTML elements
+	var elementsToChange = document.getElementsByClassName("main");
+	for ( var i = 0; i < elementsToChange.length; i++ ){
+		elementsToChange[i].style.backgroundColor = deadColor;
+	}
+}
+
+// Change the color of alive cells and re-render
+
+function changeAliveColor(){
+	aliveColor	= document.getElementById("aliveColor").value;
+	renderAllCells();
+}
+
+// Change text and logo colors using HTML element
+
+function changeTextColor(){
+	var textColor	= document.getElementById("textColor").value;
+	
+	document.getElementById("logo").style.fill = textColor;
+
+	var elementsToChange = document.getElementsByClassName("main");
+	for ( var i = 0; i < elementsToChange.length; i++ ){
+		elementsToChange[i].style.color = textColor;
+		elementsToChange[i].style.borderColor = textColor;
+	}
+	var elementsToChange = document.getElementsByClassName("bordersTop");
+	for ( var i = 0; i < elementsToChange.length; i++ ){
+		elementsToChange[i].style.color = textColor;
+		elementsToChange[i].style.borderColor = textColor;
+	}
+}

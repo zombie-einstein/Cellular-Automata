@@ -76,10 +76,12 @@ makeTitle();
 
 console.log("Loaded Succesfully");
 
+// Create ruleset and intitially load game of life
 var currentRuleSet = new ruleSet();
 
 currentRuleSet.loadPreset( presets.gameOfLife );
 
+// Generate HTML rulset inputs and set values
 currentRuleSet.makeHTML();
 currentRuleSet.setHTML();
 
