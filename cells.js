@@ -117,11 +117,11 @@ cell.prototype.update =function(){
 
 cell.prototype.applyRules = function(){
 
-	for( var n = 0; n < rulesIf.length; n++){
-		if( this.current == rulesIf[n] && this.conditionCheck( rulesThan[n], rulesAnd[n]  ) ){
-		this.current = rulesThen[n];
+	for( var n = 0; n < currentRuleSet.number; n++){
+		if( this.current == currentRuleSet.if[n] && this.conditionCheck( currentRuleSet.than[n], currentRuleSet.and[n]  ) ){
+		this.current = currentRuleSet.then[n];
 		}
-	}
+	}	
 	
 	// reset neigbour count before next loop
 	this.aliveNeighbours = 0;
@@ -146,7 +146,7 @@ cell.prototype.conditionCheck = function( value, condition ){
 	}
 }
 
-// update ruleset from HTML forms
+/*// update ruleset from HTML forms
 
 function updateRuleset(){
 	rulesIf 	= [( document.getElementById("AIf").value == "true"),( document.getElementById("BIf").value == "true"),( document.getElementById("CIf").value == "true")];
@@ -159,7 +159,7 @@ function updateRuleset(){
 	console.log("than",rulesThan);
 	console.log("then",rulesThen);
 }
-
+*/
 
 // Array method for iterating through all members and applying cell method 
 

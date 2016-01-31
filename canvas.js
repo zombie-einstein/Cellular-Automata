@@ -2,27 +2,6 @@
 
 // ************ Functions that make changes to the canvas ******************
 
-// Update number and size of cells when changed
-
-function updateGrid(){
-	
-	pauseSim();
-
-	numCellsWidth 	= Math.floor(document.getElementById("numCellsWidthForm").value);
-	numCellsHeight 	= Math.floor(document.getElementById("numCellsHeightForm").value);
-
-	cellWidth 		= canvasWidth / numCellsWidth; 
-	cellHeight 		= canvasHeight / numCellsHeight;
-
-	CELLS = [];
-
-	CELLS.createCells( numCellsWidth, numCellsHeight );
-
-	renderAllCells();
-
-	console.log("Updated grid succesfully");
-}
-
 // Change the method by which the cells will update
 
 function changeUpdateMethod(){
@@ -80,36 +59,6 @@ function changeUpdateMethod(){
 	break;
 
 	}
-}
-
-// Get sim speed from HTML
-
-function getSimSpeed(){
-	simSpeed = document.getElementById("speedRange").value;
-	pauseSim();
-	startSim();
-}
-
-// Change Von Neumann property
-function changeVonNeumann(){
-	pauseSim();
-	vonNeumann = document.getElementById("vonneumann").value == "true";
-	// Can't be von neumann and 1-D
-	if ( updateMethod == "1-D" ){ 
-		vonNeumann = false; 
-		document.getElementById("vonneumann").value = "false";
-		return; 
-	}
-	CELLS.forAll( testCell.generateNeighbours );
-}
-
-
-// Change the topology of the cell space
-
-function changeTopology(){
-	topology = document.getElementById("topology").value;
-	pauseSim();	
-	CELLS.forAll( testCell.generateNeighbours );
 }
 
 // Animate function called at each timestep

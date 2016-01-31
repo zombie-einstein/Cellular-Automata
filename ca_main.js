@@ -58,7 +58,7 @@ var vonNeumann		= document.getElementById("vonneumann").value == "true";
 
 var rulesIf, rulesAnd, rulesThan, rulesThen	= [];
 
-updateRuleset();
+//updateRuleset();
 
 // Initialize cells and render
 
@@ -76,4 +76,10 @@ makeTitle();
 
 console.log("Loaded Succesfully");
 
+var currentRuleSet = new ruleSet();
+
+currentRuleSet.loadPreset( presets.gameOfLife );
+
+currentRuleSet.makeHTML();
+currentRuleSet.setHTML();
 
