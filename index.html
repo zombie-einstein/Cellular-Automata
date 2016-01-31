@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="utf-8">
-<title>Game of Life CA</title>
+<title>Game of Life C.A.</title>
 <link rel="stylesheet" href="main.css">
 <link rel="shortcut icon" href="CA.ico">
 </head>
@@ -14,8 +14,10 @@
 
 <div id="menus"  class="main noBorder double">
 <div id="internal" class="main noBorder">
-<h1 class="main noBorder" style="margin: 5px"> GAME OF LIFE</h1>
-<h3>By Zombie-Einstein</h2>
+
+<h1 class="main noBorder" style="margin: 5px"> GAME OF LIFE </h1>
+<h3>By Zombie-Einstein</h3>
+
 <p >
 Cellular automaton based on John Conway's game of life. 
 At each turn each cell measures the state of it's neighbours and  
@@ -32,17 +34,21 @@ Fork this project on<br>
 
 
 <h2 class="bordersTop"> Controls </h2>
+
 <button onclick="stepSim()"   class="main" > Step  </button>
 <button onclick="startSim()"  class="main" > Start </button>
 <button onclick="pauseSim()"  class="main" > Stop  </button>
 <button onclick="killAll()"   class="main" > Clear </button>
+
 <strong>Speed:</strong>
+
 faster &#8674; slower
+
 <input type="range" class="main slider-width100" id="speedRange" value="1000" max="2000" min="5">
-<button onclick="getSimSpeed()"   class="main" > Update </button>
+<button class="main" onclick="getSimSpeed()" > Update </button>
 
 <h2 class="bordersTop"> Space </h2>
-<form class="main">
+<form class="main" onsubmit="return false" >
 
   Width:&nbsp;
   <input type="number" class="main" id="numCellsWidthForm" min="2" max="1000" value ="100" step="1" >
@@ -52,7 +58,9 @@ faster &#8674; slower
   cells <br>
 
 </form>
+
   <button class="main" onclick="updateGrid()"> Clear Cells & Update Size </button>
+
 <form>
 
   Topology:
@@ -69,75 +77,19 @@ faster &#8674; slower
 
 <h2 class="bordersTop"> Algorithm </h2>
 
-<div id="algorithmA" class="main padding">
-Algorithm part A:<br>
-
-<form>
-If cell is
-  <select class="main" id="AIf">
-    <option value= 'true'  > Alive   </option>
-    <option value= 'false' > Dead  </option>
-  </select> and &#8470; of live neighbours is 
-  <select class="main" id="AAnd">
-    <option value= "<"  > <  </option>
-    <option value= "="  > =  </option>
-    <option value= ">"  > >  </option>
-  </select>
-  <input type="number" class="main" id="AThan" min="0" max="8" value ="2" step="1" > then the cell will be
-  <select class="main" id="AThen">
-    <option value= 'false' > Dead  </option>
-    <option value= 'true'  > Alive   </option>
-  </select>
+<form class="main" name= "ruleformtop" onsubmit="return false">
+  Load Preset Rules
+  <select class="main" id="loadpreset" onchange="loadAndUpdatePreset()"> </select><br>
+  Number of Rules:
+  <input type="number" class="main" id="numberofrules" min="1" max="20" step="1" onchange="updateNumRules()" >
 </form>
 
-</div>
-<div id="algorithmB" class="main padding">
-Algorithm part B:<br>
+<!-- Rule forms are generated here by javascript -->
 
-<form>
-If cell is
-  <select class="main" id="BIf">
-    <option value= 'true'  > Alive   </option>
-    <option value= 'false' > Dead  </option>
-  </select> and &#8470; of live neighbours is 
-  <select class="main" id="BAnd">
-    <option value= ">"  > >  </option>
-    <option value= "="  > =  </option>
-    <option value= "<"  > <  </option>
-  </select>
-  <input type="number" class="main" id="BThan" min="0" max="8" value ="3" step="1" > then the cell will be
-  <select class="main" id="BThen">
-    <option value= 'false' > Dead  </option>
-    <option value= 'true'  > Alive   </option>
-  </select>
-</form>
-
-</div>
-
-<div id="algorithmC" class="main padding">
-Algorithm part C:<br>
-
-<form>
-If cell is
-  <select class="main" id="CIf">
-    <option value= 'false' > Dead  </option>
-    <option value= 'true'  > Alive   </option>
-  </select> and &#8470; of live neighbours is 
-  <select class="main" id="CAnd">
-    <option value= "="  > =  </option>
-    <option value= ">"  > >  </option>
-    <option value= "<"  > <  </option>
-  </select>
-  <input type="number" class="main" id="CThan" min="0" max="8" value ="3" step="1" > then the cell will be
-  <select class="main" id="CThen">
-    <option value= 'true'  > Alive   </option>
-    <option value= 'false' > Dead  </option>
-  </select>
-</form>
-
-</div>
 <button class="main padding centred" onclick="updateRuleset()"> Update  Ruleset </button><br>
+
 <form >
+
   Choose Updating Method
   <p> <strong>Simultaneous:</strong> All cells update every turn </p>
   <p> <strong>Signal:</strong> If a cell updates it cannot update next turn but sends a signal to neighbours to update next turn   </p>
@@ -146,38 +98,40 @@ If cell is
   <select name="Updating" id="updating" class="main" onchange="changeUpdateMethod()">
     <option value="simultaneous" >  Simultaneous </option>
     <option value="signal"       >  Signal       </option>
-    <option value="1-D"       >  1-Dimensional</option>
+    <option value="1-D"          >  1-Dimensional</option>
   </select>
 
 </form>
 
 <h2 class="bordersTop"> Cells </h2>
+
 When paused, click on a cell to:
+
 <form>
 
   <select name="Presets" id="presets" class="main" >
-    <option value="single" >  Toggle single cell on/off </option>
-    <option disabled       > ── Stationary ──</option>
-    <option value="block"  >  Insert block     </option>
-    <option value="beehive">  Insert beehive     </option>
-    <option disabled       > ── Spaceships ───</option>
-    <option value="glider" >  Insert glider      </option>
-    <option value="LWSS"   >  Insert LWSS      </option>
-    <option disabled       > ── Guns ───</option>
-    <option value="gospelgun" >  Insert gospel gun      </option>
-    <option disabled       > ── Random blocks ───</option>
-    <option value="random5" >  Insert 5x5      </option>
-    <option value="random10" >  Insert 10x10      </option>
-    <option value="random50" >  Insert 50x50      </option>
+    <option value="single"    >  Toggle single cell on/off  </option>
+    <option disabled          > ── Stationary ───           </option>
+    <option value="block"     >  Insert block               </option>
+    <option value="beehive"   >  Insert beehive             </option>
+    <option disabled          > ── Spaceships ───           </option>
+    <option value="glider"    >  Insert glider              </option>
+    <option value="LWSS"      >  Insert LWSS                </option>
+    <option disabled          > ── Guns ───                 </option>
+    <option value="gospelgun" >  Insert gospel gun          </option>
+    <option disabled          > ── Random blocks ───        </option>
+    <option value="random5"   >  Insert 5x5                 </option>
+    <option value="random10"  >  Insert 10x10               </option>
+    <option value="random50"  >  Insert 50x50               </option>
 
   </select>
 </form>
 
-<h2 class="bordersTop"> Colours</h2>
+<h2 class="bordersTop"> Colours </h2>
 
 <form> 
   Dead Cells
-  <select name="DeadCells" class="main" id="deadColor" onchange="changeBackgroundColor()">
+  <select name="DeadCells"  class="main" id="deadColor"  onchange="changeBackgroundColor()">
     <option value="#0000ff"  > Blue   </option>
     <option value="#006400"  > Green  </option>
     <option value="#000000"  > Black  </option>
@@ -185,17 +139,17 @@ When paused, click on a cell to:
   </select> <br>
   Alive Cells
   <select name="AliveCells" class="main" id="aliveColor" onchange="changeAliveColor()">
-    <option value="#ff0000"  > Red   </option>
-    <option value="#FFA500"  > Orange  </option>
+    <option value="#ff0000"  > Red    </option>
+    <option value="#FFA500"  > Orange </option>
     <option value="#ffffff"  > White  </option>
     <option value="#000000"  > Black  </option>
   </select><br>
   Text
-  <select name="TextColor" class="main" id="textColor" onchange="changeTextColor()">
+  <select name="TextColor" class="main" id="textColor"   onchange="changeTextColor()">
     <option value="#ffffff"  > White  </option>
     <option value="#000000"  > Black  </option>
-    <option value="#ff0000"  > Red   </option>
-    <option value="#FFA500"  > Orange  </option>
+    <option value="#ff0000"  > Red    </option>
+    <option value="#FFA500"  > Orange </option>
   </select>
 </form>
 
@@ -208,11 +162,13 @@ When paused, click on a cell to:
 Too bad your browser does not support the HTML5 canvas.
 </canvas>
 
-<script src="vector.js"			></script>
-<script src="cells.js"			></script>
-<script src="canvas.js"			></script>
-<script src="patterns.js"		></script>
-<script src="ca_main.js"		></script>
+<script src="vector.js"			    ></script>
+<script src="cells.js"			    ></script>
+<script src="canvas.js"			    ></script>
+<script src="patterns.js"		    ></script>
+<script src="ruleset.js"        ></script>
+<script src="HTML_controls.js"	></script>
+<script src="ca_main.js"        ></script>
 
 </body>
 
