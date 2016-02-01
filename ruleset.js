@@ -4,32 +4,56 @@
 
 function ruleSet(){
 
-	this.name;
-	this.number;
+	this.name;				// Ruleset name
+	this.number;			// Number of rules
 
-	this.if 		= [];
-	this.and 		= [];
-	this.than		= [];
-	this.then 		= [];
+	this.if 		= [];	// Array of "if current state" conditions
+	this.and 		= [];	// Array of "and condition" conditions
+	this.than		= [];	// Array of "than value" conditions
+	this.then 		= [];	// Array of "then future state" conditions
 
 }
 
 // Load a preset ruleset
 
 ruleSet.prototype.loadPreset = function( preset ){
-	this.number 	= preset.number;
-	for ( var n = 0; n < this.number; n++ ){
-		this.if[n]		= preset.if[n];
-		this.and[n] 	= preset.and[n];
-		this.than[n]	= preset.than[n];
-		this.then[n]	= preset.then[n];
-	}
-	//this.if 		= preset.if;
-	//this.and 		= preset.and;
-	//this.than		= preset.than;
-	//this.then 		= preset.then;
+	
+	this.number = preset.number;
+	
+	this.if		= preset.if.slice();
+	this.and 	= preset.and.slice();
+	this.than	= preset.than.slice();
+	this.then	= preset.then.slice();
 
 	document.getElementById("numberofrules").value = preset.number;
+}
+
+// Make a random ruleset
+
+ruleSet.prototype.makeRandom = function(){
+
+	this.number = Math.round( Math.random()*14+1 );
+
+	this.if  	= [];
+	this.and 	= [];
+	this.than	= [];
+	this.then	= [];
+
+	for ( var n = 0; n < this.number; n++ ){
+
+		this.if[n]	 = Math.random() > 0.5;
+
+		var random 	 = Math.random()*3;
+
+		if ( random < 1 )	 { this.and[n] = "<"; }
+		else if( random < 2 ){ this.and[n] = "="; }
+		else	             { this.and[n] = ">"; }
+
+		this.than[n] = Math.round( Math.random()*8 );
+
+		this.then[n] = !this.if[n];
+	}
+
 }
 
 // Append the ruleset from the values from the HTML inputs
@@ -52,6 +76,8 @@ ruleSet.prototype.setHTML = function(){
 		document.getElementById( "than" + n.toString() ).value = this.than[n];
 		document.getElementById( "then" + n.toString() ).value = boolToString( this.then[n] );
 	}
+
+	document.getElementById("numberofrules").value = this.number;
 }
 
 // Clear HTML inputs

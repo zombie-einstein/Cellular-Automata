@@ -77,9 +77,16 @@ faster &#8674; slower
 
 <h2 class="bordersTop"> Algorithm </h2>
 
-<form class="main" name= "ruleformtop" onsubmit="return false">
+<form class="main" onsubmit="return false">
   Load Preset Rules
-  <select class="main" id="loadpreset" onchange="loadAndUpdatePreset()"> </select><br>
+  <select class="main" id="loadpreset" onchange="loadAndUpdatePreset()"> 
+      <option value="custom" >  Custom </option>
+  </select>
+</form>
+
+<button class="main" onclick="randomRuleSet()"> Random </button><br>
+
+<form class="main" name= "ruleformtop" onsubmit="return false">
   Number of Rules:
   <input type="number" class="main" id="numberofrules" min="1" max="20" step="1" onchange="updateNumRules()" >
 </form>

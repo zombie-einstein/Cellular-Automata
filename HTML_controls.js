@@ -91,6 +91,22 @@ function loadAndUpdatePreset(){
 	currentRuleSet.setHTML();
 }
 
+// make a randomRuleSet
+
+function randomRuleSet(){
+
+	// Clear current ruleset HTML forms
+	currentRuleSet.clearHTML();
+
+	currentRuleSet.makeRandom();
+
+	// Make update ruleset HTML forms & set values
+	currentRuleSet.makeHTML();
+	currentRuleSet.setHTML();
+	
+	document.getElementById("loadpreset").value = "custom";
+}
+
 // Change the number of rule definitions
 
 function updateNumRules(){
@@ -132,6 +148,7 @@ function updateRuleset(){
 
 	currentRuleSet.getRulesFromHTML();
 
+	document.getElementById("loadpreset").value = "custom";
 	console.log("Rules updated");
 }
 

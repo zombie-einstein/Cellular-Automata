@@ -80,6 +80,7 @@ console.log("Loaded Succesfully");
 var currentRuleSet = new ruleSet();
 
 currentRuleSet.loadPreset( presets.gameOfLife );
+document.getElementById("loadpreset").value = "gameOfLife";
 
 // Generate HTML rulset inputs and set values
 currentRuleSet.makeHTML();
