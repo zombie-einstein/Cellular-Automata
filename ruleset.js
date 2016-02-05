@@ -100,7 +100,7 @@ ruleSet.prototype.makeHTML = function(){
 		container.id = "container"+n.toString();
 
 		container.className = "main padding";
-		
+
 		container.innerHTML	=  container.innerHTML + "Rule: " + (n+1).toString();
 
 		// Insert ruleset container
@@ -122,6 +122,9 @@ ruleSet.prototype.makeHTML = function(){
 
 		// Insert form into Div
 		container.appendChild(ruleForm);
+
+		changeBackgroundColor();
+		changeTextColor();
 	}
 }
 
