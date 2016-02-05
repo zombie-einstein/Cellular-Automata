@@ -29,12 +29,7 @@ var numCellsHeight 	= Math.round( canvasHeight / cellWidth );
 document.getElementById("numCellsHeightForm").value = numCellsHeight;
 var cellHeight 		= canvasHeight / numCellsHeight;
 
-// Get cell colouring from HTML
-
-var aliveColor		= document.getElementById("aliveColor").value;
-var deadColor		= document.getElementById("deadColor").value;
-
-// Get updating methid from HTML
+// Get updating method from HTML
 
 var updateMethod	= document.getElementById("updating").value;
 
@@ -58,23 +53,29 @@ var vonNeumann		= document.getElementById("vonneumann").value == "true";
 
 var rulesIf, rulesAnd, rulesThan, rulesThen	= [];
 
-//updateRuleset();
-
 // Initialize cells and render
 
 var CELLS = [];
 
 CELLS.createCells( numCellsWidth, numCellsHeight );
 
-renderAllCells();
+//renderAllCells();
 
- 
+// Make menu of and get colourscheme from HTML
+
+var currentColorScheme = eval(document.getElementById("chooseColorScheme").value);
+currentColorScheme.createMenus();
+
+// Color variables
+var aliveColor;
+var deadColor;
+
+// Set alive cell color ( includes rendering cells )
+changeAliveColor();
 
 // Write title in cells
 
 makeTitle();
-
-console.log("Loaded Succesfully");
 
 // Create ruleset and intitially load game of life
 var currentRuleSet = new ruleSet();
@@ -86,3 +87,9 @@ document.getElementById("loadpreset").value = "gameOfLife";
 currentRuleSet.makeHTML();
 currentRuleSet.setHTML();
 
+// Set background and menu colors
+changeBackgroundColor();
+changeTextColor();
+
+// Console message on succesful page load
+console.log("Loaded Succesfully");

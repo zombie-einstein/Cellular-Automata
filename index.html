@@ -65,13 +65,13 @@ faster &#8674; slower
 
   Topology:
   <select class="main" id="topology" onchange="changeTopology()">
-    <option value="torus" >  torus </option>
-    <option value="flat"  >  flat  </option>
+    <option value="torus" >  Torus </option>
+    <option value="flat"  >  Bounded  </option>
   </select><br>  
   Von Neumann:
   <select class="main" id="vonneumann" onchange="changeVonNeumann()">
-    <option value="false" >  false </option>
-    <option value="true"  >  true  </option>
+    <option value="false" >  False </option>
+    <option value="true"  >  True  </option>
   </select><br>
 </form>
 
@@ -137,27 +137,14 @@ When paused, click on a cell to:
 <h2 class="bordersTop"> Colours </h2>
 
 <form> 
+  Color Scheme
+  <select class="main" id="chooseColorScheme"  onchange="changeColorScheme()"> </select><br>
   Dead Cells
-  <select name="DeadCells"  class="main" id="deadColor"  onchange="changeBackgroundColor()">
-    <option value="#0000ff"  > Blue   </option>
-    <option value="#006400"  > Green  </option>
-    <option value="#000000"  > Black  </option>
-    <option value="#ffffff"  > White  </option>
-  </select> <br>
+  <select class="main" id="choosedeadcolor" onchange="changeBackgroundColor()" > </select><br>
   Alive Cells
-  <select name="AliveCells" class="main" id="aliveColor" onchange="changeAliveColor()">
-    <option value="#ff0000"  > Red    </option>
-    <option value="#FFA500"  > Orange </option>
-    <option value="#ffffff"  > White  </option>
-    <option value="#000000"  > Black  </option>
-  </select><br>
+  <select class="main" id="choosealivecolor" onchange="changeAliveColor()" > </select><br>
   Text
-  <select name="TextColor" class="main" id="textColor"   onchange="changeTextColor()">
-    <option value="#ffffff"  > White  </option>
-    <option value="#000000"  > Black  </option>
-    <option value="#ff0000"  > Red    </option>
-    <option value="#FFA500"  > Orange </option>
-  </select>
+  <select class="main" id="choosemenucolor" onchange="changeTextColor()" > </select><br>
 </form>
 
 </div>
@@ -175,6 +162,7 @@ Too bad your browser does not support the HTML5 canvas.
 <script src="patterns.js"		    ></script>
 <script src="ruleset.js"        ></script>
 <script src="presets.js"  ></script>
+<script src="color.js"  ></script>
 <script src="HTML_controls.js"	></script>
 <script src="ca_main.js"        ></script>
 

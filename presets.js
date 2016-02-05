@@ -1,7 +1,7 @@
 'use strict';
 
 // Object containing preset CA rules adding a preset using here will make it appear in the menus
-// as long as you add a name object to the preset 
+// as long as you add a name object to the preset object
 
 var presets = { gameOfLife: new ruleSet, oneD: new ruleSet, dayAndNight: new ruleSet, highLife: new ruleSet };
 
