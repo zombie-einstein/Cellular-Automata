@@ -34,7 +34,7 @@ var colorSchemes = { solarize: new colorSet, strong: new colorSet };
 	var orange = new color( "Orange", "#FFA500" );
 
 	// Strong color set
-	colorSchemes.strong.name 	= "Strong";
+	colorSchemes.strong.name 	= "Primary";
 	
 	colorSchemes.strong.dead	= [ blue, green, black , white ];
 	colorSchemes.strong.alive	= [ red, orange, white, black ];
@@ -60,14 +60,14 @@ var colorSchemes = { solarize: new colorSet, strong: new colorSet };
 	colorSchemes.solarize.name = "Solarize";
 
 	colorSchemes.solarize.dead 	= [ base03, base02, base2, base3 ];
-	colorSchemes.solarize.alive = [ sYellow, sOrange, sMagenta, sBlue, sGreen];
+	colorSchemes.solarize.alive = [ sMagenta, sYellow, sOrange, sBlue, sGreen];
 	colorSchemes.solarize.menu  = [ base01, base00, base0, base1 ];
 
 // Create dropdown menu of color schemes
+function createColorSchemeMenu(){
 for ( var x in colorSchemes ){
-	console.log(x);
 	document.getElementById("chooseColorScheme").innerHTML += '<option value="colorSchemes.'+x.toString()+'"> '+colorSchemes[x].name+' </option>';
-}
+}}
 
 // Create dropdown color menus for a colorset
 colorSet.prototype.createMenus = function(){

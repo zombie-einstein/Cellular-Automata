@@ -30,43 +30,41 @@ document.getElementById("numCellsHeightForm").value = numCellsHeight;
 var cellHeight 		= canvasHeight / numCellsHeight;
 
 // Get updating method from HTML
-
 var updateMethod	= document.getElementById("updating").value;
 
 // Initialize timestep variable outside scope of animation function
+var timeStep;
 
-var testCell 		= new cell(0,0);	// blank cell to use for method application
+// blank cell to use for method application
+var testCell 		= new cell(0,0);	
 
-var timeStep;	
-
+// Get simulation speed from HTML
 var simSpeed 		= document.getElementById("speedRange").value;
 
-var paused 			= true;	// Simulation status switch
+// Simulation status switch
+var paused 			= true;
 
 // Get topology from HTML
-		
 var topology		= document.getElementById("topology").value;
-
 var vonNeumann		= document.getElementById("vonneumann").value == "true";
 
 // Initialize ruleset variables and convert booleans HTML
 
 var rulesIf, rulesAnd, rulesThan, rulesThen	= [];
 
-// Initialize cells and render
-
+// Initialize cells and populate array
 var CELLS = [];
-
 CELLS.createCells( numCellsWidth, numCellsHeight );
 
-//renderAllCells();
+// Make a menu of pattern types in HTML
+createPatternMenu();
 
 // Make menu of and get colourscheme from HTML
-
+createColorSchemeMenu();
 var currentColorScheme = eval(document.getElementById("chooseColorScheme").value);
 currentColorScheme.createMenus();
 
-// Color variables
+// Declare Color variables
 var aliveColor;
 var deadColor;
 
@@ -74,12 +72,10 @@ var deadColor;
 changeAliveColor();
 
 // Write title in cells
-
 makeTitle();
 
-// Create ruleset and intitially load game of life
+// Create chosen ruleset variable and intitially load game of life
 var currentRuleSet = new ruleSet();
-
 currentRuleSet.loadPreset( presets.gameOfLife );
 document.getElementById("loadpreset").value = "gameOfLife";
 
@@ -87,7 +83,7 @@ document.getElementById("loadpreset").value = "gameOfLife";
 currentRuleSet.makeHTML();
 currentRuleSet.setHTML();
 
-// Set background and menu colors
+// Set background and menu colors from HTML
 changeBackgroundColor();
 changeTextColor();
 

@@ -1,11 +1,13 @@
 'use strict';
 
 // ************ Functions that make changes to the canvas ******************
+// ** Includes main loop of simulation
 
 // Animate function called at each timestep
 
 function animate(){
-	updateAllCells();
+	// Both these functions are in "Cells.js"
+	updateAllCells(); 
 	renderAllCells();
 }
 
@@ -77,59 +79,41 @@ function resizeFunction() {
 
 // Click to change cell state or add preset pattern
 function clickEvent(event){
+
+	// Don't change the canvas whilst sim running 
 	if ( paused == false ){ return; }
+
+	// Get mouse position and convert to cell grid number
 	var mousePos 	= getMousePos( canvas, event );
 	var x = Math.floor(mousePos.x/cellWidth);
 	var y = Math.floor(mousePos.y/cellHeight);
 	var mouseVec = new vec( x, y );
 
-	switch ( document.getElementById("presets").value ){
+	// Print desired pattern
+	switch ( document.getElementById("presetlist").value ){
 
 		case "single":
 			CELLS[mouseVec.x][mouseVec.y].switch();
-			//CELLS[mouseVec.x][mouseVec.y].render();
 			renderAllCells();
-			break;
-
-		case "glider":
-			var glider = createGlider();
-			CELLS.printPattern( mouseVec, glider );
-			break;
-
-		case "block":
-			var block = createBlock();
-			CELLS.printPattern( mouseVec, block );
-			break;
-
-		case "beehive":
-			var beehive = createBeehive();
-			CELLS.printPattern( mouseVec, beehive );
-			break;
-
-		case "LWSS":
-			var LWSS = createLWSS();
-			CELLS.printPattern( mouseVec, LWSS );
-			break;
-
-		case "gospelgun":
-			var gospelGun = createGospelGun();
-			CELLS.printPattern( mouseVec, gospelGun );
 			break;
 
 		case "random5":
 			var random = createRandomBlock(5,5);
-			CELLS.printPattern( mouseVec, random );
+			random.printPattern( mouseVec, CELLS );
 			break;
 
 		case "random10":
 			var random = createRandomBlock(10,10);
-			CELLS.printPattern( mouseVec, random );
+			random.printPattern( mouseVec, CELLS );
 			break;
 
 		case "random50":
 			var random = createRandomBlock(50,50);
-			CELLS.printPattern( mouseVec, random );
+			random.printPattern( mouseVec, CELLS );
 			break;
+
+		default:
+			eval(document.getElementById("presetlist").value).printPattern( mouseVec, CELLS );
 	}
 }
 
@@ -138,5 +122,5 @@ function clickEvent(event){
 function makeTitle(){
 	var titleLocation = new vec(5,5);	// Top left location of the pattern
 	var title = createTitle();
-	CELLS.printPattern( titleLocation, title );
+	title.printPattern( titleLocation, CELLS );
 }
