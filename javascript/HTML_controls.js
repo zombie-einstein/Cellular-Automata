@@ -59,7 +59,7 @@ function changeVonNeumann(){
 
 	vonNeumann = document.getElementById("vonneumann").value == "true";
 	// Can't be von neumann and 1-D
-	if ( updateMethod == "1-D" ){ 
+	if ( currentUpdateMethod.name == "One-Dimensional" ){ 
 		vonNeumann = false; 
 		document.getElementById("vonneumann").value = "false";
 		return; 
@@ -89,6 +89,8 @@ function loadAndUpdatePreset(){
 	// Make update ruleset HTML forms & set values
 	currentRuleSet.makeHTML();
 	currentRuleSet.setHTML();
+
+	console.log("Preset ruleset loaded");
 }
 
 // make a randomRuleSet
@@ -105,6 +107,8 @@ function randomRuleSet(){
 	currentRuleSet.setHTML();
 	
 	document.getElementById("loadpreset").value = "custom";
+
+	console.log("Random ruleset loaded");
 }
 
 // Change the number of rule definitions
@@ -156,58 +160,33 @@ function updateRuleset(){
 
 function changeUpdateMethod(){
 	
-	updateMethod = document.getElementById("updating").value;
+	// Get update method from HTML and update description paragraph
+	currentUpdateMethod = eval(document.getElementById("updatemethod").value);
+	document.getElementById("updatedescription").innerHTML = currentUpdateMethod.name+": "+currentUpdateMethod.description;
 
-	switch ( updateMethod ){
+	// Regenerate neighbours in case they are dependent on update method
+	CELLS.forAll( testCell.generateNeighbours );
+	// Kill all update signals before they are updated by method
+	CELLS.forAll( testCell.killSignal );
+	// Perform any intialization actions required by method 
+	currentUpdateMethod.initialize();
+	// Rerender cells (required if showing updating cells)
+	renderAllCells();
 
-	case "signal":
+}
 
-		// Kill all update signals then send them to live cells
+// Change wether cell that are updating are shown
 
-		for ( var n = 0; n < numCellsWidth; n++ ){
-			for ( var m = 0; m < numCellsHeight; m++ ){
+function changeShowUpdating(){
 
-				CELLS[n][m].killSignal();
-
-				if ( CELLS[n][m].current == true ){
-					CELLS[n][m].sendSignal();
-				}
-			}
-		}
-	
-	console.log("Changed update method to signal");
-
-	break;
-
-	case "1-D":
-
-		// Can't be 1-D and von neumann
-		vonNeumann = false;
-		document.getElementById("vonneumann").value = "false";
-
-		// Clear and find new neighbours of remaining rows and re-render
-		for ( var n = 1; n < numCellsWidth; n++ ){
-			for ( var m = 0; m < numCellsHeight; m++ ){
-					CELLS[n][m].generateNeighbours();
-					CELLS[n][m].kill();
-					CELLS[n][m].killSignal();
-			}
-		}
-
-		// Update the neighbours of the first row and
-		// mark the next row for update next turn 
-		for ( var m = 0; m < numCellsHeight; m++ ){
-					CELLS[0][m].generateNeighbours();
-					CELLS[0][m].killSignal();
-					CELLS[1][m].sendSignal();
-		}
-
+	if ( currentUpdateMethod.name == "Simultaneous" ){
+		document.getElementById("showupdatingcells").value = "false";		
+	}
+	else{
+		var temp = document.getElementById("showupdatingcells").value;
+		if ( temp == "false" ){ temp = false };
+		showUpdating = temp;
 		renderAllCells();
-
-		console.log("Changed update method to 1-D");
-	
-	break;
-
 	}
 }
 

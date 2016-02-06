@@ -42,7 +42,9 @@ function renderLine( start, end, color ){
 function startSim(){
 	if( paused == true ){ 
 	timeStep = setInterval( animate, simSpeed ); 
-	paused	 = false; 
+	paused	 = false;
+	document.getElementById("startbutton").style.backgroundColor = LightenDarkenColor(deadColor,40);
+	document.getElementById("stopbutton").style.backgroundColor  = deadColor;
 	}
 	else { return; }
 }
@@ -53,6 +55,8 @@ function pauseSim(){
 	if( paused == false ){ 
 	clearInterval( timeStep );
 	paused = true;
+	document.getElementById("startbutton").style.backgroundColor = deadColor;
+	document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,20);
 	}
 }
 

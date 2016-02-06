@@ -35,10 +35,10 @@ Fork this project on<br>
 
 <h2 class="bordersTop"> Controls </h2>
 
-<button onclick="stepSim()"   class="main" > Step  </button>
-<button onclick="startSim()"  class="main" > Start </button>
-<button onclick="pauseSim()"  class="main" > Stop  </button>
-<button onclick="killAll()"   class="main" > Clear </button>
+<button                  onclick="stepSim()"   class="main" > Step  </button>
+<button id="startbutton" onclick="startSim()"  class="main" > Start </button>
+<button id="stopbutton"  onclick="pauseSim()"  class="main" > Stop  </button>
+<button                  onclick="killAll()"   class="main" > Clear </button>
 
 <strong>Speed:</strong>
 
@@ -98,17 +98,21 @@ faster &#8674; slower
 <form >
 
   Choose Updating Method
-  <p> <strong>Simultaneous:</strong> All cells update every turn </p>
-  <p> <strong>Signal:</strong> If a cell updates it cannot update next turn but sends a signal to neighbours to update next turn   </p>
-  <p> <strong>1-Dimensional:</strong> Produces a new line each time step starting from a pattern at the left of the screen. Each line depends only on the state of the previous line</p>
-  
-  <select name="Updating" id="updating" class="main" onchange="changeUpdateMethod()">
-    <option value="simultaneous" >  Simultaneous </option>
-    <option value="signal"       >  Signal       </option>
-    <option value="1-D"          >  1-Dimensional</option>
-  </select>
-
+ 
+  <select id="updatemethod" class="main" onchange="changeUpdateMethod()"></select>
 </form>
+
+<p id="updatedescription" > </p>
+
+<form> 
+Show cells that will update:
+  <select id="showupdatingcells" class="main" onchange="changeShowUpdating()" > 
+  <option value="false" > No </option>
+  <option value="#ffffff" > White </option>
+  <option value="#000000" > Black </option>
+  </select>
+</form>
+
 
 <h2 class="bordersTop"> Cells </h2>
 
@@ -142,15 +146,16 @@ When paused, click on a cell to:
 Too bad your browser does not support the HTML5 canvas.
 </canvas>
 
-<script src ="javascript/vector.js"			></script>
-<script src ="javascript/cells.js"			></script>
-<script src ="javascript/canvas.js"			></script>
-<script src ="javascript/patterns.js"		></script>
-<script src ="javascript/ruleset.js"        ></script>
+<script src ="javascript/vector.js"			  ></script>
+<script src ="javascript/cells.js"			  ></script>
+<script src ="javascript/canvas.js"			  ></script>
+<script src ="javascript/patterns.js"		  ></script>
+<script src ="javascript/ruleset.js"      ></script>
 <script src ="javascript/presets.js"  		></script>
-<script src ="javascript/color.js"  		></script>
-<script src ="javascript/HTML_controls.js"	></script>
-<script src ="javascript/ca_main.js"       	></script>
+<script src ="javascript/color.js"  		  ></script>
+<script src ="javascript/HTML_controls.js"></script>
+<script src ="javascript/update_method.js"></script>
+<script src ="javascript/ca_main.js"      ></script>
 
 </body>
 

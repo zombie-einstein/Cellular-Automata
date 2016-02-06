@@ -30,7 +30,9 @@ document.getElementById("numCellsHeightForm").value = numCellsHeight;
 var cellHeight 		= canvasHeight / numCellsHeight;
 
 // Get updating method from HTML
-var updateMethod	= document.getElementById("updating").value;
+makeUpdateMenu();
+var currentUpdateMethod = eval(document.getElementById("updatemethod").value);
+document.getElementById("updatedescription").innerHTML = currentUpdateMethod.name+": "+currentUpdateMethod.description;
 
 // Initialize timestep variable outside scope of animation function
 var timeStep;
@@ -47,6 +49,9 @@ var paused 			= true;
 // Get topology from HTML
 var topology		= document.getElementById("topology").value;
 var vonNeumann		= document.getElementById("vonneumann").value == "true";
+
+// Get show updating cell variable from HTML
+var showUpdating	= false;
 
 // Initialize ruleset variables and convert booleans HTML
 
@@ -86,6 +91,9 @@ currentRuleSet.setHTML();
 // Set background and menu colors from HTML
 changeBackgroundColor();
 changeTextColor();
+document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,20);
+
+generateUpdateFunctions();
 
 // Console message on succesful page load
 console.log("Loaded Succesfully");
