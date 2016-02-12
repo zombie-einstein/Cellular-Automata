@@ -122,3 +122,14 @@ function LightenDarkenColor(col, amt) {
     return (usePound?"#":"") + (g | (b << 8) | (r << 16)).toString(16);
   
 }
+
+// Convert hex values to RGB
+function convertHex( hex ){
+    hex = hex.replace('#','');
+    var tempRGB = [];
+    tempRGB[0] = parseInt(hex.substring(0,2), 16);
+    tempRGB[1] = parseInt(hex.substring(2,4), 16);
+    tempRGB[2] = parseInt(hex.substring(4,6), 16);
+	
+	return tempRGB;
+}

@@ -20,8 +20,8 @@ var canvasWidth 	= canvas.width;
 var canvasHeight 	= canvas.height;
 
 // Set initial number of cells
-var numCellsWidth  = 1024;
-var numCellsHeight = 1024;
+var numCellsWidth  = 64;
+var numCellsHeight = 64;
 // Set values in HTML
 document.getElementById("cellWidthSelect" ).value = numCellsWidth.toString();
 document.getElementById("cellHeightSelect").value = numCellsHeight.toString();
@@ -35,36 +35,15 @@ createTextures( numCellsWidth, numCellsHeight );
 
 // Get updating method from HTML
 makeUpdateMenu();
-//var currentUpdateMethod = eval(document.getElementById("updatemethod").value);
-//document.getElementById("updatedescription").innerHTML = currentUpdateMethod.name+": "+currentUpdateMethod.description;
 
 // Initialize timestep variable outside scope of animation function
-var timeStep;
-
-// blank cell to use for method application
-//var testCell 		= new cell(0,0);	
+var timeStep;	
 
 // Get simulation speed from HTML
 var simSpeed 		= document.getElementById("speedRange").value;
 
 // Simulation status switch
 var paused 			= true;
-
-// Get topology from HTML
-//var topology		= document.getElementById("topology").value;
-//var vonNeumann		= document.getElementById("vonneumann").value == "true";
-
-// Get show updating cell variable from HTML
-//var showUpdating	= false;
-
-// Initialize ruleset variables and convert booleans HTML
-
-//var rulesIf, rulesAnd, rulesThan, rulesThen	= [];
-
-// Initialize cells and populate array
-//var CELLS = [];
-//CELLS.createCells( numCellsWidth, numCellsHeight );
-
 
 // Make a menu of pattern types in HTML
 createPatternMenu();
@@ -76,10 +55,11 @@ currentColorScheme.createMenus();
 
 // Declare Color variables
 var aliveColor;
-var deadColor;
 
-// Set alive cell color ( includes rendering cells )
-//changeAliveColor();
+changeAliveColor();
+
+
+var deadColor;
 
 // Write title in cells
 makeTitle();
@@ -88,10 +68,6 @@ makeTitle();
 var currentRuleSet = new ruleSet();
 currentRuleSet.loadPreset( presets.gameOfLife );
 document.getElementById("loadpreset").value = "gameOfLife";
-
-// Generate HTML rulset inputs and set values
-currentRuleSet.makeHTML();
-currentRuleSet.setHTML();
 
 // Set background and menu colors from HTML
 changeBackgroundColor();

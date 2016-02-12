@@ -4,7 +4,6 @@
 // ** Includes main loop of simulation
 
 // Animate function called at each timestep
-
 function animate(){
 	// Main loop contained in web_gl.js
 	mainLoop();
@@ -12,11 +11,9 @@ function animate(){
 }
 
 // Step simulation
-
 function stepSim(){ animate(); }
 
 // Run simulation function
-
 function startSim(){
 	if( paused == true ){ 
 	timeStep = setInterval( animate, simSpeed ); 
@@ -28,7 +25,6 @@ function startSim(){
 }
 
 // Pause Simulation function
-
 function pauseSim(){
 	if( paused == false ){ 
 	clearInterval( timeStep );
@@ -39,7 +35,6 @@ function pauseSim(){
 }
 
 // Mouse position relative to canvas
-
 function getMousePos(canvas, evt) {
     var rect 		= canvas.getBoundingClientRect();
 	var mousePos 	= new vec( evt.clientX -rect.left, rect.bottom-evt.clientY );
@@ -78,7 +73,7 @@ function clickEvent(event){
 	switch ( document.getElementById("presetlist").value ){
 
 		case "single":
-			CELLS[mouseVec.x][mouseVec.y].switch();
+			switchPixelState( mouseVec.x, mouseVec.y );
 			renderAllCells();
 			break;
 
@@ -98,12 +93,11 @@ function clickEvent(event){
 			break;
 
 		default:
-			eval(document.getElementById("presetlist").value).printPattern( mouseVec, CELLS );
+			eval(document.getElementById("presetlist").value).printPattern( mouseVec );
 	}
 }
 
 // Render a title splash using cells "GAME OF LIFE"
-
 function makeTitle(){
 	var titleLocation = new vec(5,numCellsHeight-5);	// Top left location of the pattern
 	var title = createTitle();

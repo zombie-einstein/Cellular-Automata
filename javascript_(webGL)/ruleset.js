@@ -5,27 +5,18 @@
 function ruleSet(){
 
 	this.name;				// Ruleset name
-	this.number;			// Number of rules
 
-	this.if 		= [];	// Array of "if current state" conditions
-	this.and 		= [];	// Array of "and condition" conditions
-	this.than		= [];	// Array of "than value" conditions
-	this.then 		= [];	// Array of "then future state" conditions
+	this.aliveSet	= [];
+	this.deadSet	= [];
 
 }
 
 // Load a preset ruleset
-
 ruleSet.prototype.loadPreset = function( preset ){
+		
+	this.aliveSet = preset.aliveSet;
+	this.deadSet  = preset.deadSet;
 	
-	this.number = preset.number;
-	
-	this.if		= preset.if.slice();
-	this.and 	= preset.and.slice();
-	this.than	= preset.than.slice();
-	this.then	= preset.then.slice();
-
-	document.getElementById("numberofrules").value = preset.number;
 }
 
 // Make a random ruleset

@@ -31,11 +31,17 @@
 
       precision mediump float;
 
-	  varying vec2 v_texCoord;
+      uniform vec4 u_colorShift;
 
-	  uniform sampler2D u_image;
+	    varying vec2 v_texCoord;
 
-      void main() { gl_FragColor = 	texture2D(u_image, v_texCoord); }
+	    uniform sampler2D u_image;
+
+      void main() { 
+      
+        gl_FragColor = 	texture2D(u_image, v_texCoord) +u_colorShift; 
+
+      }
 
     </script>
 
@@ -44,10 +50,13 @@
     <script id="2d-fragment-rules" type="x-shader/x-fragment">
 
 
-      precision mediump float;
-      // Arrays of vectors which contain ruleset
-	  uniform vec4 alive[8];
-	  uniform vec4 dead[8];	
+    precision mediump float;
+    // Arrays of vectors which contain ruleset
+	  uniform vec4 alive[9];
+	  uniform vec4 dead[9];	
+    // Array of neighbour locations
+    // Length set by string replacement in js
+    uniform ivec2 neighbours[8];
 
 	  uniform vec2 u_textureSize;
 	  uniform sampler2D u_image;
@@ -61,17 +70,18 @@
       	// Get co-ordinate values to get move one pixel of texture
       	vec2 onePixel = vec2( 1.0, 1.0 )/u_textureSize;
       	
-      	// Get color values sum of neighbours
-      	vec4 neighbourSum =  get(-1,-1,onePixel) +get(-1, 0,onePixel) +get(-1,+1,onePixel)+
-      						 get( 0,-1,onePixel) +get( 0,+1,onePixel) +
-      						 get(+1,-1,onePixel) +get(+1, 0,onePixel) +get(+1,+1,onePixel);
-      							
+        vec4 neighbourSum = vec4(0.0,0.0,0.0,0.0);
+
+        for ( int i = 0; i < 8; i++ ){
+          neighbourSum += get( neighbours[i].x, neighbours[i].y, onePixel );
+        } 
+					
       	// Integer No of red neighbours
       	int redNeighbours = int(neighbourSum.x);
 
       	// If alive ( i.e. cell is red ), then apply alive rules
       	if ( texture2D(u_image, v_texCoord).x == 1.0 ){	
-      		for( int i = 0; i < 8; i ++ ){
+      		for( int i = 0; i < 9; i ++ ){
 
       			if( redNeighbours == i ){ gl_FragColor = alive[i]; }
 
@@ -79,7 +89,7 @@
       	}
 
       	else { 
-      		for( int i = 0; i < 8; i ++ ){
+      		for( int i = 0; i < 9; i ++ ){
 
       			if( redNeighbours == i ){ gl_FragColor = dead[i]; }
 
@@ -121,7 +131,7 @@ Fork this project on<br>
 <button                  onclick="stepSim()"   class="main" > Step  </button>
 <button id="startbutton" onclick="startSim()"  class="main" > Start </button>
 <button id="stopbutton"  onclick="pauseSim()"  class="main" > Stop  </button>
-<button                  onclick="killAll()"   class="main" > Clear </button>
+<button                  onclick="clearCells()"   class="main" > Clear </button>
 
 <strong>Speed:</strong>
 
@@ -131,48 +141,37 @@ faster &#8674; slower
 <button class="main" onclick="getSimSpeed()" > Update </button>
 
 <h2 class="bordersTop"> Space </h2>
+<p>Currenly due to the restrictions of WebGL cell numbers must be powers of two </p>
+
+  
 <form class="main" onsubmit="return false" >
-	Currenly due to the restrictions of WebGL cell numbers must be powers of two <br>
-	Width
-	<select class="main" id="cellWidthSelect" onchange="changeCells()"> 
-      <option value="8" 	>  8 	</option>
-      <option value="16" 	>  16 	</option>
-      <option value="32" 	>  32 	</option>
-      <option value="64" 	>  64 	</option>
+Width
+	<select class="main" id="cellWidthSelect" onchange="updateGrid()"> 
+      <option value="8" 	  >  8 	  </option>
+      <option value="16" 	  >  16 	</option>
+      <option value="32" 	  >  32 	</option>
+      <option value="64" 	  >  64 	</option>
       <option value="128" 	>  128 	</option>
       <option value="256" 	>  256 	</option>
       <option value="512" 	>  512 	</option>
       <option value="1024" 	>  1024 </option>
+      <option value="2048"  >  2048 </option>
   	</select><br>
   	Height
-  	<select class="main" id="cellHeightSelect" onchange="changeCells()"> 
-      <option value="8" 	>  8 	</option>
-      <option value="16" 	>  16 	</option>
-      <option value="32" 	>  32 	</option>
-      <option value="64" 	>  64 	</option>
+  	<select class="main" id="cellHeightSelect" onchange="updateGrid()"> 
+      <option value="8" 	  >  8 	  </option>
+      <option value="16" 	  >  16 	</option>
+      <option value="32" 	  >  32 	</option>
+      <option value="64" 	  >  64 	</option>
       <option value="128" 	>  128 	</option>
       <option value="256" 	>  256 	</option>
       <option value="512" 	>  512 	</option>
       <option value="1024" 	>  1024 </option>
+      <option value="2048"  >  2048 </option>
   	</select>  
-</form><br>
+</form>
 
-Topology is currently locked at torus
-
-
-<!-- <form>
-
-  Topology:
-  <select class="main" id="topology" onchange="changeTopology()">
-    <option value="torus" >  Torus </option>
-    <option value="flat"  >  Bounded  </option>
-  </select><br>  
-  Von Neumann:
-  <select class="main" id="vonneumann" onchange="changeVonNeumann()">
-    <option value="false" >  False </option>
-    <option value="true"  >  True  </option>
-  </select><br>
-</form> -->
+<p>Topology is currently locked at torus</p>
 
 <h2 class="bordersTop"> Algorithm </h2>
 
@@ -185,10 +184,7 @@ Topology is currently locked at torus
 
 <button class="main" onclick="randomRuleSet()"> Random </button><br>
 
-<form class="main" name= "ruleformtop" onsubmit="return false">
-  Number of Rules:
-  <input type="number" class="main" id="numberofrules" min="1" max="20" step="1" onchange="updateNumRules()" >
-</form>
+
 
 <!-- Rule forms are generated here by javascript -->
 
@@ -214,6 +210,7 @@ Show cells that will update:
 
 
 <h2 class="bordersTop"> Cells </h2>
+<button class="main" onclick="loadRandomTexture(0.6)" > Fill Randomly </button><br>
 
 When paused, click on a cell to:
 
@@ -246,7 +243,6 @@ Too bad your browser does not support the HTML5 canvas.
 </canvas>
 
 <script src ="javascript_(webGL)/vector.js"			  ></script>
-<script src ="javascript_(webGL)/cells.js"			  ></script>
 <script src ="javascript_(webGL)/canvas.js"			  ></script>
 <script src ="javascript_(webGL)/patterns.js"		  ></script>
 <script src ="javascript_(webGL)/ruleset.js"      ></script>

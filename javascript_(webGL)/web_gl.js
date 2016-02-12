@@ -38,7 +38,7 @@ function startGL(){
   	// Set clear background color
     gl.clearColor(0.0, 0.0, 0.0, 0.0); 
     gl.clear(gl.COLOR_BUFFER_BIT );
-              
+    
     // ======== Initialize the shaders ========
     programs.display.program = initProgram( "2d-vertex-shader", "2d-fragment-display" );
     programs.rules.program   = initProgram( "2d-vertex-shader", "2d-fragment-rules"   );
@@ -46,18 +46,42 @@ function startGL(){
 
     // ======== Lookup attributes from shaders ========
     // vertex data
-    programs.display.positionLocation  = gl.getAttribLocation( programs.display.program, "a_position" );
-    programs.rules.positionLocation  = gl.getAttribLocation( programs.rules.program, "a_position" );
+    programs.display.positionLocation   = gl.getAttribLocation( programs.display.program, "a_position" );
+    programs.rules.positionLocation     = gl.getAttribLocation( programs.rules.program, "a_position" );
     // texture co-ords
-    programs.display.texCoordLocation  = gl.getAttribLocation( programs.display.program, "a_texCoord" );
-    programs.rules.texCoordLocation  = gl.getAttribLocation( programs.rules.program, "a_texCoord" );
+    programs.display.texCoordLocation   = gl.getAttribLocation( programs.display.program, "a_texCoord" );
+    programs.rules.texCoordLocation     = gl.getAttribLocation( programs.rules.program, "a_texCoord" );
   
+    // Add color shift location to display (to get correct live cell color)
+    programs.display.colorLocation      = gl.getUniformLocation( programs.display.program, "u_colorShift" ); 
+
     // Add location to rule shader
-    programs.rules.textureSizeLocation = gl.getUniformLocation( programs.rules.program, "u_textureSize");
+    programs.rules.textureSizeLocation  = gl.getUniformLocation( programs.rules.program, "u_textureSize" );
+
+    // Add neighbour array location to rule program
+    programs.rules.neighbours = [];
+
+    for ( var i = 0; i < 8; i++ ){
+
+      programs.rules.neighbours[i] = gl.getUniformLocation( programs.rules.program, "neighbours["+i.toString()+"]");
+
+    }    
 
     // Add arrays for rulesets to rule program
     programs.rules.alive = [];
     programs.rules.dead  = [];
+
+    for ( var i = 0; i < 9; i++ ){
+
+      programs.rules.alive[i] = gl.getUniformLocation( programs.rules.program, "alive["+i.toString()+"]");
+
+    }
+
+    for ( var i = 0; i < 9; i++ ){
+
+      programs.rules.dead[i] = gl.getUniformLocation( programs.rules.program, "dead["+i.toString()+"]");
+
+    }
 
     console.log("WebGL initialized and programs created");
   }
@@ -71,9 +95,18 @@ function loadRandomTexture( rate ){
     // Run through array and set red and alpha values
     for ( var i = 0; i < initData.length; i+=4 ){
       // Set red channel randomly to either 0 (dead) or 255 (alive) (can use other channels)
-      initData[i] = Math.random() > rate ? 255 : 0;
+      if ( Math.random() > rate ){
+
+        initData[i] = 255;
+        initData[i+3] = 255;  
+
+      }      
     }
+    
     textures.front = createTexture( textures.width, textures.height, initData );
+    
+    renderAllCells();
+    
     console.log("Texture randomly filled");
 }
 
@@ -84,48 +117,50 @@ function createTextures( width, height ){
   textures.back  = createTexture( width, height );
   textures.width = width;
   textures.height= height;
-
-  console.log("Textures created");
+  // Confirmation message
+  console.log("Textures created: ", textures.width, "x", textures.height);
 }
 
-// Load CA ruleset to 
-function loadRuleset(){
+// Clear all the cells to (0,0,0,0)
+function killAll(){
+
+  textures.front = createTexture( textures.width, textures.height );
+  textures.back  = createTexture( textures.width, textures.height );
+  renderAllCells();
+
+}
+
+function loadNeighbours(){
+
+  gl.useProgram( programs.rules.program );
+
+  gl.uniform2i( programs.rules.neighbours[0], -1, -1 );
+  gl.uniform2i( programs.rules.neighbours[1], -1,  0 );
+  gl.uniform2i( programs.rules.neighbours[2], -1, +1 );
+  gl.uniform2i( programs.rules.neighbours[3],  0, -1 );
+  gl.uniform2i( programs.rules.neighbours[4],  0, +1 );
+  gl.uniform2i( programs.rules.neighbours[5], +1, -1 );
+  gl.uniform2i( programs.rules.neighbours[6], +1,  0 );
+  gl.uniform2i( programs.rules.neighbours[7], +1, +1 );
+
+}
+
+// Load CA ruleset from current ruleset to shader 
+function loadRuleset( ruleset ){
 
     gl.useProgram( programs.rules.program );
-    // ======== Load alive ruleset to fragment shader ======== //
-    // Create array of locations of vec4 contained in array
-    for ( var i = 0; i < 8; i++ ){
-
-      programs.rules.alive[i] = gl.getUniformLocation( programs.rules.program, "alive["+i.toString()+"]");
-
+    
+    for ( var i = 0; i < ruleset.aliveSet.length; i++ ){
+      
+        gl.uniform4f( programs.rules.alive[i], ruleset.aliveSet[i][0], ruleset.aliveSet[i][1], ruleset.aliveSet[i][2], ruleset.aliveSet[i][3] );
+       
     }
 
-    gl.uniform4f( programs.rules.alive[0], 0,0,0,0 );
-    gl.uniform4f( programs.rules.alive[1], 0,0,0,0 );
-    gl.uniform4f( programs.rules.alive[2], 1.0,0,0,1.0);
-    gl.uniform4f( programs.rules.alive[3], 1.0,0,0,1.0);
-    gl.uniform4f( programs.rules.alive[4], 0,0,0,0 );
-    gl.uniform4f( programs.rules.alive[5], 0,0,0,0 );
-    gl.uniform4f( programs.rules.alive[6], 0,0,0,0 );
-    gl.uniform4f( programs.rules.alive[7], 0,0,0,0 );
-  
-    // ======== Load dead ruleset to fragment shader ======== //
-    // Create array of locations of vec4 contained in array
-    for ( var i = 0; i < 8; i++ ){
+    for ( var i = 0; i < ruleset.deadSet.length; i++ ){
 
-      programs.rules.dead[i] = gl.getUniformLocation( programs.rules.program, "dead["+i.toString()+"]");
+        gl.uniform4f( programs.rules.dead[i], ruleset.deadSet[i][0], ruleset.deadSet[i][1], ruleset.deadSet[i][2], ruleset.deadSet[i][3] );
 
     }
-
-    gl.uniform4f( programs.rules.dead[0], 0,0,0,0 );
-    gl.uniform4f( programs.rules.dead[1], 0,0,0,0 );
-    gl.uniform4f( programs.rules.dead[2], 0,0,0,0 );
-    gl.uniform4f( programs.rules.dead[3], 1.0,0,0,1.0);
-    gl.uniform4f( programs.rules.dead[4], 0,0,0,0 );
-    gl.uniform4f( programs.rules.dead[5], 0,0,0,0 );
-    gl.uniform4f( programs.rules.dead[6], 0,0,0,0 );
-    gl.uniform4f( programs.rules.dead[7], 0,0,0,0 );
-
 }
  
 
@@ -133,22 +168,17 @@ function mainLoop(){
 
     gl.useProgram( programs.rules.program );
 
-    loadRuleset();
+    loadRuleset( currentRuleSet );
+    loadNeighbours();
     // ======= Create framebuffer and attach back texture ======= //
     //Create framebuffer
     var framebuffer = gl.createFramebuffer();
-    // Clear framebuffer
-    gl.clear( gl.COLOR_BUFFER_BIT );
     // Bind framebuffer
     gl.bindFramebuffer( gl.FRAMEBUFFER, framebuffer );
     // Attach the back texture
     gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textures.back, 0 );
-    // Free framebuffer
-    //gl.bindFramebuffer( gl.FRAMEBUFFER, null );
     // Start to draw with front texture
     gl.bindTexture( gl.TEXTURE_2D, textures.front );
-    // ======= Set to draw to framebuffer =======
-    //gl.bindFramebuffer( gl.FRAMEBUFFER, framebuffer );
     // Set buffer viewport
     gl.viewport( 0, 0, textures.width, textures.height );
     // Send texture size (for pixel measure)
@@ -163,17 +193,15 @@ function mainLoop(){
     textures.front = textures.back;
     textures.back = temp;
     
-    gl.useProgram( programs.display.program );
-
-    // Bind texture
-    gl.bindTexture( gl.TEXTURE_2D, textures.front );
-    gl.viewport( 0, 0, canvas.width, canvas.height );
-    render( programs.display );
-  
+    // Render cells to canvas
+    renderAllCells();
 }
 
 // Render to full canvas/texture
 function render( program ){
+    
+    // Clear framebuffer
+    gl.clear( gl.COLOR_BUFFER_BIT );
     // provide texture coordinates for the rectangle.
     var texCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
@@ -211,6 +239,8 @@ function render( program ){
 function renderAllCells(){
 
   gl.useProgram( programs.display.program );
+  // Set color shift to achieve live cell color
+  gl.uniform4f( programs.display.colorLocation, aliveColor[0], aliveColor[1] ,aliveColor[2], 0 );
   // Bind texture
   gl.bindTexture( gl.TEXTURE_2D, textures.front );
   gl.viewport( 0, 0, canvas.width, canvas.height );
@@ -236,8 +266,6 @@ function createTexture( w, h, data ){
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   // Clear binding
   gl.bindTexture( gl.TEXTURE_2D, null );
-  // Confirmation message
-  console.log("Texture created: ", w, "x", h);
   // return texture
   return tempTexture;
 }
@@ -250,13 +278,20 @@ function changePixelState( x, y, value ){
   gl.bindTexture( gl.TEXTURE_2D, null );
 }
 
-// +++++++++++++++++++++++++++++++++ NEEDS FINALISING BELOW! ++++++++++++++++++++++++++++++++++
 // Switch the R value of a single cell located at (x,y)
-function switchPixelState( x, y, value ){
-  var v = value * 255;
-  gl.bindTexture( gl.TEXTURE_2D, textures.front );
-  gl.texSubImage2D( gl.TEXTURE_2D, 0, x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE,  new Uint8Array([v, 0, 0, v]) );
-  gl.bindTexture( gl.TEXTURE_2D, null );
+function switchPixelState( x, y ){
+
+    // Get pixel value from texture
+    var framebuffer = gl.createFramebuffer();
+    gl.bindFramebuffer( gl.FRAMEBUFFER, framebuffer );
+    gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textures.front, 0);
+    var pixelRGBA = new Uint8Array(4);
+    gl.readPixels( x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixelRGBA );
+    gl.bindFramebuffer( gl.FRAMEBUFFER, null );
+    pixelRGBA[0] > 0 ? changePixelState(x,y,0) : changePixelState(x,y,1);
+    //Below outputs the texture pixel color
+    //console.log(pixelRGBA[0],",",pixelRGBA[1],",",pixelRGBA[2],",",pixelRGBA[3]);
+
 }
 
 // Fills the buffer with the values that define a rectangle.
@@ -278,11 +313,12 @@ function setRectangle( x, y, w, h ) {
 
 function initWebGL( canvas ){
   
+
   gl = null;
 
   try {
     // Try to grab the standard context. If it fails, fallback to experimental.
-    gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    gl = canvas.getContext("webgl", { premultipliedAlpha: false }) || canvas.getContext("experimental-webgl");
   }
   catch(e) {}
 
@@ -320,37 +356,6 @@ function initProgram( vertex, fragment ) {
   return program;
 
 }
-
-/*
-// Initialize shaders
-function initShaders() {
-
-
-  fragmentShaderPlain = getShader(gl, "2d-fragment-plain");
-  fragmentShaderRules = getShader(gl, "2d-fragment-wrules");
-  vertexShader = getShader(gl, "2d-vertex-shader");
-
-  // Create the shader program
-
-  ruleProgram  = gl.createProgram();
-  plainProgram = gl.createProgram();
-  
-
-  gl.attachShader(ruleProgram, vertexShader);
-  gl.attachShader(ruleProgram, fragmentShaderRules);
-  
-  gl.attachShader(plainProgram, vertexShader);
-  gl.attachShader(plainProgram, fragmentShaderPlain);
-
-  gl.linkProgram( ruleProgram );
-  gl.linkProgram( plainProgram );
-
-  // If creating the shader program failed, alert
-
-  if ( !gl.getProgramParameter( ruleProgram, gl.LINK_STATUS) || !gl.getProgramParameter( plainProgram, gl.LINK_STATUS) ) {
-    alert("Unable to initialize the shader program.");
-  }
-}*/
 
 // Loads a shader program by scouring the current document,
 // looking for a script with the specified ID.

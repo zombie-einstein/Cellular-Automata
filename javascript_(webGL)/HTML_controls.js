@@ -14,25 +14,26 @@ function getSimSpeed(){
 	}
 }
 
-// Update number and size of cells when changed
+function clearCells(){
+	pauseSim();
+	killAll();
+}
 
+// Update number and size of cells when changed
 function updateGrid(){
 	
 	pauseSim();	// first send pause signal
 
 	// Get new values from HTML
-	numCellsWidth 	= Math.floor(document.getElementById("numCellsWidthForm").value);
-	numCellsHeight 	= Math.floor(document.getElementById("numCellsHeightForm").value);
+	numCellsWidth 	= Number( Math.floor(document.getElementById("cellWidthSelect").value) );
+	numCellsHeight 	= Number( Math.floor(document.getElementById("cellHeightSelect").value) );
 
 	// Calculate new width of cell
 	cellWidth 		= canvasWidth / numCellsWidth; 
 	cellHeight 		= canvasHeight / numCellsHeight;
 
-	startGL(cellWidth,cellHeight);
-
 	// Update all cells and render
-	CELLS = [];
-	CELLS.createCells( numCellsWidth, numCellsHeight );
+	createTextures( numCellsWidth, numCellsHeight )
 	renderAllCells();
 
 	console.log("Updated grid succesfully");
@@ -47,9 +48,6 @@ function changeTopology(){
 	
 	pauseSim();	// First pause simulation	
 	
-	// Generate new neighbours for all cells based on new topology
-	CELLS.forAll( testCell.generateNeighbours );
-
 	console.log("Succesfully updated topology to "+topology);
 }
 
@@ -66,9 +64,6 @@ function changeVonNeumann(){
 		document.getElementById("vonneumann").value = "false";
 		return; 
 	}
-	// Generate new neighbour list for all 
-	// cells based on Von Neumann neighbourhood
-	CELLS.forAll( testCell.generateNeighbours );
 
 	console.log("Neighbourhood Changed");
 }
@@ -166,11 +161,7 @@ function changeUpdateMethod(){
 	currentUpdateMethod = eval(document.getElementById("updatemethod").value);
 	document.getElementById("updatedescription").innerHTML = currentUpdateMethod.name+": "+currentUpdateMethod.description;
 
-	// Regenerate neighbours in case they are dependent on update method
-	CELLS.forAll( testCell.generateNeighbours );
-	// Kill all update signals before they are updated by method
-	CELLS.forAll( testCell.killSignal );
-	// Perform any intialization actions required by method 
+	
 	currentUpdateMethod.initialize();
 	// Rerender cells (required if showing updating cells)
 	renderAllCells();
@@ -225,9 +216,13 @@ function changeBackgroundColor(){
 // Change the color of alive cells and re-render
 
 function changeAliveColor(){
-	aliveColor	= document.getElementById("choosealivecolor").value;
-	setGLRenderColor(aliveColor);
+	// Convert HTML hex value to normalized RGB values
+	aliveColor = convertHex( document.getElementById("choosealivecolor").value ).map(function(x){return x/255;});
+	// Subtract live cell color used for calculation
+	aliveColor[0] = aliveColor[0]-1;
+	// re-render
 	renderAllCells();
+
 }
 
 // Change menu and logo colors using HTML element
