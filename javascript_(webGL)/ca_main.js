@@ -71,7 +71,5 @@ changeBackgroundColor();
 changeTextColor();
 document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,20);
 
-generateUpdateFunctions();
-
 // Console message on succesful page load
 console.log("Loaded Succesfully");

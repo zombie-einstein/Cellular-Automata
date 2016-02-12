@@ -43,9 +43,6 @@ function updateGrid(){
 
 function loadAndUpdatePreset(){
 
-	// Clear current ruleset HTML forms
-	currentRuleSet.clearHTML();
-
 	// Check if value of form matches element of preset
 	// and if so load it to the current ruleset
 	for( var x in presets ){
@@ -53,10 +50,6 @@ function loadAndUpdatePreset(){
 			currentRuleSet.loadPreset( presets[x] );
 		}
 	}
-
-	// Make update ruleset HTML forms & set values
-	currentRuleSet.makeHTML();
-	currentRuleSet.setHTML();
 
 	console.log("Preset ruleset loaded");
 }
