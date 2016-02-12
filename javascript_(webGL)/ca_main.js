@@ -26,15 +26,13 @@ var numCellsHeight = 64;
 document.getElementById("cellWidthSelect" ).value = numCellsWidth.toString();
 document.getElementById("cellHeightSelect").value = numCellsHeight.toString();
 
+// Calculate cell width (to get value of mouse position)
 var cellWidth 	= canvasWidth  / numCellsWidth;
 var cellHeight 	= canvasHeight / numCellsHeight;
 
 // Start webGL & make textures
 startGL();
 createTextures( numCellsWidth, numCellsHeight );
-
-// Get updating method from HTML
-makeUpdateMenu();
 
 // Initialize timestep variable outside scope of animation function
 var timeStep;	
@@ -55,16 +53,15 @@ currentColorScheme.createMenus();
 
 // Declare Color variables
 var aliveColor;
-
-changeAliveColor();
-
-
 var deadColor;
+
+// Send live color to renderer
+changeAliveColor();
 
 // Write title in cells
 makeTitle();
 
-// Create chosen ruleset variable and intitially load game of life
+// Create chosen ruleset variable and intitially load "Game of Life"
 var currentRuleSet = new ruleSet();
 currentRuleSet.loadPreset( presets.gameOfLife );
 document.getElementById("loadpreset").value = "gameOfLife";
