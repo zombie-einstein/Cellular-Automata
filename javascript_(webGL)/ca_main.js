@@ -43,6 +43,11 @@ var simSpeed 		= document.getElementById("speedRange").value;
 // Simulation status switch
 var paused 			= true;
 
+// Create chosen ruleset variable and intitially load "Game of Life"
+var currentRuleSet = new ruleSet();
+currentRuleSet.loadPreset( presets.gameOfLife );
+document.getElementById("loadpreset").value = "gameOfLife";
+
 // Make a menu of pattern types in HTML
 createPatternMenu();
 
@@ -61,15 +66,12 @@ changeAliveColor();
 // Write title in cells
 makeTitle();
 
-// Create chosen ruleset variable and intitially load "Game of Life"
-var currentRuleSet = new ruleSet();
-currentRuleSet.loadPreset( presets.gameOfLife );
-document.getElementById("loadpreset").value = "gameOfLife";
-
 // Set background and menu colors from HTML
 changeBackgroundColor();
 changeTextColor();
 document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,20);
+
+//rulesetCanvas();
 
 // Console message on succesful page load
 console.log("Loaded Succesfully");

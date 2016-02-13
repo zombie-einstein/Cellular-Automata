@@ -50,6 +50,7 @@ function loadAndUpdatePreset(){
 			currentRuleSet.loadPreset( presets[x] );
 		}
 	}
+	rulesetCanvas();
 
 	console.log("Preset ruleset loaded");
 }
@@ -89,6 +90,7 @@ function changeBackgroundColor(){
 		elementsToChange[i].style.backgroundColor = deadColor;
 	
 	}
+	rulesetCanvas();
 }
 
 // Change the color of alive cells and re-render
@@ -100,7 +102,7 @@ function changeAliveColor(){
 	aliveColor[0] = aliveColor[0]-1;
 	// re-render
 	renderAllCells();
-
+	rulesetCanvas();
 }
 
 // Change menu and logo colors using HTML element
@@ -120,4 +122,5 @@ function changeTextColor(){
 		elementsToChange[i].style.color = textColor;
 		elementsToChange[i].style.borderColor = textColor;
 	}
+	rulesetCanvas();
 }

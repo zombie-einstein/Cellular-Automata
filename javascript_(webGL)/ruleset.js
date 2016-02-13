@@ -13,111 +13,102 @@ function ruleSet(){
 
 // Load a preset ruleset
 ruleSet.prototype.loadPreset = function( preset ){
-		
-	this.aliveSet = preset.aliveSet;
-	this.deadSet  = preset.deadSet;
-	
-}
-
-// Make a random ruleset
-
-ruleSet.prototype.makeRandom = function(){
-
-	this.number = Math.round( Math.random()*14+1 );
-
-	this.if  	= [];
-	this.and 	= [];
-	this.than	= [];
-	this.then	= [];
-
-	for ( var n = 0; n < this.number; n++ ){
-
-		this.if[n]	 = Math.random() > 0.5;
-
-		var random 	 = Math.random()*3;
-
-		if ( random < 1 )	 { this.and[n] = "<"; }
-		else if( random < 2 ){ this.and[n] = "="; }
-		else	             { this.and[n] = ">"; }
-
-		this.than[n] = Math.round( Math.random()*8 );
-
-		this.then[n] = !this.if[n];
+	this.aliveSet = [];
+	this.deadSet  = [];
+	for ( var i = 0; i < preset.aliveSet.length; i++ ){
+		this.aliveSet[i] = preset.aliveSet[i].slice();
+	}	
+	for ( var i = 0; i < preset.deadSet.length; i++ ){
+		this.deadSet[i] = preset.deadSet[i].slice();
 	}
-
 }
+
+function updateRuleset(event){
+
+	var mousePos 	= getMousePos( document.getElementById("aliverulecanvas"), event );
+	var x = Math.floor( (mousePos.x-10)/20  );
+	var y = Math.floor( mousePos.y/20 );
+	//console.log(x,",",y);
+
+	if ( y == 0 && x >= 0 ){
+		if ( currentRuleSet.deadSet[x][0] == 1 ){ 
+			currentRuleSet.deadSet[x][0] = 0;
+			currentRuleSet.deadSet[x][3] = 0;
+		}
+		else{  
+			currentRuleSet.deadSet[x][0] = 1;
+			currentRuleSet.deadSet[x][3] = 1;
+		}
+	}
+	if ( y == 1 && x >= 0 ){
+		if ( currentRuleSet.aliveSet[x][0] == 1 ){ 
+			currentRuleSet.aliveSet[x][0] = 0;
+			currentRuleSet.aliveSet[x][3] = 0;
+		}
+		else{  
+			currentRuleSet.aliveSet[x][0] = 1;
+			currentRuleSet.aliveSet[x][3] = 1;
+		}
+	}
+	rulesetCanvas();
+	document.getElementById("loadpreset").value = "custom";
+}
+
 
 // Append the ruleset from the values from the HTML inputs
 
-ruleSet.prototype.getRulesFromHTML = function(){
-	for ( var n = 0; n < this.number; n++ ){
-		this.if[n]		= stringToBool( document.getElementById( "if" 	+ n.toString() ).value );
-		this.and[n] 	= document.getElementById( "and"  + n.toString() ).value;
-		this.than[n]	= document.getElementById( "than" + n.toString() ).value;
-		this.then[n]	= stringToBool( document.getElementById( "then" + n.toString() ).value );
+function drawRuleset( ruleset, context ){
+
+
+	context.fillStyle = document.getElementById("choosealivecolor");
+
+	for ( var i = 0; i < ruleset.aliveSet.length; i++ ){
+		if (  ruleset.aliveSet[i][0] == 1 ){ 
+			context.fillRect(  10 +i*20, 20, 20, 20 );
+		}
+	}
+	for ( var i = 0; i < ruleset.deadSet.length; i++ ){
+		if (  ruleset.deadSet[i][0] == 1 ){ 
+			context.fillRect(  10 +i*20, 40, 20, 20 );
+		}
 	}
 }
 
-// update HTML values
+// Create canvas inputs for ruleset 
+function rulesetCanvas(){
 
-ruleSet.prototype.setHTML = function(){
-	for ( var n = 0; n < this.number; n++ ){
-		document.getElementById( "if" 	+ n.toString() ).value = boolToString( this.if[n]   );
-		document.getElementById( "and" 	+ n.toString() ).value = this.and[n];
-		document.getElementById( "than" + n.toString() ).value = this.than[n];
-		document.getElementById( "then" + n.toString() ).value = boolToString( this.then[n] );
+	var ruleCanvas 	= document.getElementById("aliverulecanvas");
+	var ruleContext	= ruleCanvas.getContext("2d");
+
+	ruleContext.clearRect(0,0,ruleCanvas.width,ruleCanvas.height);
+
+	ruleContext.fillStyle = document.getElementById("choosealivecolor").value;
+	ruleContext.fillRect( 0, 20, 10, 20 )
+
+	drawRuleset( currentRuleSet, ruleContext );
+
+	ruleContext.strokeStyle = document.getElementById("choosemenucolor").value;
+	ruleContext.strokeRect( 0,0, 30,20);
+	ruleContext.strokeRect( 0,20, 30,20);
+
+	ruleContext.font = "19px sans-serif";
+	ruleContext.fillStyle = document.getElementById("choosemenucolor").value;
+
+	for ( var i = 0; i < 9; i++){
+		ruleContext.fillText( i.toString(), 15 + i*20, 17 );
 	}
 
-	document.getElementById("numberofrules").value = this.number;
-}
+	for ( var i = 0; i < 3; i++){
+		for( var j = 0; j < 9; j++ ){
 
-// Clear HTML inputs
+			ruleContext.strokeRect( 10 + j*20, i*20, 20, 20 );
 
-ruleSet.prototype.clearHTML = function(){
-	for ( var n = 0; n < this.number; n++ ){
-		document.getElementById( "container"+n.toString() ).parentNode.removeChild( document.getElementById( "container"+n.toString() ) );
-	}	
-}
-
-// Create HTML inputs for ruleset 
-// (initially unset so don't need to add all the options every time)
-
-ruleSet.prototype.makeHTML = function(){
-	
-	for ( var n = this.number -1; n > -1; n-- ){
-
-		// Make HTML rule container
-		var container = document.createElement("div")
-		container.id = "container"+n.toString();
-
-		container.className = "main padding";
-
-		container.innerHTML	=  container.innerHTML + "Rule: " + (n+1).toString();
-
-		// Insert ruleset container
-		insertAfter( container, ruleformtop );
-
-		// Create inout form
-		var ruleForm = document.createElement("form");
-
-		ruleForm.onsubmit = function(){ return false;} ;
-		
-		// Add inputs and label according to number of rules
-		ruleForm.innerHTML = 'If cell is <select class="main" id="if' + n.toString() + '"><option value="true">Alive</option> <option value= "false">Dead </option></select>';
-
-		ruleForm.innerHTML = ruleForm.innerHTML + 'and &#8470; of live neighbours is <select class="main" id="and' + n.toString() + '"><option value= "="  > =  </option><option value= ">"  > &gt;  </option><option value= "<"  > &lt;  </option></select>';
-
-		ruleForm.innerHTML = ruleForm.innerHTML + '<input type="number" class="main" id="than' + n.toString() + '" min="0" max="8" value ="0" step="1" >';
-
-		ruleForm.innerHTML = ruleForm.innerHTML + 'then the cell will be<select class="main" id="then' + n.toString() + '"><option value= "true"  > Alive   </option><option value= "false"> Dead  </option></select>'
-
-		// Insert form into Div
-		container.appendChild(ruleForm);
-
-		changeBackgroundColor();
-		changeTextColor();
+		}
 	}
+
 }
+
+
 
 // Insert HTML element after another
 function insertAfter(newNode, referenceNode) {

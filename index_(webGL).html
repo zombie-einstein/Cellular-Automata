@@ -110,6 +110,7 @@
 
 <h1 class="main noBorder" style="margin: 5px"> GAME OF LIFE </h1>
 <h2 class="main noBorder"> WebGL version </h2>
+<p>Cell calculations and rendering are performed by the GPU allowing for larger numbers of cells.</p>
 <h3>By Zombie-Einstein</h3>
 
 <p >
@@ -179,39 +180,16 @@ Width
 <form class="main" onsubmit="return false">
   Load Preset Rules
   <select class="main" id="loadpreset" onchange="loadAndUpdatePreset()"> 
-      <option value="custom" >  Custom </option>
+     <option value="custom" >  Custom </option> 
   </select>
 </form>
+<h3> Rules </h3>
+<p>Click to change the cell state resulting from a current state, and a number of neighbours.</p> 
+<canvas id="aliverulecanvas" class="main "  onclick="updateRuleset(event)" width="190" height=60 >
+Too bad your browser does not support the HTML5 canvas.
+</canvas>
 
-<!--
-<button class="main" onclick="randomRuleSet()"> Random </button><br>
--->
 
-
-<!-- Rule forms are generated here by javascript -->
-
-<!--
-<button class="main padding centred" onclick="updateRuleset()"> Update  Ruleset </button><br>
-
-<form >
-
-  Choose Updating Method
- 
-  <select id="updatemethod" class="main" onchange="changeUpdateMethod()"></select>
-</form>
-
-<p id="updatedescription" > </p>
-
-<form> 
-Show cells that will update:
-  <select id="showupdatingcells" class="main" onchange="changeShowUpdating()" > 
-  <option value="false" > No </option>
-  <option value="rgba(255,255,255,0.5)" > White </option>
-  <option value="rgba(0,0,0,0.5)" > Black </option>
-  </select>
-</form>
-
--->
 <h2 class="bordersTop"> Cells </h2>
 <button class="main" onclick="fillRandomCells()" > Fill Randomly </button> 
 <form class="main" onsubmit="return false" >

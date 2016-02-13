@@ -30,7 +30,7 @@ function pauseSim(){
 	clearInterval( timeStep );
 	paused = true;
 	document.getElementById("startbutton").style.backgroundColor = deadColor;
-	document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,20);
+	document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,40);
 	}
 }
 
