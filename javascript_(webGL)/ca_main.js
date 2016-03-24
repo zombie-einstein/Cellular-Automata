@@ -2,20 +2,11 @@
 
 //******************************************************//
 // MAIN SCRIPT STARTS HERE:                             //
-// - Set size of canvas                                 //
 // - Set size of cells                                  //
-// - Declare variables that require global scope        //
 // - Generate and render the initial screen             //
 //                                                      //
 //******************************************************//
 
-
-// Canvas declared in web_gl.js
-canvas 			= document.getElementById("canvas");
-
-// Dynamically set canvas size accounting for menu bar
-canvas.width  	= window.innerWidth-document.getElementById("menus").offsetWidth;
-canvas.height 	= window.innerHeight;
 
 // Object to hold cell parameters, set intital number at 64x64
 var cells = { d: new vec(0,0), n: new vec(64,64) };
@@ -24,26 +15,16 @@ var cells = { d: new vec(0,0), n: new vec(64,64) };
 document.getElementById("cellWidthSelect" ).value = cells.n.x.toString();
 document.getElementById("cellHeightSelect").value = cells.n.y.toString();
 
-cells.d.x = canvas.width  / cells.n.x;
-cells.d.y = canvas.height / cells.n.y;
+// Calculate cell dimensions
+cells.d.x = mainCanvas.dimensions.x / cells.n.x;
+cells.d.y = mainCanvas.dimensions.y / cells.n.y;
 
-// Create a current ruleset variable and intitially load "Game of Life"
-var currentRuleSet = new ruleSet(0,0);
-currentRuleSet.loadPreset( presets.gameOfLife );
-document.getElementById("loadpreset").value = "gameOfLife";
-
-// Start webGL & make textures of appropriate dimensions
-startGL();
-createTextures( cells.n.x, cells.n.y );
-
-// Initialize timestep variable outside scope of animation function
-canvas.timeStep;
+// Create main canvas textures from these values
+mainCanvas.textures.back.loadR( mainCanvas.gl, cells.n.x, cells.n.y );
+mainCanvas.textures.front.loadR( mainCanvas.gl, cells.n.x, cells.n.y );
 
 // Get simulation speed from HTML
-canvas.speed 	= document.getElementById("speedRange").value;
-
-// Simulation status switch
-canvas.paused 		= true;
+mainCanvas.speed 	= document.getElementById("speedRange").value;
 
 // Make a menu of pattern types in HTML
 createPatternMenu();
@@ -61,12 +42,15 @@ var deadColor;
 changeAliveColor();
 
 // Write title in cells
-makeTitle();
+mainCanvas.makeTitle();
 
 // Set background and menu colors from HTML
 changeBackgroundColor();
 changeTextColor();
 document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,40);
 
+// Load the game of life ruleset to the current ruleset
+ruleCanvas.loadPreset( presets.gameOfLife );
+
 // Console message on succesful page load
-console.log("Loaded Succesfully");
+console.log("Page loaded succesfully");

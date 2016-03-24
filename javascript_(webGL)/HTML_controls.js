@@ -5,26 +5,26 @@
 // Get sim speed from HTML
 
 function getSimSpeed(){
-	canvas.speed = document.getElementById("speedRange").value;
+	mainCanvas.speed = document.getElementById("speedRange").value;
 	// If the simulation is running pause and restart to
 	// avoid problem of continually increasing speed
-	if ( canvas.paused == false ){
-		pauseSim();
-		startSim();
+	if ( mainCanvas.paused == false ){
+		mainCanvas.pauseSim();
+		mainCanvas.startSim();
 	}
 }
 
 function clearCells(){
 
-	pauseSim();
-	killAll();
+	mainCanvas.pauseSim();
+	mainCanvas.clearCells();
 
 }
 
 // Update number and size of cells when changed
 function updateGrid(){
 
-	pauseSim();	// first send pause signal
+	mainCanvas.pauseSim();	// first send pause signal
 
 	// Get new values from HTML
 	cells.n.x 	= Number( Math.floor(document.getElementById("cellWidthSelect").value) );
@@ -35,8 +35,8 @@ function updateGrid(){
 	cells.d.y 	= canvas.height / cells.n.y;
 
 	// Update all cells and render
-	createTextures( cells.n.x, cells.n.y );
-	renderAllCells();
+	mainCanvas.updateCellDimensions( cells.n.x, cells.n.y );
+	mainCanvas.renderCells();
 
 	console.log( "Updated grid to ", cells.n.x, "x", cells.n.y );
 
@@ -46,26 +46,15 @@ function updateGrid(){
 
 function loadAndUpdatePreset(){
 
-	// Check if value of form matches element of preset
-	// and if so load it to the current ruleset
-	for( var x in presets ){
-		if ( x ==  document.getElementById("loadpreset").value ){
-
-			currentRuleSet.loadPreset( presets[x] );
-
-		}
-	}
-	//rulesetCanvas();
-	loadRuleSet();
-	console.log("Preset ruleset loaded");
+	ruleCanvas.loadPreset( presets[ document.getElementById("loadpreset").value] );
 
 }
 
 // Fill screen with randomly assigned cells
 function fillRandomCells(){
 
-	loadRandomTexture( document.getElementById("pAlive").value );
-
+	mainCanvas.fillRandomCells( document.getElementById("pAlive").value );
+	mainCanvas.renderCells();
 }
 
 // Change color schemes from menu
@@ -88,7 +77,7 @@ function changeBackgroundColor(){
 
 	document.getElementById("body").style.backgroundColor = deadColor;
 
-	renderAllCells();
+	mainCanvas.renderCells();
 
 	// Update color of HTML elements
 	var elementsToChange = document.getElementsByClassName("main");
@@ -96,7 +85,7 @@ function changeBackgroundColor(){
 		elementsToChange[i].style.backgroundColor = deadColor;
 
 	}
-	rulesetCanvas();
+
 }
 
 // Change the color of alive cells and re-render
@@ -107,8 +96,8 @@ function changeAliveColor(){
 	// Subtract live cell color used for calculation
 	aliveColor[0] = aliveColor[0]-1;
 	// re-render
-	renderAllCells();
-	rulesetCanvas();
+	mainCanvas.renderCells();
+
 }
 
 // Change menu and logo colors using HTML element
@@ -128,5 +117,5 @@ function changeTextColor(){
 		elementsToChange[i].style.color = textColor;
 		elementsToChange[i].style.borderColor = textColor;
 	}
-	rulesetCanvas();
+
 }

@@ -103,7 +103,7 @@
 </head>
 
 
-<body id= "body" onresize = "resizeFunction()">
+<body id= "body" onresize = "mainCanvas.windowResize()">
 
 <div id="menus"  class="main noBorder double">
 <div id="internal" class="main noBorder">
@@ -130,9 +130,9 @@ Fork this project on<br>
 
 <h2 class="bordersTop"> Controls </h2>
 
-<button                  onclick="stepSim()"   class="main" > Step  </button>
-<button id="startbutton" onclick="startSim()"  class="main" > Start </button>
-<button id="stopbutton"  onclick="pauseSim()"  class="main" > Stop  </button>
+<button                  onclick="mainCanvas.stepSim()"   class="main" > Step  </button>
+<button id="startbutton" onclick="mainCanvas.startSim()"  class="main" > Start </button>
+<button id="stopbutton"  onclick="mainCanvas.pauseSim()"  class="main" > Stop  </button>
 <button                  onclick="clearCells()"   class="main" > Clear </button>
 
 <strong>Speed:</strong>
@@ -184,8 +184,10 @@ Width
   </select>
 </form>
 <h3> Rules </h3>
+
 <p>Click to change the cell state resulting from a current state, and a number of neighbours.</p>
-<canvas id="aliverulecanvas" class="main "  onclick="updateRuleset(event)" width="190" height=60 >
+
+<canvas id="rulecanvas" class="main "  onclick="ruleCanvas.clickEvent(event)" width="190" height=60 >
 Too bad your browser does not support the HTML5 canvas.
 </canvas>
 
@@ -223,18 +225,22 @@ When paused, click on a cell to:
 
 
 
-<canvas id="canvas" class="main noBorder"  onclick="clickEvent(event)" >
+<canvas id="canvas" class="main noBorder"  onclick="mainCanvas.clickEvent(event)" >
 Too bad your browser does not support the HTML5 canvas.
 </canvas>
 
 <script src ="javascript_(webGL)/vector.js"			  ></script>
-<script src ="javascript_(webGL)/canvas.js"			  ></script>
 <script src ="javascript_(webGL)/patterns.js"		  ></script>
-<script src ="javascript_(webGL)/ruleset.js"      ></script>
-<script src ="javascript_(webGL)/presets.js"  		></script>
+
 <script src ="javascript_(webGL)/color.js"  		  ></script>
 <script src ="javascript_(webGL)/HTML_controls.js"></script>
-<script src ="javascript_(webGL)/webgl.js"       ></script>
+
+<script src ="javascript_(webGL)/canvas_class.js" ></script>
+<script src ="javascript_(webGL)/main_canvas.js"       ></script>
+
+<script src ="javascript_(webGL)/ruleset.js"      ></script>
+<script src ="javascript_(webGL)/presets.js"  		></script>
+
 <script src ="javascript_(webGL)/ca_main.js"      ></script>
 
 </body>

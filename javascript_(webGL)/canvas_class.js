@@ -15,13 +15,13 @@ PROGRAM.prototype.initialize = function( gl, vertex, fragment ){
   this.positionLocation = gl.getAttribLocation( this.program, "a_position" ); // Set location for position attribute
   this.texCoordLocation = gl.getAttribLocation( this.program, "a_texCoord" ); // Set location for texture coordinates
 
-  console.log("Program succesfully created");
+  console.log("Program created");
 }
 
 PROGRAM.prototype.addUniform = function( gl, newUniform, location ){
 
-  this.newUniform = gl.getUniformLocation( this.program, location );
-
+  this[newUniform] = gl.getUniformLocation( this.program, location );
+  console.log(newUniform+" added");
 }
 
 PROGRAM.prototype.render = function( gl ){
@@ -50,7 +50,7 @@ PROGRAM.prototype.render = function( gl ){
 function TEXTURE(){
 
   this.data;
-  this.dimensions = new vec;
+  this.dimensions = new vec(0,0);
 
 }
 
@@ -86,10 +86,10 @@ TEXTURE.prototype.fillRandomR = function( gl, r, g, b, a, rate ){
 
   for ( var i = 0; i < randomData.length; i+=4 ){
     if ( Math.random() < rate ){
-      initData[i]   = r;
-      initData[i+1] = g;
-      initData[i+2] = b;
-      initData[i+3] = a;
+      randomData[i]   = r;
+      randomData[i+1] = g;
+      randomData[i+2] = b;
+      randomData[i+3] = a;
     }
   }
   this.loadR( gl, this.dimensions.x, this.dimensions.y, randomData );
@@ -135,17 +135,32 @@ TEXTURE.prototype.setPixelValue = function( gl, x, y, r, g, b, a ){
 
 }
 
-// General WebGL canvas class
+// ======== General WebGL canvas class ======== //
 
 function WEBGLCANVAS( ID ){
 
-  this.id         = ID;       // HTML object ID
+  this.id         = document.getElementById(ID);       // HTML object ID
   this.dimensions = new vec;  // Canvas dimensions
 
   this.programs   = {};       // WebGL programs
   this.textures   = {};       // Textures
 
   this.gl;       // OpenGL context
+
+}
+
+WEBGLCANVAS.prototype.resize = function(){
+
+  this.id.width = this.dimensions.x;
+  this.id.height= this.dimensions.y;
+
+}
+
+WEBGLCANVAS.prototype.getMousePos = function( event ){
+
+  var rect 		= this.id.getBoundingClientRect();
+  var mousePos 	= new vec( event.clientX -rect.left, rect.bottom-event.clientY );
+  return mousePos;
 
 }
 
@@ -163,9 +178,9 @@ WEBGLCANVAS.prototype.initWebGL = function(){
 
 WEBGLCANVAS.prototype.addProgram = function( newProgram, vertex, fragment ){
 
-  this.programs.newProgram = new PROGRAM;
-  this.programs.newProgram.initialize( this.gl, vertex, fragment );
-  console.log("Program loaded");
+  this.programs[newProgram] = new PROGRAM;
+  this.programs[newProgram].initialize( this.gl, vertex, fragment );
+  console.log("Program "+newProgram+" loaded");
 
 }
 

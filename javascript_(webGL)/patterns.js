@@ -6,7 +6,7 @@
 // Blank pattern constructor
 
 function pattern(x,y){
-	
+
 	this.name;
 	this.area = new vec(x,y);	// Size of pattern
 	this.map = [];				// Array of lines for pattern
@@ -34,28 +34,30 @@ pattern.prototype.printPattern = function( location ){
 		for ( var n = 0; n < this.map.length; n++ ){
 			for ( var m = 0; m < this.map[n].length; m++ ){
 				// Stay inside the cell array
-				if ( location.x+n >= 0 && location.x+n < cells.n.x &&  
+				if ( location.x+n >= 0 && location.x+n < cells.n.x &&
 					 location.y-m >= 0 && location.y-m < cells.n.y ){
 
 					switch( this.map[n][m] ){
 
 						case 'O':
 
-						changePixelState( location.x+n, location.y-m, 1 );
-					
+						mainCanvas.setPixelValue( location.x+n, location.y-m, 255,0,0,255 );
+						//changePixelState( location.x+n, location.y-m, 1 );
+
 					break;
 
 						case 'X':
 
-						changePixelState( location.x+n, location.y-m, 0 );
-			
+						mainCanvas.setPixelValue( location.x+n, location.y-m, 0,0,0,0 );
+						//changePixelState( location.x+n, location.y-m, 0 );
+
 					break;
-				
+
 				}}
 			}
 		}
 		// Re-render cells after creating pattern
-		renderAllCells();
+		mainCanvas.renderCells();
 	}
 }
 
@@ -63,7 +65,7 @@ pattern.prototype.printPattern = function( location ){
 var patternArray = { static: new patternType, spaceships: new patternType, guns: new patternType }
 
 
-// ====== Static patterns (In game of life) ====== 
+// ====== Static patterns (In game of life) ======
 	patternArray.static.name = "Static";
 
 	// Stationary Block
@@ -106,7 +108,7 @@ var patternArray = { static: new patternType, spaceships: new patternType, guns:
 	patternArray.spaceships.patterns = [ glider, LWSS ];
 
 // ======= Glider Gun =======
-	
+
 	patternArray.guns.name = "Guns";
 
 	// Gosper glider gun
@@ -167,7 +169,7 @@ function createPatternMenu(){
 		for ( var n = 0; n < patternArray[x].patterns.length; n++ ){
 
 			document.getElementById("presetlist").innerHTML+= '<option value="patternArray.'+x.toString()+'.patterns['+n.toString()+']"> '+patternArray[x].patterns[n].name+' </option>';
-		
+
 		}
 	}
 }

@@ -36,3 +36,7 @@ vec.prototype.scale = function(a){
 vec.prototype.sum = function( b ){
 	return new vec( this.x + b.x, this.y + b.y );
 }
+
+vec.prototype.print = function(){
+	console.log("(",this.x,",",this.y,")");
+}

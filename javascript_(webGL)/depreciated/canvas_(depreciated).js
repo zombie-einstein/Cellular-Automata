@@ -4,15 +4,15 @@
 
 
 // Step simulation
-function stepSim(){ mainLoop(); }
+function stepSim(){ mainCanvas.mainLoop(); }
 
 // Run simulation function
 function startSim(){
 
 	// Check sim isn't already running
-	if( canvas.paused == true ){ 
-		canvas.timeStep = setInterval( mainLoop, canvas.speed ); 
-		canvas.paused	= false;
+	if( mainCanvas.paused == true ){
+		mainCanvas.timeStep = setInterval( stepSim, mainCanvas.speed );
+		mainCanvas.paused	= false;
 		// Lighten start button to indicate status
 		document.getElementById("startbutton").style.backgroundColor = LightenDarkenColor(deadColor,40);
 		document.getElementById("stopbutton").style.backgroundColor  = deadColor;
@@ -25,9 +25,9 @@ function startSim(){
 function pauseSim(){
 
 	// Check sim isn't already paused
-	if( canvas.paused == false ){ 
-		clearInterval( canvas.timeStep );
-		canvas.paused = true;
+	if( mainCanvas.paused == false ){
+		clearInterval( mainCanvas.timeStep );
+		mainCanvas.paused = true;
 		// Lighten pause button to indicate status
 		document.getElementById("startbutton").style.backgroundColor = deadColor;
 		document.getElementById("stopbutton").style.backgroundColor  = LightenDarkenColor(deadColor,40);
@@ -37,40 +37,38 @@ function pauseSim(){
 }
 
 // Get Mouse position relative to canvas
-function getMousePos(canvas, evt){
-    
+function getMousePos( canvas, evt ){
+
     var rect 		= canvas.getBoundingClientRect();
-	var mousePos 	= new vec( evt.clientX -rect.left, rect.bottom-evt.clientY );
-	return mousePos;
+		var mousePos 	= new vec( evt.clientX -rect.left, rect.bottom-evt.clientY );
+		return mousePos;
 
 }
 
 // If the window is resized, resize the canvas and shift all the elements
 function resizeFunction() {
-	
+
 	// Calculate scaling ratio of new canvas area
-	var xScaling 		= ( window.innerWidth-document.getElementById("menus").offsetWidth) / canvas.width ;
-	var yScaling 		= window.innerHeight / canvas.height ;
+	var xScaling 		= ( window.innerWidth-document.getElementById("menus").offsetWidth) / mainCanvas.dimensions.x ;
+	var yScaling 		= window.innerHeight / mainCanvas.dimensions.y ;
 	// Set new canvas width
-	canvas.width  	= window.innerWidth-document.getElementById("menus").offsetWidth;
-	canvas.height 	= window.innerHeight;
+	mainCanvas.dimensions.x  	= window.innerWidth-document.getElementById("menus").offsetWidth;
+	mainCanvas.dimensions.y 	= window.innerHeight;
+	mainCanvas.resize();
 	// Applying scaling to cell dimensions
 	cells.d.x 	*= xScaling;
 	cells.d.y 	*= yScaling;
-	// Reset resolution of WebGL and re-render 
-	gl.viewport(0, 0, canvas.width, canvas.height);
-	renderAllCells();
+	// Reset resolution of WebGL and re-render
+	mainCanvas.gl.viewport(0, 0, mainCanvas.dimensions.x, mainCanvas.dimensions.y );
+	mainCanvas.renderCells();
 
 }
 
 // Click to change cell state or add preset pattern
-function clickEvent(event){
-
-	// Don't change the canvas whilst sim running 
-	// if ( paused == false ){ return; }
+function clickEvent( event ){
 
 	// Get mouse position and convert to cell grid number
-	var mousePos 	= getMousePos( canvas, event );
+	var mousePos 	= mainCanvas.getMousePos( event );
 	var x = Math.floor(mousePos.x /cells.d.x);
 	var y = Math.floor(mousePos.y /cells.d.y);
 	var mouseVec = new vec( x, y );
@@ -79,8 +77,8 @@ function clickEvent(event){
 	switch ( document.getElementById("presetlist").value ){
 
 		case "single":
-			switchPixelState( mouseVec.x, mouseVec.y );
-			renderAllCells();
+			mainCanvas.switchPixelState( mouseVec.x, mouseVec.y );
+			mainCanvas.renderCells();
 			break;
 
 		case "random5":
@@ -100,7 +98,7 @@ function clickEvent(event){
 
 		default:
 			eval(document.getElementById("presetlist").value).printPattern( mouseVec );
-	
+
 	}
 }
 

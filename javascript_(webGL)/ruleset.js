@@ -11,101 +11,94 @@ function ruleSet( x, y ){
 
 }
 
+var ruleCanvas = new WEBGLCANVAS( "rulecanvas" );
+
+// Get dimensions from HTML
+ruleCanvas.dimensions.x = ruleCanvas.id.width;
+ruleCanvas.dimensions.y = ruleCanvas.id.height;
+
+// Create WebGL context for this context
+ruleCanvas.initWebGL();
+
+// Simple display shader to display rule texture
+ruleCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
+
+// Add color shift location to display (to get correct live cell color)
+ruleCanvas.programs.display.addUniform( ruleCanvas.gl, "colorLocation", "u_colorShift" );
+
+// Attach the current ruleset to
+ruleCanvas.currentRuleSet = new ruleSet(0,0);
+
+// Only one texture required to display ruleset
+ruleCanvas.textures.ruleset = new TEXTURE;
+
+// *********************************************
+// ********* FUNCTION DEFINITIONS **************
+// *********************************************
+
 // Load a preset ruleset
-ruleSet.prototype.loadPreset = function( preset ){
-	// Copy values, making sure not to pass by reference!!
-	this.dimensions.assign( preset.dimensions );
+ruleCanvas.loadPreset = function( preset ){
 
-	this.data	= new Uint8Array(  4*preset.dimensions.x*preset.dimensions.y );
+	this.currentRuleSet.name = preset.name;
+	this.currentRuleSet.dimensions.x = preset.dimensions.x;
+	this.currentRuleSet.dimensions.y = preset.dimensions.y;
+	this.currentRuleSet.data = preset.data.slice();
 
-	for ( var i = 0; i < 4*preset.dimensions.x*preset.dimensions.y; i++ ){ this.data[i] = preset.data[i]; }
+	this.loadRuleTexture();
+	this.renderRules();
+	this.pushRuleToMain();
+}
+
+// Load the current rule-set texture
+ruleCanvas.loadRuleTexture = function(){
+
+	this.textures.ruleset.loadO( this.gl, this.currentRuleSet.dimensions.x, this.currentRuleSet.dimensions.y, this.currentRuleSet.data  );
 
 }
 
-function updateRuleset(event){
+// Push the current ruleset to the main canvas rule texture
+ruleCanvas.pushRuleToMain = function(){
 
-	var mousePos 	= getMousePos( document.getElementById("aliverulecanvas"), event );
-	var x = Math.floor( (mousePos.x-10)/20  );
-	var y = Math.floor( mousePos.y/20 );
-	//console.log(x,",",y);
+	mainCanvas.loadRuleset( this.currentRuleSet );
 
-	if ( y == 0 && x >= 0 ){
-		if ( currentRuleSet.deadSet[x][0] == 1 ){
-			currentRuleSet.deadSet[x][0] = 0;
-			currentRuleSet.deadSet[x][3] = 0;
-		}
-		else{
-			currentRuleSet.deadSet[x][0] = 1;
-			currentRuleSet.deadSet[x][3] = 1;
-		}
-	}
-	if ( y == 1 && x >= 0 ){
-		if ( currentRuleSet.aliveSet[x][0] == 1 ){
-			currentRuleSet.aliveSet[x][0] = 0;
-			currentRuleSet.aliveSet[x][3] = 0;
-		}
-		else{
-			currentRuleSet.aliveSet[x][0] = 1;
-			currentRuleSet.aliveSet[x][3] = 1;
-		}
-	}
-	rulesetCanvas();
+}
+
+// Render the current rule-set texture to the canvas
+ruleCanvas.renderRules = function(){
+
+	this.gl.useProgram( this.programs.display.program );
+  // Set color shift to achieve live cell color
+  this.gl.uniform4f( this.programs.display.colorLocation, aliveColor[0], aliveColor[1] ,aliveColor[2], 0 );
+  // Bind texture
+  this.gl.activeTexture( this.gl.TEXTURE0 );
+  this.gl.bindTexture( this.gl.TEXTURE_2D, this.textures.ruleset.data );
+  this.gl.viewport( 0, 0, this.dimensions.x, this.dimensions.y );
+  this.programs.display.render( this.gl );
+
+}
+
+ruleCanvas.clickEvent = function( event ){
+
+	this.currentRuleSet.name = "Custom";
 	document.getElementById("loadpreset").value = "custom";
-}
+	// Get mouse position and convert to cell grid number
+	var mousePos 	= this.getMousePos( event );
+	var x = Math.floor(mousePos.x * this.currentRuleSet.dimensions.x / this.dimensions.x );
+	var y = Math.floor(mousePos.y * this.currentRuleSet.dimensions.y / this.dimensions.y  );
 
+	var n = 4*( x + this.currentRuleSet.dimensions.x * y );
 
-// Append the ruleset from the values from the HTML inputs
-
-function drawRuleset( ruleset, context ){
-
-}
-
-// Create canvas inputs for ruleset
-function rulesetCanvas(){
-
-	var ruleCanvas 	= document.getElementById("aliverulecanvas");
-	var ruleContext	= ruleCanvas.getContext("2d");
-
-	ruleContext.clearRect(0,0,ruleCanvas.width,ruleCanvas.height);
-
-	ruleContext.fillStyle = document.getElementById("choosealivecolor").value;
-	ruleContext.fillRect( 0, 20, 10, 20 )
-
-	drawRuleset( currentRuleSet, ruleContext );
-
-	ruleContext.strokeStyle = document.getElementById("choosemenucolor").value;
-	ruleContext.strokeRect( 0,0, 30,20);
-	ruleContext.strokeRect( 0,20, 30,20);
-
-	ruleContext.font = "19px sans-serif";
-	ruleContext.fillStyle = document.getElementById("choosemenucolor").value;
-
-	for ( var i = 0; i < 9; i++){
-		ruleContext.fillText( i.toString(), 15 + i*20, 17 );
-	}
-
-	for ( var i = 0; i < 3; i++){
-		for( var j = 0; j < 9; j++ ){
-
-			ruleContext.strokeRect( 10 + j*20, i*20, 20, 20 );
-
+	if ( x > 0 ){
+		if ( this.currentRuleSet.data[n] == 0 ){
+			this.currentRuleSet.data[n] = 255;
+			this.currentRuleSet.data[n+3] = 255;
 		}
+		else{	this.currentRuleSet.data[n] = 0;
+					this.currentRuleSet.data[n+3] = 0;	}
 	}
 
-}
+	this.loadRuleTexture();
+	this.renderRules();
+	this.pushRuleToMain();
 
-
-
-// Insert HTML element after another
-function insertAfter(newNode, referenceNode) {
-    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-}
-// Convert boolean value to appropriate string
-function boolToString( a ){
-	if( a == true ){ return "true";}
-	else{ return "false"; }
-}
-// Convet string to appropriate boolean
-function stringToBool( a ){
-	return a == "true";
 }
