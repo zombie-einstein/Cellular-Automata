@@ -17,12 +17,13 @@
         varying vec2 v_texCoord;
 
         void main() {
-          
+
           gl_Position = vec4( a_position, 0, 1);
 
    		    v_texCoord = a_texCoord;
-        
+
         }
+
     </script>
 
      <!-- Display fragment shader, just displays without any calculation -->
@@ -37,9 +38,9 @@
 
 	    uniform sampler2D u_image;
 
-      void main() { 
-      
-        gl_FragColor = 	texture2D(u_image, v_texCoord) +u_colorShift; 
+      void main() {
+
+        gl_FragColor = 	texture2D(u_image, v_texCoord) +u_colorShift;
 
       }
 
@@ -51,51 +52,50 @@
 
 
     precision mediump float;
-    // Arrays of vectors which contain ruleset
-	  uniform vec4 alive[9];
-	  uniform vec4 dead[9];	
+
     // Array of neighbour locations
-    // Length set by string replacement in js
     uniform ivec2 neighbours[8];
 
+
+
+    // Previous state texture and dimensions
 	  uniform vec2 u_textureSize;
-	  uniform sampler2D u_image;
- 
+	  uniform sampler2D u_backText;
+
+    // Texture that encodes ruleset and dimensions
+    uniform vec2 u_ruleSize;
+    uniform sampler2D u_rulesText;
+
+    // Varying values passed from vertex shader
 	  varying vec2 v_texCoord;
 
-	  // Function returns neighbour colour values: between 1 (i.e. 255) or 0 
-      vec4 get( int x, int y, vec2 pixel ){ return texture2D(u_image, v_texCoord + pixel * vec2(x,y) );  }
+	  // Function returns neighbour colour values: between 1 (i.e. 255) or 0
+      vec4 get( int x, int y, vec2 pixel, sampler2D texture ){ return texture2D( texture, v_texCoord + pixel * vec2(x,y) );  }
 
-      void main(){ 
-      	// Get co-ordinate values to get move one pixel of texture
+      void main(){
+      	// Get co-ordinate values to move one pixel of textures
       	vec2 onePixel = vec2( 1.0, 1.0 )/u_textureSize;
-      	
+        vec2 ruleUnit = vec2( 1.0, 1.0 )/u_ruleSize;
+
+        // Initialize average neighbour sum vector
         vec4 neighbourSum = vec4(0.0,0.0,0.0,0.0);
 
+        // Sum over neighbours
         for ( int i = 0; i < 8; i++ ){
-          neighbourSum += get( neighbours[i].x, neighbours[i].y, onePixel );
-        } 
-					
-      	// Integer No of red neighbours
-      	int redNeighbours = int(neighbourSum.x);
+          neighbourSum += get( neighbours[i].x, neighbours[i].y, onePixel, u_backText );
+        }
 
-      	// If alive ( i.e. cell is red ), then apply alive rules
-      	if ( texture2D(u_image, v_texCoord).x == 1.0 ){	
-      		for( int i = 0; i < 9; i ++ ){
+        // Loop over LH column of rule texture and check for matches
+        // (i.e matches current cell state RGBA value to value of rule texture )
+        for ( int i = 0; i <2; i++ ){
 
-      			if( redNeighbours == i ){ gl_FragColor = alive[i]; }
+          if ( texture2D(u_backText, v_texCoord) == texture2D( u_rulesText, 0.5*ruleUnit+ruleUnit*vec2(0,i) ) ){
+            // When match found then assign color value from rule texture
+            gl_FragColor = texture2D( u_rulesText, 0.5*ruleUnit+ruleUnit*vec2( neighbourSum.x+1.0,i) );
 
-      		}
-      	}
+          }
+        }
 
-      	else { 
-      		for( int i = 0; i < 9; i ++ ){
-
-      			if( redNeighbours == i ){ gl_FragColor = dead[i]; }
-
-      		}
-      	}
-      	
       } // End of main
 
     </script>
@@ -114,8 +114,8 @@
 <h3>By Zombie-Einstein</h3>
 
 <p >
-Cellular automaton based on John Conway's game of life. 
-At each turn each cell measures the state of it's neighbours and  
+Cellular automaton based on John Conway's game of life.
+At each turn each cell measures the state of it's neighbours and
 then updates it's state based on it's current state and the number of alive neighbours.
 </p>
 
@@ -139,16 +139,16 @@ Fork this project on<br>
 
 faster &#8674; slower
 
-<input type="range" class="main slider-width100" id="speedRange" value="1000" max="2000" min="5">
+<input type="range" class="main slider-width100" id="speedRange" value="600" max="1200" min="1">
 <button class="main" onclick="getSimSpeed()" > Update </button>
 
 <h2 class="bordersTop"> Space </h2>
 <p>Currenly due to the restrictions of WebGL cell numbers must be powers of two </p>
 
-  
+
 <form class="main" onsubmit="return false" >
 Width
-	<select class="main" id="cellWidthSelect" onchange="updateGrid()"> 
+	<select class="main" id="cellWidthSelect" onchange="updateGrid()">
       <option value="8" 	  >  8 	  </option>
       <option value="16" 	  >  16 	</option>
       <option value="32" 	  >  32 	</option>
@@ -160,7 +160,7 @@ Width
       <option value="2048"  >  2048 </option>
   	</select><br>
   	Height
-  	<select class="main" id="cellHeightSelect" onchange="updateGrid()"> 
+  	<select class="main" id="cellHeightSelect" onchange="updateGrid()">
       <option value="8" 	  >  8 	  </option>
       <option value="16" 	  >  16 	</option>
       <option value="32" 	  >  32 	</option>
@@ -170,7 +170,7 @@ Width
       <option value="512" 	>  512 	</option>
       <option value="1024" 	>  1024 </option>
       <option value="2048"  >  2048 </option>
-  	</select>  
+  	</select>
 </form>
 
 <p>Topology is also currently locked at torus</p>
@@ -179,19 +179,19 @@ Width
 
 <form class="main" onsubmit="return false">
   Load Preset Rules
-  <select class="main" id="loadpreset" onchange="loadAndUpdatePreset()"> 
-     <option value="custom" >  Custom </option> 
+  <select class="main" id="loadpreset" onchange="loadAndUpdatePreset()">
+     <option value="custom" >  Custom </option>
   </select>
 </form>
 <h3> Rules </h3>
-<p>Click to change the cell state resulting from a current state, and a number of neighbours.</p> 
+<p>Click to change the cell state resulting from a current state, and a number of neighbours.</p>
 <canvas id="aliverulecanvas" class="main "  onclick="updateRuleset(event)" width="190" height=60 >
 Too bad your browser does not support the HTML5 canvas.
 </canvas>
 
 
 <h2 class="bordersTop"> Cells </h2>
-<button class="main" onclick="fillRandomCells()" > Fill Randomly </button> 
+<button class="main" onclick="fillRandomCells()" > Fill Randomly </button>
 <form class="main" onsubmit="return false" >
   P(alive)=
   <input type="number" class="main" id="pAlive" min="0" max="1" value ="0.5" step="0.1" >
@@ -207,13 +207,13 @@ When paused, click on a cell to:
 <h2 class="bordersTop"> Colours Scheme</h2>
 
 <form>
-  <!-- Form entries are generated by javascript (see color.js) --> 
+  <!-- Form entries are generated by javascript (see color.js) -->
   Color Scheme
   <select class="main" id="chooseColorScheme"  onchange="changeColorScheme()"> </select><br>
   Dead Cells
   <select class="main" id="choosedeadcolor" onchange="changeBackgroundColor()" > </select><br>
   Alive Cells
-  <select class="main" id="choosealivecolor" onchange="changeAliveColor()" > </select><br> 
+  <select class="main" id="choosealivecolor" onchange="changeAliveColor()" > </select><br>
   Text
   <select class="main" id="choosemenucolor" onchange="changeTextColor()" > </select><br>
 </form>
@@ -234,8 +234,7 @@ Too bad your browser does not support the HTML5 canvas.
 <script src ="javascript_(webGL)/presets.js"  		></script>
 <script src ="javascript_(webGL)/color.js"  		  ></script>
 <script src ="javascript_(webGL)/HTML_controls.js"></script>
-<!--<script src ="javascript_(webGL)/update_method.js"></script>-->
-<script src ="javascript_(webGL)/web_gl.js"       ></script>
+<script src ="javascript_(webGL)/webgl.js"       ></script>
 <script src ="javascript_(webGL)/ca_main.js"      ></script>
 
 </body>

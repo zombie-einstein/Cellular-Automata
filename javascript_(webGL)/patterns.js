@@ -25,7 +25,7 @@ function patternType(){
 
 pattern.prototype.printPattern = function( location ){
 	// If the pattern is too large for area cancel and send alert message
-	if ( this.area.x > numCellsWidth || this.area.y > numCellsHeight ){
+	if ( this.area.x > cells.n.x || this.area.y > cells.n.y ){
 		alert("Pattern too large for cell area");
 		return;
 	}
@@ -34,8 +34,8 @@ pattern.prototype.printPattern = function( location ){
 		for ( var n = 0; n < this.map.length; n++ ){
 			for ( var m = 0; m < this.map[n].length; m++ ){
 				// Stay inside the cell array
-				if ( location.x+n >= 0 && location.x+n < numCellsWidth &&  
-					 location.y-m >= 0 && location.y-m < numCellsHeight ){
+				if ( location.x+n >= 0 && location.x+n < cells.n.x &&  
+					 location.y-m >= 0 && location.y-m < cells.n.y ){
 
 					switch( this.map[n][m] ){
 

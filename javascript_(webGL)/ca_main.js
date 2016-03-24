@@ -6,47 +6,44 @@
 // - Set size of cells                                  //
 // - Declare variables that require global scope        //
 // - Generate and render the initial screen             //
-//                                                      // 
-//******************************************************//   
+//                                                      //
+//******************************************************//
+
 
 // Canvas declared in web_gl.js
-canvas 		= document.getElementById("canvas");
+canvas 			= document.getElementById("canvas");
 
-// Dynamically set canvas size
+// Dynamically set canvas size accounting for menu bar
 canvas.width  	= window.innerWidth-document.getElementById("menus").offsetWidth;
 canvas.height 	= window.innerHeight;
 
-var canvasWidth 	= canvas.width;
-var canvasHeight 	= canvas.height;
+// Object to hold cell parameters, set intital number at 64x64
+var cells = { d: new vec(0,0), n: new vec(64,64) };
 
-// Set initial number of cells
-var numCellsWidth  = 64;
-var numCellsHeight = 64;
-// Set values in HTML
-document.getElementById("cellWidthSelect" ).value = numCellsWidth.toString();
-document.getElementById("cellHeightSelect").value = numCellsHeight.toString();
+// Send these initial values to the HTML
+document.getElementById("cellWidthSelect" ).value = cells.n.x.toString();
+document.getElementById("cellHeightSelect").value = cells.n.y.toString();
 
-// Calculate cell width (to get value of mouse position)
-var cellWidth 	= canvasWidth  / numCellsWidth;
-var cellHeight 	= canvasHeight / numCellsHeight;
+cells.d.x = canvas.width  / cells.n.x;
+cells.d.y = canvas.height / cells.n.y;
 
-// Start webGL & make textures
-startGL();
-createTextures( numCellsWidth, numCellsHeight );
-
-// Initialize timestep variable outside scope of animation function
-var timeStep;	
-
-// Get simulation speed from HTML
-var simSpeed 		= document.getElementById("speedRange").value;
-
-// Simulation status switch
-var paused 			= true;
-
-// Create chosen ruleset variable and intitially load "Game of Life"
-var currentRuleSet = new ruleSet();
+// Create a current ruleset variable and intitially load "Game of Life"
+var currentRuleSet = new ruleSet(0,0);
 currentRuleSet.loadPreset( presets.gameOfLife );
 document.getElementById("loadpreset").value = "gameOfLife";
+
+// Start webGL & make textures of appropriate dimensions
+startGL();
+createTextures( cells.n.x, cells.n.y );
+
+// Initialize timestep variable outside scope of animation function
+canvas.timeStep;
+
+// Get simulation speed from HTML
+canvas.speed 	= document.getElementById("speedRange").value;
+
+// Simulation status switch
+canvas.paused 		= true;
 
 // Make a menu of pattern types in HTML
 createPatternMenu();
@@ -69,9 +66,7 @@ makeTitle();
 // Set background and menu colors from HTML
 changeBackgroundColor();
 changeTextColor();
-document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,20);
-
-//rulesetCanvas();
+document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,40);
 
 // Console message on succesful page load
 console.log("Loaded Succesfully");

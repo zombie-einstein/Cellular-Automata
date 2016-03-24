@@ -2,25 +2,24 @@
 
 // *** Class and methods for the cellular automota ruleset ***//
 
-function ruleSet(){
+function ruleSet( x, y ){
 
 	this.name;				// Ruleset name
+	this.dimensions = new vec( x, y );
 
-	this.aliveSet	= [];
-	this.deadSet	= [];
+	this.data = new Uint8Array( 4*x*y );
 
 }
 
 // Load a preset ruleset
 ruleSet.prototype.loadPreset = function( preset ){
-	this.aliveSet = [];
-	this.deadSet  = [];
-	for ( var i = 0; i < preset.aliveSet.length; i++ ){
-		this.aliveSet[i] = preset.aliveSet[i].slice();
-	}	
-	for ( var i = 0; i < preset.deadSet.length; i++ ){
-		this.deadSet[i] = preset.deadSet[i].slice();
-	}
+	// Copy values, making sure not to pass by reference!!
+	this.dimensions.assign( preset.dimensions );
+
+	this.data	= new Uint8Array(  4*preset.dimensions.x*preset.dimensions.y );
+
+	for ( var i = 0; i < 4*preset.dimensions.x*preset.dimensions.y; i++ ){ this.data[i] = preset.data[i]; }
+
 }
 
 function updateRuleset(event){
@@ -31,21 +30,21 @@ function updateRuleset(event){
 	//console.log(x,",",y);
 
 	if ( y == 0 && x >= 0 ){
-		if ( currentRuleSet.deadSet[x][0] == 1 ){ 
+		if ( currentRuleSet.deadSet[x][0] == 1 ){
 			currentRuleSet.deadSet[x][0] = 0;
 			currentRuleSet.deadSet[x][3] = 0;
 		}
-		else{  
+		else{
 			currentRuleSet.deadSet[x][0] = 1;
 			currentRuleSet.deadSet[x][3] = 1;
 		}
 	}
 	if ( y == 1 && x >= 0 ){
-		if ( currentRuleSet.aliveSet[x][0] == 1 ){ 
+		if ( currentRuleSet.aliveSet[x][0] == 1 ){
 			currentRuleSet.aliveSet[x][0] = 0;
 			currentRuleSet.aliveSet[x][3] = 0;
 		}
-		else{  
+		else{
 			currentRuleSet.aliveSet[x][0] = 1;
 			currentRuleSet.aliveSet[x][3] = 1;
 		}
@@ -59,22 +58,9 @@ function updateRuleset(event){
 
 function drawRuleset( ruleset, context ){
 
-
-	context.fillStyle = document.getElementById("choosealivecolor");
-
-	for ( var i = 0; i < ruleset.aliveSet.length; i++ ){
-		if (  ruleset.aliveSet[i][0] == 1 ){ 
-			context.fillRect(  10 +i*20, 20, 20, 20 );
-		}
-	}
-	for ( var i = 0; i < ruleset.deadSet.length; i++ ){
-		if (  ruleset.deadSet[i][0] == 1 ){ 
-			context.fillRect(  10 +i*20, 40, 20, 20 );
-		}
-	}
 }
 
-// Create canvas inputs for ruleset 
+// Create canvas inputs for ruleset
 function rulesetCanvas(){
 
 	var ruleCanvas 	= document.getElementById("aliverulecanvas");
