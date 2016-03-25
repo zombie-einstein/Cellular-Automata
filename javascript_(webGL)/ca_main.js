@@ -1,11 +1,8 @@
 'use strict';
 
-//******************************************************//
-// MAIN SCRIPT STARTS HERE:                             //
-// - Set size of cells                                  //
-// - Generate and render the initial screen             //
-//                                                      //
-//******************************************************//
+// ****************************************************** //
+// ******** STEPS NECCESARY TO LOAD PAGE AND PROGRAM **** //
+// ****************************************************** //
 
 
 // Object to hold cell parameters, set intital number at 64x64
@@ -51,6 +48,7 @@ document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor
 
 // Load the game of life ruleset to the current ruleset
 ruleCanvas.loadPreset( presets.gameOfLife );
+document.getElementById("loadpreset").value = "gameOfLife";
 
 // Console message on succesful page load
 console.log("Page loaded succesfully");

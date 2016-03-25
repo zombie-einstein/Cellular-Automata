@@ -11,6 +11,26 @@ function ruleSet( x, y ){
 
 }
 
+// Set a single pixels value
+ruleSet.prototype.setValue = function( n, r, g, b, a ){
+
+	this.data[n*4] 		= r;
+	this.data[n*4+1]	= g;
+	this.data[n*4+2]	= b;
+	this.data[n*4+3]	= a;
+
+}
+
+// Set a single pixel to alive
+ruleSet.prototype.setAlive = function( n ){
+
+	this.data[n*4] 		= 255;
+	this.data[n*4+3]	= 255;
+
+}
+
+
+
 var ruleCanvas = new WEBGLCANVAS( "rulecanvas" );
 
 // Get dimensions from HTML

@@ -70,7 +70,7 @@
 	  varying vec2 v_texCoord;
 
 	  // Function returns neighbour colour values: between 1 (i.e. 255) or 0
-      vec4 get( int x, int y, vec2 pixel, sampler2D texture ){ return texture2D( texture, v_texCoord + pixel * vec2(x,y) );  }
+      vec4 get( int x, int y, vec2 pixel ){ return texture2D( u_backText, v_texCoord + pixel * vec2(x,y) );  }
 
       void main(){
       	// Get co-ordinate values to move one pixel of textures
@@ -82,8 +82,9 @@
 
         // Sum over neighbours
         for ( int i = 0; i < 8; i++ ){
-          neighbourSum += get( neighbours[i].x, neighbours[i].y, onePixel, u_backText );
+          neighbourSum += get( neighbours[i].x, neighbours[i].y, onePixel );
         }
+
 
         // Loop over LH column of rule texture and check for matches
         // (i.e matches current cell state RGBA value to value of rule texture )

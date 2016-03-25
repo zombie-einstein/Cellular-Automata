@@ -97,6 +97,7 @@ function changeAliveColor(){
 	aliveColor[0] = aliveColor[0]-1;
 	// re-render
 	mainCanvas.renderCells();
+	ruleCanvas.renderRules();
 
 }
 
