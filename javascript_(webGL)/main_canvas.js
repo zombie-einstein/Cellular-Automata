@@ -19,7 +19,7 @@ mainCanvas.initWebGL();
 
 // Add display and rule based shaders to this object
 mainCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
-mainCanvas.addProgram( "rules"  , "2d-vertex-shader", "2d-fragment-rules"   );
+mainCanvas.addProgram( "rules"  , "2d-vertex-rules", "2d-fragment-rules"   );
 
 // ====== Add required uniform locations =======
 

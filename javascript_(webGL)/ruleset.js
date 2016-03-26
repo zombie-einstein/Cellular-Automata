@@ -24,8 +24,7 @@ ruleSet.prototype.setValue = function( n, r, g, b, a ){
 // Set a single pixel to alive
 ruleSet.prototype.setAlive = function( n ){
 
-	this.data[n*4] 		= 255;
-	this.data[n*4+3]	= 255;
+	this.setValue( n, 255, 0, 0, 255 );
 
 }
 
@@ -108,7 +107,7 @@ ruleCanvas.clickEvent = function( event ){
 
 	var n = 4*( x + this.currentRuleSet.dimensions.x * y );
 
-	if ( x > 0 ){
+	if ( x > 0 && y < 2 ){
 		if ( this.currentRuleSet.data[n] == 0 ){
 			this.currentRuleSet.data[n] = 255;
 			this.currentRuleSet.data[n+3] = 255;
