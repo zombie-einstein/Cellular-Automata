@@ -1,6 +1,8 @@
 'use strict';
 
-// *** Class and methods for the cellular automota ruleset ***//
+// *********************************************************************
+// ******** CLASS AND METHODS FOR GOL RULESET **************************
+// *********************************************************************
 
 function ruleSet( x, y ){
 
@@ -27,7 +29,6 @@ ruleSet.prototype.setAlive = function( n ){
 	this.setValue( n, 255, 0, 0, 255 );
 
 }
-
 
 
 var ruleCanvas = new WEBGLCANVAS( "rulecanvas" );
@@ -120,4 +121,45 @@ ruleCanvas.clickEvent = function( event ){
 	this.renderRules();
 	this.pushRuleToMain();
 
+}
+
+// *****************************************************************
+// ******** ARRAY AND OBJECT CONTAINING CELL NEIGHBOURHOODS ********
+// *****************************************************************
+
+function NEIGHBOURHOOD( name ){
+
+	this.name = name;
+	this.array = [];
+
+}
+
+// Variable for current neighbourhood pattern
+// (Loaded automatically to the shader every cycle by main GOL loop)
+var currentNeighbourhood = new NEIGHBOURHOOD( "Current")
+
+// Object containing preset neighbourhood patterns
+// (Adding a neigbourhood here will make it show up in the HTML menu)
+var neighbourhoods = { full: new NEIGHBOURHOOD("Full"), vonNeumann: new NEIGHBOURHOOD("Von Neumann"), twoDL: new NEIGHBOURHOOD("2D Left") };
+	// NOTE these arrays must have an even length
+	neighbourhoods.full.array = [ -1,-1,-1,0,-1,1,0,-1,0,1,1,-1,1,0,1,1 ];
+	neighbourhoods.vonNeumann.array = [ -1,0,0,-1,0,1,1,0 ];
+	neighbourhoods.twoDL.array = [ -1,-1,-1,0,-1,1 ];
+
+// *********************************************
+// ********* FUNCTION DEFINITIONS **************
+// *********************************************
+
+// Load a neighbourhood to the current neighbourhood
+currentNeighbourhood.load = function( A ){
+
+	currentNeighbourhood.name = A.name;
+	currentNeighbourhood.array = A.array.slice();
+	console.log( A.name+" neighbourhood loaded" );
+
+}
+
+// Fill the entries of the neighbourhood selection menu in HTML
+for ( var x in neighbourhoods ){
+document.getElementById("neighbourhoodSelect").innerHTML = document.getElementById("neighbourhoodSelect").innerHTML+'<option value='+x.toString()+'> '+neighbourhoods[x].name+' </option>';
 }

@@ -22,29 +22,25 @@
 
            gl_Position = vec4( a_position, 0, 1);
 
-    		    v_texCoord = a_texCoord;
+    		   v_texCoord = a_texCoord;
 
          }
 
      </script>
 
-     <!-- Display fragment shader, just displays without any calculation -->
+     <!-- Display fragment shader, just displays to full canvas, adds color shift to make live cells certain color -->
 
     <script id="2d-fragment-display" type="x-shader/x-fragment">
 
-      precision mediump float;
+        precision mediump float;
 
-      uniform vec4 u_colorShift;
+        uniform vec4 u_colorShift;
 
-	    varying vec2 v_texCoord;
+	      varying vec2 v_texCoord;
 
-	    uniform sampler2D u_image;
+	      uniform sampler2D u_image;
 
-      void main() {
-
-        gl_FragColor = 	texture2D(u_image, v_texCoord) +u_colorShift;
-
-      }
+        void main() { gl_FragColor = 	texture2D(u_image, v_texCoord) +u_colorShift; }
 
     </script>
 
@@ -62,17 +58,20 @@
         // Ruleset texture ( as also passed to fragment shader )
         uniform vec2 u_ruleSize;
         uniform sampler2D u_rulesText;
+
         // Calculate the sum of the neighbour values here then pass to fragment shader
         // Do this here as it doesn't need to be done individually for each vertex
-        varying vec4 ruleSum[9];
+        // ( 20 is currently an arbitary limit, what is max array varying for WebGL?? )
+        varying vec4 ruleSum[20];
 
         // Method to get sum of possible neighbours to check against
         vec4 getRuleSum( int x, vec2 pixel ){
 
-          vec4 sum = vec4(0.0,0.0,0.0,0.0);
-          for( int i = 0; i < 8; i++ ){
-            sum += texture2D( u_rulesText, 0.5*pixel +pixel * vec2( x, i+2 ) );
-          }
+          vec4 sum = vec4(0.0,0.0,0.0,0.0); // Return vector
+
+          // Sum over the eight (possible) neighbour colour values
+          for( int i = 0; i < 8; i++ ){ sum += texture2D( u_rulesText, 0.5*pixel +pixel * vec2( x, i+int(u_ruleSize.y)-8 ) ); }
+
           return sum;
         }
 
@@ -80,9 +79,9 @@
 
           vec2 ruleUnit = vec2( 1.0, 1.0 )/u_ruleSize;
 
-          for ( int i = 0; i < 9; i++ ){
-
-              ruleSum[i] = getRuleSum( i+1, ruleUnit );
+          for ( int i = 0; i < 20; i++ ){
+            ruleSum[i] = getRuleSum( i+1, ruleUnit ); // Send rule neighbours value sum to array
+            if( i == int( u_ruleSize.x )-2 ){ break;} // Break out of the loop if we've reached the end of the rule texture
           }
 
           gl_Position = vec4( a_position, 0, 1);
@@ -101,12 +100,13 @@
 
     // Array of neighbour locations
     uniform ivec2 neighbours[8];
+    uniform int u_numNeighbours;
 
     // Previous state texture and dimensions
 	  uniform vec2 u_textureSize;
 	  uniform sampler2D u_backText;
 
-    // Texture that encodes ruleset and dimensions
+    // Texture that encodes ruleset and it's dimensions
     uniform vec2 u_ruleSize;
     uniform sampler2D u_rulesText;
 
@@ -114,13 +114,12 @@
 	  varying vec2 v_texCoord;
 
     // Sum of rule neighbour values passed from vertex
-    varying vec4 ruleSum[9];
+    varying vec4 ruleSum[20];
 
 	  // Function returns neighbour colour values: between 1 (i.e. 255) or 0
       vec4 get( int x, int y, vec2 pixel ){ return texture2D( u_backText, v_texCoord + pixel * vec2(x,y) );  }
 
       void main(){
-
 
       	// Get co-ordinate values to move one pixel of textures
       	vec2 onePixel = vec2( 1.0, 1.0 )/u_textureSize;
@@ -130,27 +129,32 @@
         // Initialize average neighbour sum vector
         vec4 neighbourSum = vec4(0.0,0.0,0.0,0.0);
 
-        // Sum over neighbours
+        // Sum over neighbours color values
         for ( int i = 0; i < 8; i++ ){
           neighbourSum += get( neighbours[i].x, neighbours[i].y, onePixel );
+          if( i == (u_numNeighbours-1) ){ break; }  // Use 2 as break value when considering neigbour pattens less than full 8
         }
-
 
         // Loop over LH column of rule texture and check for matches
         // (i.e matches current cell state RGBA value to value of rule texture )
-        for ( int i = 0; i <2; i++ ){
+        // ( Max value of loop is arbitary, use break to restrict value, again max value is arbitary)
+        for ( int i = 0; i < 20; i++ ){
 
           if ( texture2D(u_backText, v_texCoord) == texture2D( u_rulesText, 0.5*ruleUnit+ruleUnit*vec2(0,i) ) ){
 
-            for( int j = 0; j < 9; j++ ){
-              // Compare sum of neighbour values against those provided rule texture
-              // ( provided by vertex shader )
+            // Loop over possible neighbour sums
+            for( int j = 0; j < 20; j++ ){
+              // Compare sum of this pixels neighbour values against those provided rule texture ( provided by vertex shader )
               if( ruleSum[j] == neighbourSum ){
 
                 gl_FragColor = texture2D( u_rulesText, 0.5*ruleUnit+ruleUnit*vec2( j+1, i) );
+                break;
 
               }
             }
+
+          break;  // Break out when found correct current state match
+
           }
         }
 
@@ -228,7 +232,10 @@ Width
       <option value="512" 	>  512 	</option>
       <option value="1024" 	>  1024 </option>
       <option value="2048"  >  2048 </option>
-  	</select>
+  	</select><br>
+    Neighbours
+    <select class="main" id="neighbourhoodSelect" onchange="changeNeighbourhood()"> </select>
+
 </form>
 
 <p>Topology is also currently locked at torus</p>

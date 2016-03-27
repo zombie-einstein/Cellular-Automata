@@ -1,9 +1,10 @@
 'use strict';
 
-// **** Functions used by HTML controls **** //
+// *****************************************
+// **** FUNCTIONS USED BY HTML CONTROLS ****
+// *****************************************
 
 // Get sim speed from HTML
-
 function getSimSpeed(){
 	mainCanvas.speed = document.getElementById("speedRange").value;
 	// If the simulation is running pause and restart to
@@ -14,6 +15,7 @@ function getSimSpeed(){
 	}
 }
 
+// Clear all the cells
 function clearCells(){
 
 	mainCanvas.pauseSim();
@@ -42,8 +44,14 @@ function updateGrid(){
 
 }
 
-// load a preset and update the HTML forms
+// Update the cell neighbourhood from HTML
+function changeNeighbourhood(){
 
+	currentNeighbourhood.load( neighbourhoods[document.getElementById("neighbourhoodSelect").value] );
+
+}
+
+// load a preset and update the HTML forms
 function loadAndUpdatePreset(){
 
 	ruleCanvas.loadPreset( presets[ document.getElementById("loadpreset").value] );
@@ -70,7 +78,6 @@ function changeColorScheme(){
 }
 
 // Change background & dead cell color from HTML element and re-render
-
 function changeBackgroundColor(){
 
 	deadColor	= document.getElementById("choosedeadcolor").value;
@@ -89,7 +96,6 @@ function changeBackgroundColor(){
 }
 
 // Change the color of alive cells and re-render
-
 function changeAliveColor(){
 	// Convert HTML hex value to normalized RGB values
 	aliveColor = convertHex( document.getElementById("choosealivecolor").value ).map(function(x){return x/255;});
@@ -102,7 +108,6 @@ function changeAliveColor(){
 }
 
 // Change menu and logo colors using HTML element
-
 function changeTextColor(){
 	var textColor	= document.getElementById("choosemenucolor").value;
 

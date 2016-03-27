@@ -37,6 +37,8 @@ mainCanvas.programs.rules.neighbours = [];
 for ( var i = 0; i < 8; i++ ){
   mainCanvas.programs.rules.neighbours[i] = mainCanvas.gl.getUniformLocation( mainCanvas.programs.rules.program, "neighbours["+i.toString()+"]");
 }
+// Add number of neighbours location to rule program
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "numNeighbourLocation", "u_numNeighbours" );
 
 // ======= Add Required Textures =======
 mainCanvas.textures.front = new TEXTURE;  // Display texture
@@ -63,18 +65,16 @@ mainCanvas.loadRuleset = function( ruleset ){
 }
 
 // Load neighbour loaction vectors to shaders
-mainCanvas.loadNeighbours = function(){
+mainCanvas.loadNeighbours = function( neigbourhood ){
 
-  this.gl.useProgram( this.programs.rules.program );
+  // Send neighbour vec2 values to uniforms (uniforms are unset if outside length of neighbourhood array)
+  for ( var i = 0; i < neigbourhood.length/2; i++  ){
 
-  this.gl.uniform2i( this.programs.rules.neighbours[0], -1, -1 );
-  this.gl.uniform2i( this.programs.rules.neighbours[1], -1,  0 );
-  this.gl.uniform2i( this.programs.rules.neighbours[2], -1, +1 );
-  this.gl.uniform2i( this.programs.rules.neighbours[3],  0, -1 );
-  this.gl.uniform2i( this.programs.rules.neighbours[4],  0, +1 );
-  this.gl.uniform2i( this.programs.rules.neighbours[5], +1, -1 );
-  this.gl.uniform2i( this.programs.rules.neighbours[6], +1,  0 );
-  this.gl.uniform2i( this.programs.rules.neighbours[7], +1, +1 );
+    this.gl.uniform2i( this.programs.rules.neighbours[i], neigbourhood[2*i], neigbourhood[2*i+1] );
+
+  }
+  // Send number of neighbours to shader
+  this.gl.uniform1i( this.programs.rules.numNeighbourLocation, neigbourhood.length/2 );
 
 }
 
@@ -120,7 +120,7 @@ mainCanvas.renderCells = function(){
 mainCanvas.mainLoop = function(){
 
   this.gl.useProgram( this.programs.rules.program );
-  this.loadNeighbours();
+  this.loadNeighbours( currentNeighbourhood.array );
 
   // ======= Create framebuffer and attach back texture ======= //
 
