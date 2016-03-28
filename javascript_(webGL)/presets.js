@@ -17,7 +17,6 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.gameOfLife.setAlive(4);
 	presets.gameOfLife.setAlive(14);
 
-	presets.gameOfLife.setValue(20, 255, 255, 255, 255 );
 	presets.gameOfLife.setAlive(22);
 	presets.gameOfLife.setAlive(23);
 	presets.gameOfLife.setAlive(24);
@@ -27,7 +26,6 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.gameOfLife.setAlive(28);
 	presets.gameOfLife.setAlive(29);
 
-	presets.gameOfLife.setValue(30, 255, 255, 255, 255 );
 	presets.gameOfLife.setAlive(33);
 	presets.gameOfLife.setAlive(34);
 	presets.gameOfLife.setAlive(35);
@@ -36,7 +34,6 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.gameOfLife.setAlive(38);
 	presets.gameOfLife.setAlive(39);
 
-	presets.gameOfLife.setValue(40, 255, 255, 255, 255 );
 	presets.gameOfLife.setAlive(44);
 	presets.gameOfLife.setAlive(45);
 	presets.gameOfLife.setAlive(46);
@@ -44,29 +41,24 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.gameOfLife.setAlive(48);
 	presets.gameOfLife.setAlive(49);
 
-	presets.gameOfLife.setValue(50, 255, 255, 255, 255 );
 	presets.gameOfLife.setAlive(55);
 	presets.gameOfLife.setAlive(56);
 	presets.gameOfLife.setAlive(57);
 	presets.gameOfLife.setAlive(58);
 	presets.gameOfLife.setAlive(59);
 
-	presets.gameOfLife.setValue(60, 255, 255, 255, 255 );
 	presets.gameOfLife.setAlive(66);
 	presets.gameOfLife.setAlive(67);
 	presets.gameOfLife.setAlive(68);
 	presets.gameOfLife.setAlive(69);
 
-	presets.gameOfLife.setValue(70, 255, 255, 255, 255 );
 	presets.gameOfLife.setAlive(77);
 	presets.gameOfLife.setAlive(78);
 	presets.gameOfLife.setAlive(79);
 
-	presets.gameOfLife.setValue(80, 255, 255, 255, 255 );
 	presets.gameOfLife.setAlive(88);
 	presets.gameOfLife.setAlive(89);
 
-	presets.gameOfLife.setValue(90, 255, 255, 255, 255 );
 	presets.gameOfLife.setAlive(99);
 
 	// 2-D ruleset
@@ -86,7 +78,6 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.dayAndNight.setAlive(18);
 	presets.dayAndNight.setAlive(19);
 
-	presets.dayAndNight.setValue(20, 255, 255, 255, 255 );
 	presets.dayAndNight.setAlive(22);
 	presets.dayAndNight.setAlive(23);
 	presets.dayAndNight.setAlive(24);
@@ -96,7 +87,6 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.dayAndNight.setAlive(28);
 	presets.dayAndNight.setAlive(29);
 
-	presets.dayAndNight.setValue(30, 255, 255, 255, 255 );
 	presets.dayAndNight.setAlive(33);
 	presets.dayAndNight.setAlive(34);
 	presets.dayAndNight.setAlive(35);
@@ -105,7 +95,6 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.dayAndNight.setAlive(38);
 	presets.dayAndNight.setAlive(39);
 
-	presets.dayAndNight.setValue(40, 255, 255, 255, 255 );
 	presets.dayAndNight.setAlive(44);
 	presets.dayAndNight.setAlive(45);
 	presets.dayAndNight.setAlive(46);
@@ -113,29 +102,24 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.dayAndNight.setAlive(48);
 	presets.dayAndNight.setAlive(49);
 
-	presets.dayAndNight.setValue(50, 255, 255, 255, 255 );
 	presets.dayAndNight.setAlive(55);
 	presets.dayAndNight.setAlive(56);
 	presets.dayAndNight.setAlive(57);
 	presets.dayAndNight.setAlive(58);
 	presets.dayAndNight.setAlive(59);
 
-	presets.dayAndNight.setValue(60, 255, 255, 255, 255 );
 	presets.dayAndNight.setAlive(66);
 	presets.dayAndNight.setAlive(67);
 	presets.dayAndNight.setAlive(68);
 	presets.dayAndNight.setAlive(69);
 
-	presets.dayAndNight.setValue(70, 255, 255, 255, 255 );
 	presets.dayAndNight.setAlive(77);
 	presets.dayAndNight.setAlive(78);
 	presets.dayAndNight.setAlive(79);
 
-	presets.dayAndNight.setValue(80, 255, 255, 255, 255 );
 	presets.dayAndNight.setAlive(88);
 	presets.dayAndNight.setAlive(89);
 
-	presets.dayAndNight.setValue(90, 255, 255, 255, 255 );
 	presets.dayAndNight.setAlive(99);
 
 
@@ -148,7 +132,6 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.highLife.setAlive(14);
 	presets.highLife.setAlive(17);
 
-	presets.highLife.setValue(20, 255, 255, 255, 255 );
 	presets.highLife.setAlive(22);
 	presets.highLife.setAlive(23);
 	presets.highLife.setAlive(24);
@@ -158,7 +141,6 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.highLife.setAlive(28);
 	presets.highLife.setAlive(29);
 
-	presets.highLife.setValue(30, 255, 255, 255, 255 );
 	presets.highLife.setAlive(33);
 	presets.highLife.setAlive(34);
 	presets.highLife.setAlive(35);
@@ -167,7 +149,6 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.highLife.setAlive(38);
 	presets.highLife.setAlive(39);
 
-	presets.highLife.setValue(40, 255, 255, 255, 255 );
 	presets.highLife.setAlive(44);
 	presets.highLife.setAlive(45);
 	presets.highLife.setAlive(46);
@@ -175,29 +156,24 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.highLife.setAlive(48);
 	presets.highLife.setAlive(49);
 
-	presets.highLife.setValue(50, 255, 255, 255, 255 );
 	presets.highLife.setAlive(55);
 	presets.highLife.setAlive(56);
 	presets.highLife.setAlive(57);
 	presets.highLife.setAlive(58);
 	presets.highLife.setAlive(59);
 
-	presets.highLife.setValue(60, 255, 255, 255, 255 );
 	presets.highLife.setAlive(66);
 	presets.highLife.setAlive(67);
 	presets.highLife.setAlive(68);
 	presets.highLife.setAlive(69);
 
-	presets.highLife.setValue(70, 255, 255, 255, 255 );
 	presets.highLife.setAlive(77);
 	presets.highLife.setAlive(78);
 	presets.highLife.setAlive(79);
 
-	presets.highLife.setValue(80, 255, 255, 255, 255 );
 	presets.highLife.setAlive(88);
 	presets.highLife.setAlive(89);
 
-	presets.highLife.setValue(90, 255, 255, 255, 255 );
 	presets.highLife.setAlive(99);
 
 // Create a dropdown menu of presets

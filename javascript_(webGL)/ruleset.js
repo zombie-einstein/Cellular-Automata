@@ -43,10 +43,15 @@ ruleCanvas.initWebGL();
 // Simple display shader to display rule texture
 ruleCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
 
+// Shader program to display lines
+ruleCanvas.programs.lines = {};
+ruleCanvas.programs.lines.program = initProgram( ruleCanvas.gl, "2d-vertex-lines", "2d-fragment-lines" );
+ruleCanvas.programs.lines.verticesLocation = ruleCanvas.gl.getAttribLocation( ruleCanvas.programs.lines.program, "a_vertices" ); // Set location for position attribute
+
 // Add color shift location to display (to get correct live cell color)
 ruleCanvas.programs.display.addUniform( ruleCanvas.gl, "colorLocation", "u_colorShift" );
 
-// Attach the current ruleset to
+// Object for the current ruleset in use
 ruleCanvas.currentRuleSet = new ruleSet(0,0);
 
 // Only one texture required to display ruleset
@@ -95,6 +100,18 @@ ruleCanvas.renderRules = function(){
   this.gl.viewport( 0, 0, this.dimensions.x, this.dimensions.y );
   this.programs.display.render( this.gl );
 
+	// Render lines over texture to deliniate where rulws apply
+	this.gl.useProgram( this.programs.lines.program );
+  // provide line coordinates
+  var lineCoOrds = this.gl.createBuffer();
+  this.gl.bindBuffer( this.gl.ARRAY_BUFFER, lineCoOrds );
+  this.gl.bufferData( this.gl.ARRAY_BUFFER, new Float32Array( [ -1.0, 1.0-8*2/this.textures.ruleset.dimensions.y,
+																																 1.0, 1.0-8*2/this.textures.ruleset.dimensions.y,
+																																 2/this.textures.ruleset.dimensions.x-1.0, 1.0,
+																																 2/this.textures.ruleset.dimensions.x-1.0,-1.0 ] ), this.gl.STATIC_DRAW );
+  this.gl.enableVertexAttribArray( this.programs.lines.verticesLocation );
+  this.gl.vertexAttribPointer( this.programs.lines.verticesLocation, 2, this.gl.FLOAT, false, 0, 0 );
+	this.gl.drawArrays( this.gl.LINES, 0, 4 );
 }
 
 ruleCanvas.clickEvent = function( event ){

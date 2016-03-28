@@ -28,7 +28,7 @@
 
      </script>
 
-     <!-- Display fragment shader, just displays to full canvas, adds color shift to make live cells certain color -->
+     <!-- Display fragment shader, just displays to full canvas, adds color shift to make live cells of texture a certain color -->
 
     <script id="2d-fragment-display" type="x-shader/x-fragment">
 
@@ -43,6 +43,30 @@
         void main() { gl_FragColor = 	texture2D(u_image, v_texCoord) +u_colorShift; }
 
     </script>
+
+    <!-- Vertex shader for drawing straight lines -->
+
+    <script id="2d-vertex-lines" type="x-shader/x-vertex">
+
+        // Line Vertices
+        attribute vec2 a_vertices;
+
+        void main() { gl_Position = vec4( a_vertices, 0, 1); }
+
+    </script>
+
+    <!-- Draws lines in white -->
+
+   <script id="2d-fragment-lines" type="x-shader/x-fragment">
+
+       precision mediump float;
+
+       void main() { gl_FragColor = vec4(1.0,1.0,1.0,1.0); }
+
+   </script>
+
+    <!-- Sends texture co-ords to the shader which applies GOL rules,
+         but also calculates the sum of neighbour colour values provided by the ruleset texture -->
 
     <script id="2d-vertex-rules" type="x-shader/x-vertex">
 
@@ -59,7 +83,7 @@
         uniform vec2 u_ruleSize;
         uniform sampler2D u_rulesText;
 
-        // Calculate the sum of the neighbour values here then pass to fragment shader
+        // Calculate the sum of the rules neighbours values here then pass to fragment shader
         // Do this here as it doesn't need to be done individually for each vertex
         // ( 20 is currently an arbitary limit, what is max array varying for WebGL?? )
         varying vec4 ruleSum[20];
