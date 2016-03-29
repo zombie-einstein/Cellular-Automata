@@ -14,19 +14,19 @@ function ruleSet( x, y ){
 }
 
 // Set a single pixels value
-ruleSet.prototype.setValue = function( n, r, g, b, a ){
+ruleSet.prototype.setValue = function( x, y, r, g, b, a ){
 
-	this.data[n*4] 		= r;
-	this.data[n*4+1]	= g;
-	this.data[n*4+2]	= b;
-	this.data[n*4+3]	= a;
+	this.data[(x+y*this.dimensions.x)*4] 		= r;
+	this.data[(x+y*this.dimensions.x)*4+1]	= g;
+	this.data[(x+y*this.dimensions.x)*4+2]	= b;
+	this.data[(x+y*this.dimensions.x)*4+3]	= a;
 
 }
 
 // Set a single pixel to alive
-ruleSet.prototype.setAlive = function( n ){
+ruleSet.prototype.setAlive = function( x, y ){
 
-	this.setValue( n, 255, 0, 0, 255 );
+	this.setValue( x, y, 255, 0, 0, 255 );
 
 }
 
@@ -125,7 +125,7 @@ ruleCanvas.clickEvent = function( event ){
 
 	var n = 4*( x + this.currentRuleSet.dimensions.x * y );
 
-	if ( x > 0 && y < 2 ){
+	if ( x > 0 && y < this.currentRuleSet.dimensions.y-8 ){
 		if ( this.currentRuleSet.data[n] == 0 ){
 			this.currentRuleSet.data[n] = 255;
 			this.currentRuleSet.data[n+3] = 255;
@@ -157,11 +157,25 @@ var currentNeighbourhood = new NEIGHBOURHOOD( "Current")
 
 // Object containing preset neighbourhood patterns
 // (Adding a neigbourhood here will make it show up in the HTML menu)
-var neighbourhoods = { full: new NEIGHBOURHOOD("Full"), vonNeumann: new NEIGHBOURHOOD("Von Neumann"), twoDL: new NEIGHBOURHOOD("2D Left") };
+var neighbourhoods = { full: new NEIGHBOURHOOD("Full"),
+											 vonNeumann: new NEIGHBOURHOOD("Von Neumann"),
+											 LColumn: 	new NEIGHBOURHOOD("L.H. Column"),
+											 RColumn: 	new NEIGHBOURHOOD("R.H. Column"),
+											 BLCorner:	new NEIGHBOURHOOD("B.L. Corner"),
+											 TRCorner:	new NEIGHBOURHOOD("T.R. Corner"),
+											 OneDLeft:	new NEIGHBOURHOOD("1-D Left"),
+											 OneDRight:	new NEIGHBOURHOOD("1-D Right"),
+										 };
+
 	// NOTE these arrays must have an even length
-	neighbourhoods.full.array = [ -1,-1,-1,0,-1,1,0,-1,0,1,1,-1,1,0,1,1 ];
+	neighbourhoods.full.array 			= [ -1,-1,-1,0,-1,1,0,-1,0,1,1,-1,1,0,1,1 ];
 	neighbourhoods.vonNeumann.array = [ -1,0,0,-1,0,1,1,0 ];
-	neighbourhoods.twoDL.array = [ -1,-1,-1,0,-1,1 ];
+	neighbourhoods.LColumn.array 		= [ -1,-1,-1,0,-1,1 ];
+	neighbourhoods.RColumn.array 		= [  1,-1, 1,0, 1,1 ];
+	neighbourhoods.BLCorner.array 	= [ -1,-1,-1,0,-1,1,0,-1,1,-1];
+	neighbourhoods.TRCorner.array 	= [ -1,1,0,1,1,-1,1,0,1,1 ];
+	neighbourhoods.OneDLeft.array 	= [ -1,-1,-1,1 ];
+	neighbourhoods.OneDRight.array 	= [  1,-1,1,1 ];
 
 // *********************************************
 // ********* FUNCTION DEFINITIONS **************

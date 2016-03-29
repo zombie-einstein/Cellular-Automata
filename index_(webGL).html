@@ -217,15 +217,15 @@ Fork this project on<br>
 <h2 class="bordersTop"> Controls </h2>
 
 <button                  onclick="mainCanvas.stepSim()"   class="main" > Step  </button>
-<button id="startbutton" onclick="mainCanvas.startSim()"  class="main" > Start </button>
-<button id="stopbutton"  onclick="mainCanvas.pauseSim()"  class="main" > Stop  </button>
+<button id="startbutton" onclick="mainCanvas.startSim()"  class="main" > Run </button>
+<button id="stopbutton"  onclick="mainCanvas.pauseSim()"  class="main" > Pause  </button>
 <button                  onclick="clearCells()"   class="main" > Clear </button>
 
 <strong>Speed:</strong>
 
-faster &#8674; slower
+slower &#8674; faster 
 
-<input type="range" class="main slider-width100" id="speedRange" value="600" max="1200" min="1">
+<input type="range" class="main slider-width100" id="speedRange" value="20" max="60" min="1">
 <button class="main" onclick="getSimSpeed()" > Update </button>
 
 <h2 class="bordersTop"> Space </h2>

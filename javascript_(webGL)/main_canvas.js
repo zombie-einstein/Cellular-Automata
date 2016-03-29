@@ -47,8 +47,9 @@ mainCanvas.textures.rule  = new TEXTURE;   // Texture which encodes ruleset
 
 // ======= Simultation Variables =======
 
-mainCanvas.timeStep;      // Initialize timestep variable outside scope of animation function
-mainCanvas.speed;         // Simulation rate
+mainCanvas.animReq = undefined;      // Initialize timestep variable outside scope of animation function
+mainCanvas.timeout = undefined;
+mainCanvas.fps;         // Simulation rate
 mainCanvas.paused = true; // Simulation status switch (initially false)
 
 
@@ -92,6 +93,14 @@ mainCanvas.fillRandomCells = function( rate ){
 
   this.textures.front.fillRandomR( this.gl, 255,0,0,255, rate  );
 
+}
+
+mainCanvas.startOneD = function(){
+
+  for ( var i = 0; i < this.textures.front.dimensions.y; i++ ){
+    this.textures.front.setPixelValue( this.gl, 2, i, 0,255,0,255 );
+  }
+  this.renderCells();
 }
 
 // Refresh front and back textures at new resolution
@@ -185,12 +194,27 @@ mainCanvas.switchPixelState = function( x, y ){
 // One step of simulation
 mainCanvas.stepSim = function(){ this.mainLoop(); }
 
+mainCanvas.run = function(){
+
+  this.timeout =  setTimeout(function(){
+      mainCanvas.animReq = window.requestAnimationFrame(function(){mainCanvas.run();});
+      mainCanvas.stepSim() }, 1000/this.fps );
+
+}
+
+mainCanvas.stop = function(){
+
+  window.cancelAnimationFrame(this.animReq);
+  clearTimeout(this.timeout);
+
+}
+
 // Run the simulation
 mainCanvas.startSim = function(){
 
-  // Check sim isn't already running
   if( this.paused == true ){
-    this.timeStep = setInterval( function(){mainCanvas.stepSim();}, this.speed );
+    //this.timeStep = setInterval( function(){mainCanvas.stepSim();}, this.speed );
+    this.run();
     this.paused	= false;
     // Lighten start button to indicate status
     document.getElementById("startbutton").style.backgroundColor = LightenDarkenColor(deadColor,40);
@@ -205,8 +229,9 @@ mainCanvas.pauseSim = function(){
 
   // Check sim isn't already paused
 	if( this.paused == false ){
-		clearInterval( this.timeStep );
-		this.paused = true;
+		//clearInterval( this.timeStep );
+    this.stop();
+    this.paused = true;
 		// Lighten pause button to indicate status
 		document.getElementById("startbutton").style.backgroundColor = deadColor;
 		document.getElementById("stopbutton").style.backgroundColor  = LightenDarkenColor(deadColor,40);

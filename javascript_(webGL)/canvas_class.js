@@ -115,6 +115,29 @@ TEXTURE.prototype.loadO = function( gl, w, h, data ){
 
 }
 
+TEXTURE.prototype.loadOFromImage = function( gl, w, h, filename ){
+
+  this.data = gl.createTexture();
+  this.dimensions.x = w;
+  this.dimensions.y = h;
+  gl.bindTexture( gl.TEXTURE_2D, this.data );
+
+  var image = new Image();
+  image.onload = function(){
+
+    gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image );
+    // gl.NEAREST ensures no interpolation between pixels!
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    // Clear binding
+    gl.bindTexture( gl.TEXTURE_2D, null );
+
+  }
+  image.src = filename;
+}
+
 TEXTURE.prototype.getPixelValue = function( gl, x, y ){
 
   var framebuffer = gl.createFramebuffer();

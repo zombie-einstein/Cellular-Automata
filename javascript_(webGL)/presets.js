@@ -5,176 +5,196 @@
 
 // ******** NOTE ******** //
 // Currently the rule sets are stored as values in arrays. Ideally this could be done using image files which are then
-// easily imported into the rule texture. Need a means of sorting cross site scripting though.
+// easily imported into the rule texture. Need a means of sorting cross site loading though.
 
-var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10), highLife: new ruleSet(10,10) };
+var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10), highLife: new ruleSet(10,10), twoD: new ruleSet(5,11) };
 
 	// Conway's game of life ruleset
 	presets.gameOfLife.name 		= "Game of Life";
 
-	presets.gameOfLife.setAlive(0);
-	presets.gameOfLife.setAlive(3);
-	presets.gameOfLife.setAlive(4);
-	presets.gameOfLife.setAlive(14);
+	presets.gameOfLife.setAlive(0,0);
+	presets.gameOfLife.setAlive(3,0);
+	presets.gameOfLife.setAlive(4,0);
+	presets.gameOfLife.setAlive(4,1);
 
-	presets.gameOfLife.setAlive(22);
-	presets.gameOfLife.setAlive(23);
-	presets.gameOfLife.setAlive(24);
-	presets.gameOfLife.setAlive(25);
-	presets.gameOfLife.setAlive(26);
-	presets.gameOfLife.setAlive(27);
-	presets.gameOfLife.setAlive(28);
-	presets.gameOfLife.setAlive(29);
+	presets.gameOfLife.setAlive(2,2);
+	presets.gameOfLife.setAlive(3,2);
+	presets.gameOfLife.setAlive(4,2);
+	presets.gameOfLife.setAlive(5,2);
+	presets.gameOfLife.setAlive(6,2);
+	presets.gameOfLife.setAlive(7,2);
+	presets.gameOfLife.setAlive(8,2);
+	presets.gameOfLife.setAlive(9,2);
 
-	presets.gameOfLife.setAlive(33);
-	presets.gameOfLife.setAlive(34);
-	presets.gameOfLife.setAlive(35);
-	presets.gameOfLife.setAlive(36);
-	presets.gameOfLife.setAlive(37);
-	presets.gameOfLife.setAlive(38);
-	presets.gameOfLife.setAlive(39);
+	presets.gameOfLife.setAlive(3,3);
+	presets.gameOfLife.setAlive(4,3);
+	presets.gameOfLife.setAlive(5,3);
+	presets.gameOfLife.setAlive(6,3);
+	presets.gameOfLife.setAlive(7,3);
+	presets.gameOfLife.setAlive(8,3);
+	presets.gameOfLife.setAlive(9,3);
 
-	presets.gameOfLife.setAlive(44);
-	presets.gameOfLife.setAlive(45);
-	presets.gameOfLife.setAlive(46);
-	presets.gameOfLife.setAlive(47);
-	presets.gameOfLife.setAlive(48);
-	presets.gameOfLife.setAlive(49);
+	presets.gameOfLife.setAlive(4,4);
+	presets.gameOfLife.setAlive(5,4);
+	presets.gameOfLife.setAlive(6,4);
+	presets.gameOfLife.setAlive(7,4);
+	presets.gameOfLife.setAlive(8,4);
+	presets.gameOfLife.setAlive(9,4);
 
-	presets.gameOfLife.setAlive(55);
-	presets.gameOfLife.setAlive(56);
-	presets.gameOfLife.setAlive(57);
-	presets.gameOfLife.setAlive(58);
-	presets.gameOfLife.setAlive(59);
+	presets.gameOfLife.setAlive(5,5);
+	presets.gameOfLife.setAlive(6,5);
+	presets.gameOfLife.setAlive(7,5);
+	presets.gameOfLife.setAlive(8,5);
+	presets.gameOfLife.setAlive(9,5);
 
-	presets.gameOfLife.setAlive(66);
-	presets.gameOfLife.setAlive(67);
-	presets.gameOfLife.setAlive(68);
-	presets.gameOfLife.setAlive(69);
+	presets.gameOfLife.setAlive(6,6);
+	presets.gameOfLife.setAlive(7,6);
+	presets.gameOfLife.setAlive(8,6);
+	presets.gameOfLife.setAlive(9,6);
 
-	presets.gameOfLife.setAlive(77);
-	presets.gameOfLife.setAlive(78);
-	presets.gameOfLife.setAlive(79);
+	presets.gameOfLife.setAlive(7,7);
+	presets.gameOfLife.setAlive(8,7);
+	presets.gameOfLife.setAlive(9,7);
 
-	presets.gameOfLife.setAlive(88);
-	presets.gameOfLife.setAlive(89);
+	presets.gameOfLife.setAlive(8,8);
+	presets.gameOfLife.setAlive(9,8);
 
-	presets.gameOfLife.setAlive(99);
-
-	// 2-D ruleset
-
+	presets.gameOfLife.setAlive(9,9);
 
 	// Day and Night
 	presets.dayAndNight.name 	= "Day and Night";
 
-	presets.dayAndNight.setAlive(0);
-	presets.dayAndNight.setAlive(4);
-	presets.dayAndNight.setAlive(5);
-	presets.dayAndNight.setAlive(7);
-	presets.dayAndNight.setAlive(8);
-	presets.dayAndNight.setAlive(9);
-	presets.dayAndNight.setAlive(14);
-	presets.dayAndNight.setAlive(17);
-	presets.dayAndNight.setAlive(18);
-	presets.dayAndNight.setAlive(19);
+	presets.dayAndNight.setAlive(0,0);
+	presets.dayAndNight.setAlive(4,0);
+	presets.dayAndNight.setAlive(5,0);
+	presets.dayAndNight.setAlive(7,0);
+	presets.dayAndNight.setAlive(8,0);
+	presets.dayAndNight.setAlive(9,0);
+	presets.dayAndNight.setAlive(4,1);
+	presets.dayAndNight.setAlive(7,1);
+	presets.dayAndNight.setAlive(8,1);
+	presets.dayAndNight.setAlive(9,1);
 
-	presets.dayAndNight.setAlive(22);
-	presets.dayAndNight.setAlive(23);
-	presets.dayAndNight.setAlive(24);
-	presets.dayAndNight.setAlive(25);
-	presets.dayAndNight.setAlive(26);
-	presets.dayAndNight.setAlive(27);
-	presets.dayAndNight.setAlive(28);
-	presets.dayAndNight.setAlive(29);
+	presets.dayAndNight.setAlive(2,2);
+	presets.dayAndNight.setAlive(3,2);
+	presets.dayAndNight.setAlive(4,2);
+	presets.dayAndNight.setAlive(5,2);
+	presets.dayAndNight.setAlive(6,2);
+	presets.dayAndNight.setAlive(7,2);
+	presets.dayAndNight.setAlive(8,2);
+	presets.dayAndNight.setAlive(9,2);
 
-	presets.dayAndNight.setAlive(33);
-	presets.dayAndNight.setAlive(34);
-	presets.dayAndNight.setAlive(35);
-	presets.dayAndNight.setAlive(36);
-	presets.dayAndNight.setAlive(37);
-	presets.dayAndNight.setAlive(38);
-	presets.dayAndNight.setAlive(39);
+	presets.dayAndNight.setAlive(3,3);
+	presets.dayAndNight.setAlive(4,3);
+	presets.dayAndNight.setAlive(5,3);
+	presets.dayAndNight.setAlive(6,3);
+	presets.dayAndNight.setAlive(7,3);
+	presets.dayAndNight.setAlive(8,3);
+	presets.dayAndNight.setAlive(9,3);
 
-	presets.dayAndNight.setAlive(44);
-	presets.dayAndNight.setAlive(45);
-	presets.dayAndNight.setAlive(46);
-	presets.dayAndNight.setAlive(47);
-	presets.dayAndNight.setAlive(48);
-	presets.dayAndNight.setAlive(49);
+	presets.dayAndNight.setAlive(4,4);
+	presets.dayAndNight.setAlive(5,4);
+	presets.dayAndNight.setAlive(6,4);
+	presets.dayAndNight.setAlive(7,4);
+	presets.dayAndNight.setAlive(8,4);
+	presets.dayAndNight.setAlive(9,4);
 
-	presets.dayAndNight.setAlive(55);
-	presets.dayAndNight.setAlive(56);
-	presets.dayAndNight.setAlive(57);
-	presets.dayAndNight.setAlive(58);
-	presets.dayAndNight.setAlive(59);
+	presets.dayAndNight.setAlive(5,5);
+	presets.dayAndNight.setAlive(6,5);
+	presets.dayAndNight.setAlive(7,5);
+	presets.dayAndNight.setAlive(8,5);
+	presets.dayAndNight.setAlive(9,5);
 
-	presets.dayAndNight.setAlive(66);
-	presets.dayAndNight.setAlive(67);
-	presets.dayAndNight.setAlive(68);
-	presets.dayAndNight.setAlive(69);
+	presets.dayAndNight.setAlive(6,6);
+	presets.dayAndNight.setAlive(7,6);
+	presets.dayAndNight.setAlive(8,6);
+	presets.dayAndNight.setAlive(9,6);
 
-	presets.dayAndNight.setAlive(77);
-	presets.dayAndNight.setAlive(78);
-	presets.dayAndNight.setAlive(79);
+	presets.dayAndNight.setAlive(7,7);
+	presets.dayAndNight.setAlive(8,7);
+	presets.dayAndNight.setAlive(9,7);
 
-	presets.dayAndNight.setAlive(88);
-	presets.dayAndNight.setAlive(89);
+	presets.dayAndNight.setAlive(8,8);
+	presets.dayAndNight.setAlive(9,8);
 
-	presets.dayAndNight.setAlive(99);
-
+	presets.dayAndNight.setAlive(9,9);
 
 	// High life
 	presets.highLife.name 		= "High Life";
 
-	presets.highLife.setAlive(0);
-	presets.highLife.setAlive(3);
-	presets.highLife.setAlive(4);
-	presets.highLife.setAlive(14);
-	presets.highLife.setAlive(17);
+	presets.highLife.setAlive(0,0);
+	presets.highLife.setAlive(3,0);
+	presets.highLife.setAlive(4,0);
+	presets.highLife.setAlive(4,1);
+	presets.highLife.setAlive(7,1);
 
-	presets.highLife.setAlive(22);
-	presets.highLife.setAlive(23);
-	presets.highLife.setAlive(24);
-	presets.highLife.setAlive(25);
-	presets.highLife.setAlive(26);
-	presets.highLife.setAlive(27);
-	presets.highLife.setAlive(28);
-	presets.highLife.setAlive(29);
 
-	presets.highLife.setAlive(33);
-	presets.highLife.setAlive(34);
-	presets.highLife.setAlive(35);
-	presets.highLife.setAlive(36);
-	presets.highLife.setAlive(37);
-	presets.highLife.setAlive(38);
-	presets.highLife.setAlive(39);
+	presets.highLife.setAlive(2,2);
+	presets.highLife.setAlive(3,2);
+	presets.highLife.setAlive(4,2);
+	presets.highLife.setAlive(5,2);
+	presets.highLife.setAlive(6,2);
+	presets.highLife.setAlive(7,2);
+	presets.highLife.setAlive(8,2);
+	presets.highLife.setAlive(9,2);
 
-	presets.highLife.setAlive(44);
-	presets.highLife.setAlive(45);
-	presets.highLife.setAlive(46);
-	presets.highLife.setAlive(47);
-	presets.highLife.setAlive(48);
-	presets.highLife.setAlive(49);
+	presets.highLife.setAlive(3,3);
+	presets.highLife.setAlive(4,3);
+	presets.highLife.setAlive(5,3);
+	presets.highLife.setAlive(6,3);
+	presets.highLife.setAlive(7,3);
+	presets.highLife.setAlive(8,3);
+	presets.highLife.setAlive(9,3);
 
-	presets.highLife.setAlive(55);
-	presets.highLife.setAlive(56);
-	presets.highLife.setAlive(57);
-	presets.highLife.setAlive(58);
-	presets.highLife.setAlive(59);
+	presets.highLife.setAlive(4,4);
+	presets.highLife.setAlive(5,4);
+	presets.highLife.setAlive(6,4);
+	presets.highLife.setAlive(7,4);
+	presets.highLife.setAlive(8,4);
+	presets.highLife.setAlive(9,4);
 
-	presets.highLife.setAlive(66);
-	presets.highLife.setAlive(67);
-	presets.highLife.setAlive(68);
-	presets.highLife.setAlive(69);
+	presets.highLife.setAlive(5,5);
+	presets.highLife.setAlive(6,5);
+	presets.highLife.setAlive(7,5);
+	presets.highLife.setAlive(8,5);
+	presets.highLife.setAlive(9,5);
 
-	presets.highLife.setAlive(77);
-	presets.highLife.setAlive(78);
-	presets.highLife.setAlive(79);
+	presets.highLife.setAlive(6,6);
+	presets.highLife.setAlive(7,6);
+	presets.highLife.setAlive(8,6);
+	presets.highLife.setAlive(9,6);
 
-	presets.highLife.setAlive(88);
-	presets.highLife.setAlive(89);
+	presets.highLife.setAlive(7,7);
+	presets.highLife.setAlive(8,7);
+	presets.highLife.setAlive(9,7);
 
-	presets.highLife.setAlive(99);
+	presets.highLife.setAlive(8,8);
+	presets.highLife.setAlive(9,8);
+
+	presets.highLife.setAlive(9,9);
+
+	// 2-D ruleset
+	presets.twoD.name = "Two-Dimensional";
+
+	// States
+	presets.twoD.setAlive(0,0);
+	presets.twoD.setValue(0,2,0,255,0,255);
+
+	// Neighbours
+	presets.twoD.setAlive(2,3);
+	presets.twoD.setAlive(3,3);
+	presets.twoD.setValue(4,3,0,255,0,255);
+	presets.twoD.setAlive(3,4);
+	presets.twoD.setValue(4,4,0,255,0,255);
+	presets.twoD.setValue(4,4,0,255,0,255);
+
+	// Rules
+	presets.twoD.setAlive(1,0);
+	presets.twoD.setAlive(2,0);
+	presets.twoD.setAlive(3,0);
+	presets.twoD.setValue(4,0,0,255,0,255);
+	presets.twoD.setValue(4,1,0,255,0,255);
+	presets.twoD.setAlive(2,2);
 
 // Create a dropdown menu of presets
 for ( var x in presets ){
