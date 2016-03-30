@@ -48,6 +48,7 @@ document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor
 
 // Load the game of life ruleset to the current ruleset
 ruleCanvas.loadPreset( presets.gameOfLife );
+ruleCanvas.renderText();
 document.getElementById("loadpreset").value = "gameOfLife";
 
 // Load the full neighbourhood property

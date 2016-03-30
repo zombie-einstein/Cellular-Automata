@@ -40,6 +40,16 @@ ruleCanvas.dimensions.y = ruleCanvas.id.height;
 // Create WebGL context for this context
 ruleCanvas.initWebGL();
 
+// Attach HTML 2D canvas for text overlay
+ruleCanvas.textCanvas = {};
+ruleCanvas.textCanvas.id = document.getElementById("ruletextoverlay");
+ruleCanvas.textCanvas.context = ruleCanvas.textCanvas.id.getContext("2d");
+ruleCanvas.textCanvas.width = ruleCanvas.id.width;
+ruleCanvas.textCanvas.height = ruleCanvas.id.height;
+ruleCanvas.textCanvas.context.font = "12px Arial";
+ruleCanvas.textCanvas.context.fillStyle = "rgba(255,255,255,0.75)";
+
+
 // Simple display shader to display rule texture
 ruleCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
 
@@ -112,6 +122,19 @@ ruleCanvas.renderRules = function(){
   this.gl.enableVertexAttribArray( this.programs.lines.verticesLocation );
   this.gl.vertexAttribPointer( this.programs.lines.verticesLocation, 2, this.gl.FLOAT, false, 0, 0 );
 	this.gl.drawArrays( this.gl.LINES, 0, 4 );
+
+}
+
+ruleCanvas.renderText = function(){
+
+		this.textCanvas.context.clearRect(0,0,this.textCanvas.width,this.textCanvas.height);
+		this.textCanvas.context.fillText("Neighbour", this.textCanvas.width-60 ,12);
+		this.textCanvas.context.fillText("states", this.textCanvas.width-60 ,24);
+		this.textCanvas.context.fillText("Updated", this.textCanvas.width-50 ,this.textCanvas.height-20);
+		this.textCanvas.context.fillText("state", this.textCanvas.width-50 ,this.textCanvas.height-10);
+		this.textCanvas.context.rotate( Math.PI/2 );
+		this.textCanvas.context.fillText("Current", this.textCanvas.width-35 ,-10);
+		this.textCanvas.context.restore();
 }
 
 ruleCanvas.clickEvent = function( event ){

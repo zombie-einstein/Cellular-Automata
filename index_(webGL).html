@@ -223,7 +223,7 @@ Fork this project on<br>
 
 <strong>Speed:</strong>
 
-slower &#8674; faster 
+slower &#8674; faster
 
 <input type="range" class="main slider-width100" id="speedRange" value="20" max="60" min="1">
 <button class="main" onclick="getSimSpeed()" > Update </button>
@@ -276,10 +276,15 @@ Width
 
 <p>Click to change the cell state resulting from a current state, and a number of neighbours.</p>
 
-<canvas id="rulecanvas" class="main "  onclick="ruleCanvas.clickEvent(event)" width="190" height=190 >
+<div class="main noBorder" style="position: relative">
+<canvas id="rulecanvas" class="main " width="185" height=195 >
 Too bad your browser does not support the HTML5 canvas.
 </canvas>
+<canvas id ="ruletextoverlay" class="canvasOverlay"   onclick="ruleCanvas.clickEvent(event)" width="185" height=195>
+  Too bad your browser does not support the HTML5 canvas.
+</canvas>
 
+</div>
 
 <h2 class="bordersTop"> Cells </h2>
 <button class="main" onclick="fillRandomCells()" > Fill Randomly </button>
