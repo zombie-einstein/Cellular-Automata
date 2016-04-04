@@ -148,10 +148,12 @@ ruleCanvas.clickEvent = function( event ){
 
 	var n = 4*( x + this.currentRuleSet.dimensions.x * y );
 
-	if ( x > 0 && y < this.currentRuleSet.dimensions.y-8 ){
-		if ( this.currentRuleSet.data[n] == 0 ){
-			this.currentRuleSet.data[n] = 255;
-			this.currentRuleSet.data[n+3] = 255;
+	if ( x > 0 || y < this.currentRuleSet.dimensions.y-8 ){
+		if ( this.currentRuleSet.data[n] == 0 && this.currentRuleSet.data[n+1] == 0 && this.currentRuleSet.data[n+2] == 0 && this.currentRuleSet.data[n+3] == 0 ){
+			this.currentRuleSet.data[n] 	= document.getElementById("Rrule").value;
+			this.currentRuleSet.data[n+1] = document.getElementById("Grule").value;
+			this.currentRuleSet.data[n+2] = document.getElementById("Brule").value;
+			this.currentRuleSet.data[n+3] = document.getElementById("Arule").value;;
 		}
 		else{	this.currentRuleSet.data[n] = 0;
 					this.currentRuleSet.data[n+3] = 0;	}

@@ -168,19 +168,28 @@
 
             // Loop over possible neighbour sums
             for( int j = 0; j < 20; j++ ){
+
               // Compare sum of this pixels neighbour values against those provided rule texture ( provided by vertex shader )
-              if( ruleSum[j] == neighbourSum ){
+
+              // Just check that current neigbours and rule state are the same, this is slow when number of colour states is large
+              // as checks need to be made against all possible permutations of colour combinations
+              // if( ruleSum[j] == neighbourSum ){}
+
+              // Make inequality check on blue channel, more effecient when just wanting to check if a single neighbour satisfies value
+              if( (ruleSum[j].r == neighbourSum.r) && (ruleSum[j].g == neighbourSum.g) && (ruleSum[j].b <= neighbourSum.b) && (ruleSum[j].a == neighbourSum.a) ){
 
                 gl_FragColor = texture2D( u_rulesText, 0.5*ruleUnit+ruleUnit*vec2( j+1, i) );
-                break;
+                return;
 
               }
             }
 
-          break;  // Break out when found correct current state match
+          return;  // Break out when found correct current state match
 
           }
         }
+
+        gl_FragColor = texture2D(u_backText, v_texCoord);
 
       } // End of main
 
@@ -214,7 +223,7 @@ Fork this project on<br>
 </a>
 
 
-<h2 class="bordersTop"> Controls </h2>
+<h2 class="bordersTop"> Sim Controls </h2>
 
 <button                  onclick="mainCanvas.stepSim()"   class="main" > Step  </button>
 <button id="startbutton" onclick="mainCanvas.startSim()"  class="main" > Run </button>
@@ -228,8 +237,8 @@ slower &#8674; faster
 <input type="range" class="main slider-width100" id="speedRange" value="20" max="60" min="1">
 <button class="main" onclick="getSimSpeed()" > Update </button>
 
-<h2 class="bordersTop"> Space </h2>
-<p>Currenly due to the restrictions of WebGL cell numbers must be powers of two </p>
+<h2 class="bordersTop"> Cell Space </h2>
+<p>Currenly due to the restrictions of WebGL cell numbers must be powers of two. Topology is also currently locked at torus </p>
 
 
 <form class="main" onsubmit="return false" >
@@ -262,19 +271,33 @@ Width
 
 </form>
 
-<p>Topology is also currently locked at torus</p>
-
-<h2 class="bordersTop"> Algorithm </h2>
+<h2 class="bordersTop"> Update Algorithm </h2>
 
 <form class="main" onsubmit="return false">
-  Load Preset Rules
+<h3> Load Preset Ruleset </h3>
   <select class="main" id="loadpreset" onchange="loadAndUpdatePreset()">
      <option value="custom" >  Custom </option>
   </select>
 </form>
-<h3> Rules </h3>
+<h3> Current Ruleset </h3>
 
-<p>Click to change the cell state resulting from a current state, and a number of neighbours.</p>
+<p>This texture encodes the update rules of each cell: </p>
+
+<p>- &nbsp; Each cell has access to the sum of its neighbours color values, and compares that value against the sum of values given by this texture.</p>
+<p>- &nbsp;  The blue value is matched if it is below the cells neighbour sum value. This is more effecient when checking that neighbouring cells contain at least one value without having to check all the possible permutations.</p>
+<p>- &nbsp;  Neighbour sum values that leave the state unchanged can be ommitted from this texture, and the current value will be automatically copied to the updated state.</p>
+
+<h3> Toggle Values </h3>
+<p>Click on the rule canvas to toggle this color value of a cell:</p>
+
+<form class="main" onsubmit="return false" >
+
+  R: <input type="number" class="main" id="Rrule" min="0" max="255" value ="255" step="1" >
+  G: <input type="number" class="main" id="Grule" min="0" max="255" value ="0" step="1" >
+  B: <input type="number" class="main" id="Brule" min="0" max="255" value ="0" step="1" >
+  A: <input type="number" class="main" id="Arule" min="0" max="255" value ="255" step="1" >
+
+</form>
 
 <div class="main noBorder" style="position: relative">
 <canvas id="rulecanvas" class="main " width="185" height=195 >
@@ -286,14 +309,14 @@ Too bad your browser does not support the HTML5 canvas.
 
 </div>
 
-<h2 class="bordersTop"> Cells </h2>
-<button class="main" onclick="fillRandomCells()" > Fill Randomly </button>
+<h2 class="bordersTop"> Set Cells </h2>
+<button class="main" onclick="fillRandomCells()" > Fill Cells Randomly </button>
 <form class="main" onsubmit="return false" >
   P(alive)=
   <input type="number" class="main" id="pAlive" min="0" max="1" value ="0.5" step="0.1" >
 </form>
 
-When paused, click on a cell to:
+Click on a cell to:
 
 <form>
 	<!-- Form options are created dynamically from array of patterns (see patterns.js) -->

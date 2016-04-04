@@ -66,7 +66,7 @@ var patternArray = { static: new patternType, spaceships: new patternType, guns:
 
 
 // ====== Static patterns (In game of life) ======
-	patternArray.static.name = "Static";
+	patternArray.static.name = "Statics";
 
 	// Stationary Block
 	var block = new pattern(2,2);
@@ -87,7 +87,7 @@ var patternArray = { static: new patternType, spaceships: new patternType, guns:
 
 // ====== Spaceships (In game of life) ======
 
-	patternArray.spaceships.name = "Spaceship";
+	patternArray.spaceships.name = "Spaceships";
 
 	// Glider
 	var glider = new pattern(3,3);
@@ -158,6 +158,7 @@ function createPatternMenu(){
 	// Create entry for single cell switch
 	document.getElementById("presetlist").innerHTML+= '<option value="single"> Toggle Single Cell On/Off </option>';
 	// entries for random blocks
+	document.getElementById("presetlist").innerHTML+= '<option disabled > Or Insert: </option>';
 	document.getElementById("presetlist").innerHTML+= '<option disabled > ── Random Blocks ─── </option>';
 	document.getElementById("presetlist").innerHTML+= '<option value="random5" > Random 5x5 </option>';
 	document.getElementById("presetlist").innerHTML+= '<option value="random10"> Random 10x10 </option>';
