@@ -156,6 +156,8 @@ ruleCanvas.clickEvent = function( event ){
 			this.currentRuleSet.data[n+3] = document.getElementById("Arule").value;;
 		}
 		else{	this.currentRuleSet.data[n] = 0;
+					this.currentRuleSet.data[n+1] = 0;
+					this.currentRuleSet.data[n+2] = 0;
 					this.currentRuleSet.data[n+3] = 0;	}
 	}
 

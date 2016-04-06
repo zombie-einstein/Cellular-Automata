@@ -19,26 +19,23 @@ mainCanvas.initWebGL();
 
 // Add display and rule based shaders to this object
 mainCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
-mainCanvas.addProgram( "rules"  , "2d-vertex-rules", "2d-fragment-rules"   );
+mainCanvas.addProgram( "rules"  , "2d-vertex-shader", "2d-fragment-rules"   );
 
 // ====== Add required uniform locations =======
 
 // Add color shift location to display (to get correct live cell color)
 mainCanvas.programs.display.addUniform( mainCanvas.gl, "colorLocation", "u_colorShift" );
-// Add texture size location to rule shader
-mainCanvas.programs.rules.addUniform( mainCanvas.gl, "textureSizeLocation", "u_textureSize" );
-// Add ruleset texture location to rule shader
-mainCanvas.programs.rules.addUniform( mainCanvas.gl, "ruleSizeLocation", "u_ruleSize" );
+
+// Add (all the!!) uniforms for rule frament shader
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "currentRowLocation", "u_currentRow" );
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "numStatesLocation", "u_numStates" );
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "rangeLocation", "u_range" );
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "textPixelLocation", "u_textPixel" );
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "rulePixelLocation", "u_rulePixel" );
+
 // Get texture locations
 mainCanvas.programs.rules.addUniform( mainCanvas.gl, "backText0Location", "u_backText;" );
 mainCanvas.programs.rules.addUniform( mainCanvas.gl, "ruleText1Location", "u_rulesText" );
-// Add neighbour array location to rule program
-mainCanvas.programs.rules.neighbours = [];
-for ( var i = 0; i < 8; i++ ){
-  mainCanvas.programs.rules.neighbours[i] = mainCanvas.gl.getUniformLocation( mainCanvas.programs.rules.program, "neighbours["+i.toString()+"]");
-}
-// Add number of neighbours location to rule program
-mainCanvas.programs.rules.addUniform( mainCanvas.gl, "numNeighbourLocation", "u_numNeighbours" );
 
 // ======= Add Required Textures =======
 mainCanvas.textures.front = new TEXTURE;  // Display texture
@@ -46,11 +43,11 @@ mainCanvas.textures.back  = new TEXTURE;   // Back texture for purpose of updati
 mainCanvas.textures.rule  = new TEXTURE;   // Texture which encodes ruleset
 
 // ======= Simultation Variables =======
-
-mainCanvas.animReq = undefined;      // Initialize timestep variable outside scope of animation function
-mainCanvas.timeout = undefined;
-mainCanvas.fps;         // Simulation rate
-mainCanvas.paused = true; // Simulation status switch (initially false)
+mainCanvas.currentRow = 1.0;
+mainCanvas.animReq    = undefined;      // Initialize timestep variable outside scope of animation function
+mainCanvas.timeout    = undefined;
+mainCanvas.fps        = undefined;         // Simulation rate
+mainCanvas.paused     = true; // Simulation status switch (initially false)
 
 
 // *************************************************
@@ -65,20 +62,6 @@ mainCanvas.loadRuleset = function( ruleset ){
 
 }
 
-// Load neighbour loaction vectors to shaders
-mainCanvas.loadNeighbours = function( neigbourhood ){
-
-  // Send neighbour vec2 values to uniforms (uniforms are unset if outside length of neighbourhood array)
-  for ( var i = 0; i < neigbourhood.length/2; i++  ){
-
-    this.gl.uniform2i( this.programs.rules.neighbours[i], neigbourhood[2*i], neigbourhood[2*i+1] );
-
-  }
-  // Send number of neighbours to shader
-  this.gl.uniform1i( this.programs.rules.numNeighbourLocation, neigbourhood.length/2 );
-
-}
-
 // Clear the cells
 mainCanvas.clearCells = function(){
 
@@ -88,19 +71,12 @@ mainCanvas.clearCells = function(){
 
 }
 
-// Randomly set values of front texture pixels to alive or dead
-mainCanvas.fillRandomCells = function( rate ){
+// Randomly set values of value of first row
+mainCanvas.randomSeed = function( rate ){
 
-  this.textures.front.fillRandomR( this.gl, document.getElementById("RCanvas").value, document.getElementById("GCanvas").value,document.getElementById("BCanvas").value, document.getElementById("ACanvas").value, rate  );
+  this.currentRow = 1.0;  // Reset to first row
+  this.textures.front.randomFirstR( this.gl, document.getElementById("RCanvas").value, document.getElementById("GCanvas").value,document.getElementById("BCanvas").value, document.getElementById("ACanvas").value, rate  );
 
-}
-
-mainCanvas.startOneD = function(){
-
-  for ( var i = 0; i < this.textures.front.dimensions.y; i++ ){
-    this.textures.front.setPixelValue( this.gl, 2, i, 0,255,0,255 );
-  }
-  this.renderCells();
 }
 
 // Refresh front and back textures at new resolution
@@ -125,11 +101,17 @@ mainCanvas.renderCells = function(){
 
 }
 
-// Main GOL Loop
+// Main 1-D C.A. loop
 mainCanvas.mainLoop = function(){
 
   this.gl.useProgram( this.programs.rules.program );
-  this.loadNeighbours( currentNeighbourhood.array );
+
+  // Send all appropriate uniforms to program
+  this.gl.uniform1f( this.programs.rules.currentRowLocation, this.currentRow );
+  this.gl.uniform1i( this.programs.rules.numStatesLocation, ruleCanvas.currentRuleSet.numStates );
+  this.gl.uniform1i( this.programs.rules.rangeLocation, ruleCanvas.currentRuleSet.range );
+  this.gl.uniform2f( this.programs.rules.rulePixelLocation, 1/(ruleCanvas.currentRuleSet.dimensions.x), 1/(ruleCanvas.currentRuleSet.dimensions.y) );
+  this.gl.uniform2f( this.programs.rules.textPixelLocation, 1/(this.textures.front.dimensions.x), 1/(this.textures.front.dimensions.y) );
 
   // ======= Create framebuffer and attach back texture ======= //
 
@@ -149,7 +131,6 @@ mainCanvas.mainLoop = function(){
   // Attach ruleset texture
   this.gl.activeTexture(this.gl.TEXTURE1);
   this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.rule.data);
-  this.gl.uniform2f( this.programs.rules.ruleSizeLocation, this.textures.rule.dimensions.x, this.textures.rule.dimensions.y );
 
   // Start to draw with front texture
   this.gl.activeTexture(this.gl.TEXTURE0);
@@ -157,9 +138,6 @@ mainCanvas.mainLoop = function(){
 
   // Set buffer viewport
   this.gl.viewport( 0, 0, this.textures.front.dimensions.x, this.textures.front.dimensions.y );
-
-  // Send texture size (for pixel measure)
-  this.gl.uniform2f( this.programs.rules.textureSizeLocation, this.textures.front.dimensions.x, this.textures.front.dimensions.y );
 
   // Render to texture "back"
   this.programs.rules.render( this.gl );
@@ -174,6 +152,8 @@ mainCanvas.mainLoop = function(){
 
   // Render cells to canvas
   this.renderCells();
+
+  this.currentRow = ( this.currentRow +1.0 ) % this.textures.front.dimensions.y;
 
 }
 
@@ -194,6 +174,7 @@ mainCanvas.switchPixelState = function( x, y ){
 // One step of simulation
 mainCanvas.stepSim = function(){ this.mainLoop(); }
 
+// Run the simultation
 mainCanvas.run = function(){
 
   this.timeout =  setTimeout(function(){
@@ -202,6 +183,7 @@ mainCanvas.run = function(){
 
 }
 
+// Pause the simultation
 mainCanvas.stop = function(){
 
   window.cancelAnimationFrame(this.animReq);

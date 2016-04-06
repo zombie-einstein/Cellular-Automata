@@ -44,151 +44,64 @@
 
     </script>
 
-    <!-- Vertex shader for drawing straight lines -->
 
-    <script id="2d-vertex-lines" type="x-shader/x-vertex">
-
-        // Line Vertices
-        attribute vec2 a_vertices;
-
-        void main() { gl_Position = vec4( a_vertices, 0, 1); }
-
-    </script>
-
-    <!-- Draws lines in white -->
-
-   <script id="2d-fragment-lines" type="x-shader/x-fragment">
-
-       precision mediump float;
-
-       void main() { gl_FragColor = vec4(1.0,1.0,1.0,1.0); }
-
-   </script>
-
-    <!-- Sends texture co-ords to the shader which applies GOL rules,
-         but also calculates the sum of neighbour colour values provided by the ruleset texture -->
-
-    <script id="2d-vertex-rules" type="x-shader/x-vertex">
-
-        precision mediump float;
-
-        // Screen and texture co-ords
-        attribute vec2 a_position;
-        attribute vec2 a_texCoord;
-
-        // Raster co-ordinates passed to fragment shader
-        varying vec2 v_texCoord;
-
-        // Ruleset texture ( as also passed to fragment shader )
-        uniform vec2 u_ruleSize;
-        uniform sampler2D u_rulesText;
-
-        // Calculate the sum of the rules neighbours values here then pass to fragment shader
-        // Do this here as it doesn't need to be done individually for each vertex
-        // ( 20 is currently an arbitary limit, what is max array varying for WebGL?? )
-        varying vec4 ruleSum[20];
-
-        // Method to get sum of possible neighbours to check against
-        vec4 getRuleSum( int x, vec2 pixel ){
-
-          vec4 sum = vec4(0.0,0.0,0.0,0.0); // Return vector
-
-          // Sum over the eight (possible) neighbour colour values
-          for( int i = 0; i < 8; i++ ){ sum += texture2D( u_rulesText, 0.5*pixel +pixel * vec2( x, i+int(u_ruleSize.y)-8 ) ); }
-
-          return sum;
-        }
-
-        void main() {
-
-          vec2 ruleUnit = vec2( 1.0, 1.0 )/u_ruleSize;
-
-          for ( int i = 0; i < 20; i++ ){
-            ruleSum[i] = getRuleSum( i+1, ruleUnit ); // Send rule neighbours value sum to array
-            if( i == int( u_ruleSize.x )-2 ){ break;} // Break out of the loop if we've reached the end of the rule texture
-          }
-
-          gl_Position = vec4( a_position, 0, 1);
-
-   		    v_texCoord = a_texCoord;
-
-        }
-
-    </script>
-
-    <!-- Fragment shader program with GOL ruleset-->
+    <!-- Fragment shader program with 1-D ruleset-->
 
     <script id="2d-fragment-rules" type="x-shader/x-fragment">
 
     precision mediump float;
 
-    // Array of neighbour locations
-    uniform ivec2 neighbours[8];
-    uniform int u_numNeighbours;
+    uniform float u_currentRow;
 
-    // Previous state texture and dimensions
-	  uniform vec2 u_textureSize;
-	  uniform sampler2D u_backText;
+    uniform int u_numStates;  // Number of possible states
+    uniform int u_range;      // Range of neighbours considered
 
-    // Texture that encodes ruleset and it's dimensions
-    uniform vec2 u_ruleSize;
-    uniform sampler2D u_rulesText;
+    // Previous state
+    uniform vec2 u_textPixel;      // One pixel distance
+	  uniform sampler2D u_backText;  // Actual Texture
+
+    // Ruleset
+    uniform vec2 u_rulePixel;      // One pixel distance
+    uniform sampler2D u_rulesText; // Ruleset texture
 
     // Varying values passed from vertex shader
 	  varying vec2 v_texCoord;
 
-    // Sum of rule neighbour values passed from vertex
-    varying vec4 ruleSum[20];
+	  // Function returns colour value from previous state row
+    vec4 getNeighbour( int x ){ return texture2D( u_backText, v_texCoord + u_textPixel*vec2( -u_range+x, 1) );  }
 
-	  // Function returns neighbour colour values: between 1 (i.e. 255) or 0
-      vec4 get( int x, int y, vec2 pixel ){ return texture2D( u_backText, v_texCoord + pixel * vec2(x,y) );  }
+    // Returns color value of
+    vec4 getRule( int x, int y ){ return texture2D( u_rulesText, 0.5*u_rulePixel+u_rulePixel*vec2( x, y ) ); }
 
-      void main(){
+    void main(){
 
-      	// Get co-ordinate values to move one pixel of textures
-      	vec2 onePixel = vec2( 1.0, 1.0 )/u_textureSize;
-        vec2 ruleUnit = vec2( 1.0, 1.0 )/u_ruleSize;
+      // Only perform calculation for current row
+      if ( v_texCoord.y == (u_currentRow+0.5)*u_textPixel.y ){
 
+        int row = 0 ; // What row off the rule texture are we on
 
-        // Initialize average neighbour sum vector
-        vec4 neighbourSum = vec4(0.0,0.0,0.0,0.0);
+        // ( Loop over columns of ruleset i.e. 2*range +1 )
+        for ( int i = 0; i < 21; i++ ){
 
-        // Sum over neighbours color values
-        for ( int i = 0; i < 8; i++ ){
-          neighbourSum += get( neighbours[i].x, neighbours[i].y, onePixel );
-          if( i == (u_numNeighbours-1) ){ break; }
-        }
+          // Check current column against rule value
+          for ( int j = 0; j < 20; j++ ){
 
-        // Loop over LH column of rule texture and check for matches
-        // (i.e matches current cell state RGBA value to value of rule texture )
-        // ( Max value of loop is arbitary, use break to restrict value, again max value is arbitary)
-        for ( int i = 0; i < 20; i++ ){
+            if( getNeighbour(i) == getRule( i, row ) ){ break; } // If state and rule value match then move to next row
+            else{ row += int(pow( float(u_numStates), float(u_range -1 -i ) )); }          // Else jump to next value and continue loop
 
-          if ( texture2D(u_backText, v_texCoord) == texture2D( u_rulesText, 0.5*ruleUnit+ruleUnit*vec2(0,i) ) ){
-
-            // Loop over possible neighbour sums
-            for( int j = 0; j < 20; j++ ){
-
-              // Compare sum of this pixels neighbour values against those provided rule texture ( provided by vertex shader )
-
-              // Just check that current neigbours and rule state are the same, this is slow when number of colour states is large
-              // as checks need to be made against all possible permutations of colour combinations
-              // if( ruleSum[j] == neighbourSum ){}
-
-              // Make inequality check on blue channel, more effecient when just wanting to check if a single neighbour satisfies value
-              if( (ruleSum[j].r == neighbourSum.r) && (ruleSum[j].g == neighbourSum.g) && (ruleSum[j].b <= neighbourSum.b) && (ruleSum[j].a == neighbourSum.a) ){
-
-                gl_FragColor = texture2D( u_rulesText, 0.5*ruleUnit+ruleUnit*vec2( j+1, i) );
-                return; // Break out of main if mathching neighbour state found
-
-              }
-            }
           }
-        }
-        // If no matching rule found then state remains unchanged
-        gl_FragColor = texture2D(u_backText, v_texCoord);
 
-      } // End of main
+          if( i == int(2*u_range) ){ break;}
+
+        }
+
+        gl_FragColor = getRule( 2*u_range+1, row );
+
+      }
+
+      else{ gl_FragColor = 	texture2D( u_backText, v_texCoord ); }
+
+    } // End of main
 
     </script>
 
@@ -200,9 +113,7 @@
 <div id="menus"  class="main noBorder double">
 <div id="internal" class="main noBorder">
 
-<h1 class="main noBorder" style="margin: 5px"> GAME OF LIFE </h1>
-<h2 class="main noBorder"> WebGL version </h2>
-<p>Cell calculations and rendering are performed by the GPU allowing for larger numbers of cells.</p>
+<h1 class="main noBorder" style="margin: 5px"> 1-D C.A. </h1>
 <h3>By Zombie-Einstein</h3>
 
 <p >
@@ -296,11 +207,14 @@ Width
 
 </form>
 
+<h3>States</h3>
+<canvas id="statecanvas" class="main " width="185" height=20 > </canvas>
+<h3>Rules</h3>
 <div class="main noBorder" style="position: relative">
-<canvas id="rulecanvas" class="main " width="185" height=195 >
+<canvas id="rulecanvas" class="main " width="185" height=300 >
 Too bad your browser does not support the HTML5 canvas.
 </canvas>
-<canvas id ="ruletextoverlay" class="canvasOverlay"   onclick="ruleCanvas.clickEvent(event)" width="185" height=195>
+<canvas id ="ruletextoverlay" class="canvasOverlay"   onclick="ruleCanvas.clickEvent(event)" width="185" height=300>
   Too bad your browser does not support the HTML5 canvas.
 </canvas>
 
@@ -356,19 +270,19 @@ Too bad your browser does not support the HTML5 canvas.
 Too bad your browser does not support the HTML5 canvas.
 </canvas>
 
-<script src ="javascript_(webGL)/vector.js"			  ></script>
-<script src ="javascript_(webGL)/patterns.js"		  ></script>
+<script src ="javascript_one_d/vector.js"			  ></script>
+<script src ="javascript_one_d/patterns.js"		  ></script>
 
-<script src ="javascript_(webGL)/color.js"  		  ></script>
-<script src ="javascript_(webGL)/HTML_controls.js"></script>
+<script src ="javascript_one_d/color.js"  		  ></script>
+<script src ="javascript_one_d/HTML_controls.js"></script>
 
-<script src ="javascript_(webGL)/canvas_class.js" ></script>
-<script src ="javascript_(webGL)/main_canvas.js"       ></script>
+<script src ="javascript_one_d/canvas_class.js" ></script>
+<script src ="javascript_one_d/main_canvas.js"       ></script>
 
-<script src ="javascript_(webGL)/ruleset.js"      ></script>
-<script src ="javascript_(webGL)/presets.js"  		></script>
+<script src ="javascript_one_d/ruleset.js"      ></script>
+<script src ="javascript_one_d/presets.js"  		></script>
 
-<script src ="javascript_(webGL)/ca_main.js"      ></script>
+<script src ="javascript_one_d/ca_main.js"      ></script>
 
 </body>
 

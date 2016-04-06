@@ -47,12 +47,10 @@ changeTextColor();
 document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,40);
 
 // Load the game of life ruleset to the current ruleset
-ruleCanvas.loadPreset( presets.gameOfLife );
-ruleCanvas.renderText();
+//ruleCanvas.loadPreset( presets.gameOfLife );
+currentRuleSet.loadPreset( presets.gameOfLife );
+//ruleCanvas.renderText();
 document.getElementById("loadpreset").value = "gameOfLife";
-
-// Load the full neighbourhood property
-currentNeighbourhood.load(neighbourhoods.full);
 
 // Console message on succesful page load
 console.log("Page loaded succesfully");
