@@ -38,19 +38,15 @@ var deadColor;
 // Send live color to renderer
 changeAliveColor();
 
-// Write title in cells
-mainCanvas.makeTitle();
-
 // Set background and menu colors from HTML
 changeBackgroundColor();
 changeTextColor();
 document.getElementById("stopbutton").style.backgroundColor = LightenDarkenColor(deadColor,40);
 
 // Load the game of life ruleset to the current ruleset
-//ruleCanvas.loadPreset( presets.gameOfLife );
-currentRuleSet.loadPreset( presets.gameOfLife );
+currentRuleSet.loadPreset( presets.rule101 );
 //ruleCanvas.renderText();
-document.getElementById("loadpreset").value = "gameOfLife";
+document.getElementById("loadpreset").value = "rule101";
 
 // Console message on succesful page load
 console.log("Page loaded succesfully");

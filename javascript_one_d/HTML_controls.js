@@ -21,6 +21,7 @@ function clearCells(){
 
 	mainCanvas.pauseSim();
 	mainCanvas.clearCells();
+	mainCanvas.currentRow = 1;
 
 }
 
@@ -55,7 +56,7 @@ function changeNeighbourhood(){
 // load a preset and update the HTML forms
 function loadAndUpdatePreset(){
 
-	ruleCanvas.loadPreset( presets[ document.getElementById("loadpreset").value] );
+	currentRuleSet.loadPreset( presets[ document.getElementById("loadpreset").value] );
 
 }
 

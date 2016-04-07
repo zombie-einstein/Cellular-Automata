@@ -20,27 +20,34 @@ function ruleSet( r, n ){
 // Set state cell colour value
 ruleSet.prototype.setStateValue = function( n, r, g, b, a ){
 
-	this.statedata[n*4] 	= r;
-	this.statedata[n*4+1]	= g;
-	this.statedata[n*4+2]	= b;
-	this.statedata[n*4+3]	= a;
+	this.stateData[n*4] 	= r;
+	this.stateData[n*4+1]	= g;
+	this.stateData[n*4+2]	= b;
+	this.stateData[n*4+3]	= a;
 
 }
 
 // Set rule cell colour value
 ruleSet.prototype.setRuleValue = function( x, y, r, g, b, a ){
 
-	this.statedata[(x+this.dimensions.x*y)*4] 	= r;
-	this.statedata[(x+this.dimensions.x*y)*4+1]	= g;
-	this.statedata[(x+this.dimensions.x*y)*4+2]	= b;
-	this.statedata[(x+this.dimensions.x*y)*4+3]	= a;
+	this.ruleData[(x+this.dimensions.x*y)*4] 	= r;
+	this.ruleData[(x+this.dimensions.x*y)*4+1]	= g;
+	this.ruleData[(x+this.dimensions.x*y)*4+2]	= b;
+	this.ruleData[(x+this.dimensions.x*y)*4+3]	= a;
+
+}
+
+// Set a resultant color
+ruleSet.prototype.setResultValue = function( n, r, g, b, a ){
+
+	this.setRuleValue(this.dimensions.x-1, n, r, g, b, a );
 
 }
 
 // Set a rule vale from a state
 ruleSet.prototype.setRuleFromState = function( x, y, n ){
 
-	setRuleValue( x, y, this.stateData(4*n), this.stateData(4*n+1), this.stateData(4*n+2), this.stateData(4*n+3) );
+	this.setRuleValue( x, y, this.stateData[4*n], this.stateData[4*n+1], this.stateData[4*n+2], this.stateData[4*n+3] );
 
 }
 
@@ -49,8 +56,8 @@ ruleSet.prototype.permuations = function(){
 
 	for ( var i = 0; i < this.dimensions.x-1; i++ ){		 										// Iterate over cell positions
 	var row = 0;																				 										// Counts current row
-		for( var j = 0; j < this.dimensions.y/this.numStates; j++ ){					// Number if distinct states in column
-				for( var k = 0; k < Math.pow(this.numStates,2*this.range); k++ ){	// Size of block of distinct color
+		for( var j = 0; j < Math.pow(this.numStates, (i+1)); j++ ){					// Number if distinct states in column
+				for( var k = 0; k < Math.pow(this.numStates,2*this.range-i); k++ ){	// Size of block of distinct color
 					this.setRuleFromState( i, row, j%this.numStates );							// Set this color for each cell in block
 					row++;
 				}}}
@@ -133,7 +140,7 @@ currentRuleSet.loadTextures = function(){
 // Push the current ruleset to the main canvas rule texture
 currentRuleSet.pushRuleToMain = function(){
 
-//	mainCanvas.loadRuleset( this.currentRuleSet );
+	mainCanvas.loadRuleset( this );
 
 }
 
@@ -143,8 +150,14 @@ currentRuleSet.renderTextures = function(){
 	this.ruleCanvas.gl.useProgram( this.ruleCanvas.programs.display.program );
   this.ruleCanvas.gl.uniform4f( this.ruleCanvas.programs.display.colorLocation, aliveColor[0], aliveColor[1] ,aliveColor[2], 0 );	// Set color shift to achieve live cell color
   this.ruleCanvas.gl.bindTexture( this.ruleCanvas.gl.TEXTURE_2D, this.ruleCanvas.textures.ruleset.data );	// Bind texture
-  this.ruleCanvas.gl.viewport( 0, 0, this.dimensions.x, this.dimensions.y );
+  this.ruleCanvas.gl.viewport( 0, 0, this.ruleCanvas.dimensions.x, this.ruleCanvas.dimensions.y );
   this.ruleCanvas.programs.display.render( this.ruleCanvas.gl );
+
+	this.stateCanvas.gl.useProgram( this.stateCanvas.programs.display.program );
+  this.stateCanvas.gl.uniform4f( this.stateCanvas.programs.display.colorLocation, aliveColor[0], aliveColor[1] ,aliveColor[2], 0 );	// Set color shift to achieve live cell color
+  this.stateCanvas.gl.bindTexture( this.stateCanvas.gl.TEXTURE_2D, this.stateCanvas.textures.states.data );	// Bind texture
+  this.stateCanvas.gl.viewport( 0, 0, this.stateCanvas.dimensions.x, this.stateCanvas.dimensions.y );
+  this.stateCanvas.programs.display.render( this.stateCanvas.gl );
 
 }
 /*
@@ -159,34 +172,45 @@ ruleCanvas.renderText = function(){
 		this.textCanvas.context.fillText("Current", this.textCanvas.width-35 ,-10);
 		this.textCanvas.context.restore();
 }
+*/
+currentRuleSet.ruleClick = function( event ){
 
-ruleCanvas.clickEvent = function( event ){
-
-	this.currentRuleSet.name = "Custom";
+	this.name = "Custom";
 	document.getElementById("loadpreset").value = "custom";
 	// Get mouse position and convert to cell grid number
-	var mousePos 	= this.getMousePos( event );
-	var x = Math.floor(mousePos.x * this.currentRuleSet.dimensions.x / this.dimensions.x );
-	var y = Math.floor(mousePos.y * this.currentRuleSet.dimensions.y / this.dimensions.y  );
+	var mousePos 	= this.ruleCanvas.getMousePos( event );
+	var x = Math.floor(mousePos.x * this.dimensions.x / this.ruleCanvas.dimensions.x );
+	var y = Math.floor(mousePos.y * this.dimensions.y / this.ruleCanvas.dimensions.y  );
 
-	var n = 4*( x + this.currentRuleSet.dimensions.x * y );
+	var n = 4*(x+this.dimensions.x*y);
 
-	if ( x > 0 || y < this.currentRuleSet.dimensions.y-8 ){
-		if ( this.currentRuleSet.data[n] == 0 && this.currentRuleSet.data[n+1] == 0 && this.currentRuleSet.data[n+2] == 0 && this.currentRuleSet.data[n+3] == 0 ){
-			this.currentRuleSet.data[n] 	= document.getElementById("Rrule").value;
-			this.currentRuleSet.data[n+1] = document.getElementById("Grule").value;
-			this.currentRuleSet.data[n+2] = document.getElementById("Brule").value;
-			this.currentRuleSet.data[n+3] = document.getElementById("Arule").value;;
+	if ( x > this.dimensions.x-2 ){
+		if ( this.ruleData[n] == 0 && this.ruleData[n+1] == 0 && this.ruleData[n+2] == 0 && this.ruleData[n+3] == 0 ){
+			this.setResultValue( y, document.getElementById("Rrule").value, document.getElementById("Grule").value, document.getElementById("Brule").value, document.getElementById("Arule").value );
 		}
-		else{	this.currentRuleSet.data[n] = 0;
-					this.currentRuleSet.data[n+1] = 0;
-					this.currentRuleSet.data[n+2] = 0;
-					this.currentRuleSet.data[n+3] = 0;	}
+		else{	this.setResultValue(y,0,0,0,0); }
+
 	}
 
-	this.loadRuleTexture();
-	this.renderRules();
+	this.loadTextures();
+	this.renderTextures();
 	this.pushRuleToMain();
 
 }
-*/
+
+currentRuleSet.stateClick = function(event){
+	this.name = "Custom";
+	document.getElementById("loadpreset").value = "custom";
+	var mousePos 	= this.stateCanvas.getMousePos( event );
+	var x = Math.floor(mousePos.x * this.numStates / this.stateCanvas.dimensions.x );
+
+	if ( this.stateData[4*x] == 0 && this.stateData[4*x+1] == 0 && this.stateData[4*x+2] == 0 && this.stateData[4*x+3] == 0 ){
+		this.setStateValue( x, document.getElementById("Rrule").value, document.getElementById("Grule").value, document.getElementById("Brule").value, document.getElementById("Arule").value );
+	}
+	else{	this.setStateValue(x,0,0,0,0); }
+
+	this.loadTextures();
+	this.renderTextures();
+	this.pushRuleToMain();
+
+}

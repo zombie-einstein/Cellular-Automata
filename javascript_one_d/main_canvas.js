@@ -57,7 +57,7 @@ mainCanvas.paused     = true; // Simulation status switch (initially false)
 // Load ruleset to rule texture
 mainCanvas.loadRuleset = function( ruleset ){
 
-  this.textures.rule.loadO( this.gl, ruleset.dimensions.x, ruleset.dimensions.y, ruleset.data );
+  this.textures.rule.loadO( this.gl, ruleset.dimensions.x, ruleset.dimensions.y, ruleset.ruleData );
   console.log(ruleset.name+" ruleset loaded");
 
 }
@@ -108,9 +108,9 @@ mainCanvas.mainLoop = function(){
 
   // Send all appropriate uniforms to program
   this.gl.uniform1f( this.programs.rules.currentRowLocation, this.currentRow );
-  this.gl.uniform1i( this.programs.rules.numStatesLocation, ruleCanvas.currentRuleSet.numStates );
-  this.gl.uniform1i( this.programs.rules.rangeLocation, ruleCanvas.currentRuleSet.range );
-  this.gl.uniform2f( this.programs.rules.rulePixelLocation, 1/(ruleCanvas.currentRuleSet.dimensions.x), 1/(ruleCanvas.currentRuleSet.dimensions.y) );
+  this.gl.uniform1i( this.programs.rules.numStatesLocation, currentRuleSet.numStates );
+  this.gl.uniform1i( this.programs.rules.rangeLocation, currentRuleSet.range );
+  this.gl.uniform2f( this.programs.rules.rulePixelLocation, 1/(currentRuleSet.dimensions.x), 1/(currentRuleSet.dimensions.y) );
   this.gl.uniform2f( this.programs.rules.textPixelLocation, 1/(this.textures.front.dimensions.x), 1/(this.textures.front.dimensions.y) );
 
   // ======= Create framebuffer and attach back texture ======= //
@@ -277,14 +277,5 @@ mainCanvas.clickEvent = function( event ){
 			eval(document.getElementById("presetlist").value).printPattern( mouseVec );
 
 	}
-
-}
-
-// Render a title splash using cells "GAME OF LIFE"
-mainCanvas.makeTitle = function (){
-
-  var titleLocation = new vec( 5, cells.n.y-5);	// Top left location of the pattern
-	var title = createTitle();
-	title.printPattern( titleLocation );
 
 }
