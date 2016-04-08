@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="utf-8">
-<title>Game of Life C.A. (WebGl Version)</title>
+<title>Cellular Automata</title>
 <link rel="stylesheet" href="CSS/main.css">
 <link rel="shortcut icon" href="CSS/CA.ico">
 
@@ -87,15 +87,15 @@
           for ( int j = 0; j < 20; j++ ){
 
             if( getNeighbour(i) == getRule( i, row ) ){ break; } // If state and rule value match then move to next column
-            else{ row += int(pow( float(u_numStates), float( 2*u_range-i ) )); }          // Else jump to next value and continue loop
+            else{ row += int(pow( float(u_numStates), float( 2*u_range-i ) )); }          // Else jump to next color value  in ruleset and continue loop
 
           }
 
-          if( i == int(2*u_range) ){ break;}
+          if( i == int(2*u_range) ){ break;} // Break out of loop when reached right edge of ruleset
 
         }
 
-        gl_FragColor = getRule( 2*u_range+1, row );
+        gl_FragColor = getRule( 2*u_range+1, row ); // Set cells color value from rule texture final column
 
       }
 
@@ -113,11 +113,14 @@
 <div id="menus"  class="main noBorder double">
 <div id="internal" class="main noBorder">
 
-<h1 class="main noBorder" style="margin: 5px"> One-Dimensional Cellular Automata </h1>
-<h3>By Zombie-Einstein</h3>
+  <div class="main noBorder" align="center" > <h1 class="main noBorder bordersTop" style="margin: 5px"> 1-D Cellular Automata</h1> </div>
+  <h3>By Zombie-Einstein</h3>
+  <p >1-Dimensional cellular automata implemented using WebGL</p>
 
-<p> One dimensional cellular automata implemented using WebGL. The state of each row is determined from the state of cells in the previous row, within a certain range</p>
-
+  <div class="main noBorder" align="center" style="margin:5px;" >
+  <a href="index.html" ><button class="main" style="width:80%;" > 2-D Version (Basic) </button></a>
+  <a href="advanced.html"    ><button class="main" style="width:80%;" > 2-D Version (Advanced) </button></a>
+  </div>
 Fork this project on<br>
 
 <a href="https://github.com/zombie-einstein/Cellular-Automata" target="_blank" >
@@ -146,7 +149,7 @@ slower &#8674; faster
 
 
 <form class="main" onsubmit="return false" >
-Width
+Width:
 	<select class="main" id="cellWidthSelect" onchange="updateGrid()">
       <option value="8" 	  >  8 	  </option>
       <option value="16" 	  >  16 	</option>
@@ -157,8 +160,8 @@ Width
       <option value="512" 	>  512 	</option>
       <option value="1024" 	>  1024 </option>
       <option value="2048"  >  2048 </option>
-  	</select><br>
-  	Height
+  	</select>
+  	Height:
   	<select class="main" id="cellHeightSelect" onchange="updateGrid()">
       <option value="8" 	  >  8 	  </option>
       <option value="16" 	  >  16 	</option>
@@ -174,12 +177,6 @@ Width
 
 <h2 class="bordersTop"> Update Algorithm </h2>
 
-<form class="main" onsubmit="return false">
-<h3> Load Preset Ruleset </h3>
-  <select class="main" id="loadpreset" onchange="loadAndUpdatePreset()">
-     <option value="custom" >  Custom </option>
-  </select>
-</form>
 <h3> Current Ruleset </h3>
 
 <p>These textures encode the update rules of each cell: </p>
@@ -193,7 +190,7 @@ Width
 <form class="main" onsubmit="return false" >
 
   R: <input type="number" class="main" id="Rrule" min="0" max="255" value ="255" step="1" >
-  G: <input type="number" class="main" id="Grule" min="0" max="255" value ="0" step="1" >
+  G: <input type="number" class="main" id="Grule" min="0" max="255" value ="0" step="1" ><br>
   B: <input type="number" class="main" id="Brule" min="0" max="255" value ="0" step="1" >
   A: <input type="number" class="main" id="Arule" min="0" max="255" value ="255" step="1" >
 
@@ -201,6 +198,7 @@ Width
 
 <h3>Possible States</h3>
 <canvas id="statecanvas" class="main " width="185" height=20 onclick="currentRuleSet.stateClick(event)"> </canvas>
+<button class="main" onclick="currentRuleSet.updatePermutations()" > Generate permutations </button>
 <h3>Update Rules</h3>
 <div class="main noBorder" style="position: relative">
 <canvas id="rulecanvas" class="main " width="185" height=300 >
@@ -212,13 +210,22 @@ Too bad your browser does not support the HTML5 canvas.
 
 </div>
 
+<form class="main" onsubmit="return false">
+<strong> Load Preset Ruleset: </strong>
+  <select class="main" id="loadpreset" onchange="loadAndUpdatePreset()">
+  <option value="custom" >  Custom </option>
+  </select>
+</form>
+
+<button class="main" onclick="currentRuleSet.setRandomResults()"> Random Update Rules </button>
+
 <h2 class="bordersTop"> Set Cells </h2>
 
 <h3> Insert / Toggle colour </h3>
 <form class="main" onsubmit="return false" >
 
   R: <input type="number" class="main" id="RCanvas" min="0" max="255" value ="255" step="1" >
-  G: <input type="number" class="main" id="GCanvas" min="0" max="255" value ="0" step="1" >
+  G: <input type="number" class="main" id="GCanvas" min="0" max="255" value ="0" step="1" ><br>
   B: <input type="number" class="main" id="BCanvas" min="0" max="255" value ="0" step="1" >
   A: <input type="number" class="main" id="ACanvas" min="0" max="255" value ="255" step="1" >
 
@@ -245,12 +252,7 @@ Too bad your browser does not support the HTML5 canvas.
   <!-- Form entries are generated by javascript (see color.js) -->
   Color Scheme
   <select class="main" id="chooseColorScheme"  onchange="changeColorScheme()"> </select><br>
-  Dead Cells
-  <select class="main" id="choosedeadcolor" onchange="changeBackgroundColor()" > </select><br>
-  Alive Cells
-  <select class="main" id="choosealivecolor" onchange="changeAliveColor()" > </select><br>
-  Text
-  <select class="main" id="choosemenucolor" onchange="changeTextColor()" > </select><br>
+
 </form>
 
 </div>
@@ -262,10 +264,10 @@ Too bad your browser does not support the HTML5 canvas.
 Too bad your browser does not support the HTML5 canvas.
 </canvas>
 
-<script src ="javascript_one_d/vector.js"			  ></script>
+<script src ="vector.js"			  ></script>
 <script src ="javascript_one_d/patterns.js"		  ></script>
 
-<script src ="javascript_one_d/color.js"  		  ></script>
+<script src ="color.js"  		  ></script>
 <script src ="javascript_one_d/HTML_controls.js"></script>
 
 <script src ="javascript_one_d/canvas_class.js" ></script>
@@ -274,7 +276,7 @@ Too bad your browser does not support the HTML5 canvas.
 <script src ="javascript_one_d/ruleset.js"      ></script>
 <script src ="javascript_one_d/presets.js"  		></script>
 
-<script src ="javascript_one_d/ca_main.js"      ></script>
+<script src ="javascript_one_d/one_d_main.js"      ></script>
 
 </body>
 

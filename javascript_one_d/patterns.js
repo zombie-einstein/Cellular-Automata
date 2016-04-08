@@ -62,96 +62,7 @@ pattern.prototype.printPattern = function( location ){
 }
 
 // Pattern Collection
-var patternArray = { static: new patternType, spaceships: new patternType, guns: new patternType }
-
-
-// ====== Static patterns (In game of life) ======
-	patternArray.static.name = "Statics";
-
-	// Stationary Block
-	var block = new pattern(2,2);
-	block.name = "Block";
-	block.map[0]	= 'OO';
-	block.map[1]	= block.map[0];
-
-	// Stationary beehive
-	var beehive = new pattern(4,3);
-	beehive.name = "Beehive";
-	beehive.map[0]	= 'XOX';
-	beehive.map[1]	= 'OXO';
-	beehive.map[2]	= 'OXO';
-	beehive.map[3]	= 'XOX';
-
-	// Array of static patterns ( make sure to add here )
-	patternArray.static.patterns = [ block, beehive ];
-
-// ====== Spaceships (In game of life) ======
-
-	patternArray.spaceships.name = "Spaceships";
-
-	// Glider
-	var glider = new pattern(3,3);
-	glider.name = "Glider";
-	glider.map[0]	= 'XXO';
-	glider.map[1]	= 'OXO';
-	glider.map[2]	= 'XOO';
-
-	// Lightweight Spaceship
-	var LWSS = new pattern(5,4);
-	LWSS.name	= "Lightweight Spaceship";
-	LWSS.map[0]		= 'OXOX';
-	LWSS.map[1]		= 'XXXO';
-	LWSS.map[2]		= 'XXXO';
-	LWSS.map[3]		= 'OXXO';
-	LWSS.map[4]		= 'XOOO';
-
-	patternArray.spaceships.patterns = [ glider, LWSS ];
-
-// ======= Glider Gun =======
-
-	patternArray.guns.name = "Guns";
-
-	// Gosper glider gun
-	var gospelGun = new pattern(36,9);
-	gospelGun.name = "Gospel Glider Gun";
-	gospelGun.map[0]		= 'XXXXOOXXX';
-	gospelGun.map[1]		= 'XXXXOOXXX';
-	gospelGun.map[2]		= 'XXXXXXXXX';
-	gospelGun.map[3]		= 'XXXXXXXXX';
-	gospelGun.map[4]		= 'XXXXXXXXX';
-	gospelGun.map[5]		= 'XXXXXXXXX';
-	gospelGun.map[6]		= 'XXXXXXXXX';
-	gospelGun.map[7]		= 'XXXXXXXXX';
-	gospelGun.map[8]		= 'XXXXXXXXX';
-	gospelGun.map[9]		= 'XXXXXXXXX';
-	gospelGun.map[10]		= 'XXXXOOOXX';
-	gospelGun.map[11]		= 'XXXOXXXOX';
-	gospelGun.map[12]		= 'XXOXXXXXO';
-	gospelGun.map[13]		= 'XXOXXXXXO';
-	gospelGun.map[14]		= 'XXXXXOXXX';
-	gospelGun.map[15]		= 'XXXOXXXOX';
-	gospelGun.map[16]		= 'XXXXOOOXX';
-	gospelGun.map[17]		= 'XXXXXOXXX';
-	gospelGun.map[18]		= 'XXXXXXXXX';
-	gospelGun.map[19]		= 'XXXXXXXXX';
-	gospelGun.map[20]		= 'XXOOOXXXX';
-	gospelGun.map[21]		= 'XXOOOXXXX';
-	gospelGun.map[22]		= 'XOXXXOXXX';
-	gospelGun.map[23]		= 'XXXXXXXXX';
-	gospelGun.map[24]		= 'OOXXXOOXX';
-	gospelGun.map[25]		= 'XXXXXXXXX';
-	gospelGun.map[26]		= 'XXXXXXXXX';
-	gospelGun.map[27]		= 'XXXXXXXXX';
-	gospelGun.map[28]		= 'XXXXXXXXX';
-	gospelGun.map[29]		= 'XXXXXXXXX';
-	gospelGun.map[30]		= 'XXXXXXXXX';
-	gospelGun.map[31]		= 'XXXXXXXXX';
-	gospelGun.map[32]		= 'XXXXXXXXX';
-	gospelGun.map[33]		= 'XXXXXXXXX';
-	gospelGun.map[34]		= 'XXOOXXXXX';
-	gospelGun.map[35]		= 'XXOOXXXXX';
-
-	patternArray.guns.patterns = [ gospelGun ];
+//var patternArray = { static: new patternType, spaceships: new patternType, guns: new patternType }
 
 // Create dropdown menu of patterns in HTML
 function createPatternMenu(){
@@ -164,15 +75,15 @@ function createPatternMenu(){
 	document.getElementById("presetlist").innerHTML+= '<option value="random10"> Random 10x10 </option>';
 	document.getElementById("presetlist").innerHTML+= '<option value="random50"> Random 50x50 </option>';
 	// Add each pattern type to the list
-	for ( x in patternArray ){
-		document.getElementById("presetlist").innerHTML+= '<option disabled > ── '+patternArray[x].name+' ─── </option>';
+	//for ( x in patternArray ){
+	//	document.getElementById("presetlist").innerHTML+= '<option disabled > ── '+patternArray[x].name+' ─── </option>';
 		// Create menu entry for each pattern, and set value to point to pattern
-		for ( var n = 0; n < patternArray[x].patterns.length; n++ ){
+	//	for ( var n = 0; n < patternArray[x].patterns.length; n++ ){
 
-			document.getElementById("presetlist").innerHTML+= '<option value="patternArray.'+x.toString()+'.patterns['+n.toString()+']"> '+patternArray[x].patterns[n].name+' </option>';
+	//		document.getElementById("presetlist").innerHTML+= '<option value="patternArray.'+x.toString()+'.patterns['+n.toString()+']"> '+patternArray[x].patterns[n].name+' </option>';
 
-		}
-	}
+	//	}
+	//}
 }
 
 // Create a random block of a given size

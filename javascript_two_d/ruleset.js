@@ -47,7 +47,7 @@ ruleCanvas.textCanvas.context = ruleCanvas.textCanvas.id.getContext("2d");
 ruleCanvas.textCanvas.width = ruleCanvas.id.width;
 ruleCanvas.textCanvas.height = ruleCanvas.id.height;
 ruleCanvas.textCanvas.context.font = "12px Arial";
-ruleCanvas.textCanvas.context.fillStyle = "rgba(255,255,255,0.75)";
+ruleCanvas.textCanvas.context.fillStyle = "#000000";
 
 
 // Simple display shader to display rule texture
@@ -84,6 +84,13 @@ ruleCanvas.loadPreset = function( preset ){
 	this.pushRuleToMain();
 }
 
+ruleCanvas.setOverlayColor = function( color ){
+
+	this.textCanvas.context.strokeStyle = color;
+	this.textCanvas.context.fillStyle = color;
+
+}
+
 // Load the current rule-set texture
 ruleCanvas.loadRuleTexture = function(){
 
@@ -103,7 +110,7 @@ ruleCanvas.renderRules = function(){
 
 	this.gl.useProgram( this.programs.display.program );
   // Set color shift to achieve live cell color
-  this.gl.uniform4f( this.programs.display.colorLocation, aliveColor[0], aliveColor[1] ,aliveColor[2], 0 );
+  this.gl.uniform4f( this.programs.display.colorLocation, currentColorScheme.alive[0], currentColorScheme.alive[1] ,currentColorScheme.alive[2], 0 );
   // Bind texture
   this.gl.activeTexture( this.gl.TEXTURE0 );
   this.gl.bindTexture( this.gl.TEXTURE_2D, this.textures.ruleset.data );
@@ -134,7 +141,7 @@ ruleCanvas.renderText = function(){
 		this.textCanvas.context.fillText("state", this.textCanvas.width-50 ,this.textCanvas.height-10);
 		this.textCanvas.context.rotate( Math.PI/2 );
 		this.textCanvas.context.fillText("Current", this.textCanvas.width-35 ,-10);
-		this.textCanvas.context.restore();
+		this.textCanvas.context.rotate( -Math.PI/2 );
 }
 
 ruleCanvas.clickEvent = function( event ){
@@ -165,6 +172,37 @@ ruleCanvas.clickEvent = function( event ){
 	this.renderRules();
 	this.pushRuleToMain();
 
+}
+
+ruleCanvas.clickEventSimple = function( event ){
+
+	// Get mouse position and convert to cell grid number
+	var mousePos 	= this.getMousePos( event );
+	var x = Math.floor(mousePos.x * this.currentRuleSet.dimensions.x / this.dimensions.x );
+	var y = Math.floor(mousePos.y * this.currentRuleSet.dimensions.y / this.dimensions.y  );
+
+	var n = 4*( x + this.currentRuleSet.dimensions.x * y );
+
+	if ( x > 0 && y < this.currentRuleSet.dimensions.y-8 ){
+		if ( this.currentRuleSet.data[n] == 0 && this.currentRuleSet.data[n+1] == 0 && this.currentRuleSet.data[n+2] == 0 && this.currentRuleSet.data[n+3] == 0 ){
+			this.currentRuleSet.data[n] 	= 255;
+			this.currentRuleSet.data[n+1] = 0;
+			this.currentRuleSet.data[n+2] = 0;
+			this.currentRuleSet.data[n+3] = 255;
+		}
+		else{	this.currentRuleSet.data[n] = 0;
+					this.currentRuleSet.data[n+1] = 0;
+					this.currentRuleSet.data[n+2] = 0;
+					this.currentRuleSet.data[n+3] = 0;	}
+
+		this.loadRuleTexture();
+		this.renderRules();
+		this.pushRuleToMain();
+
+		this.currentRuleSet.name = "Custom";
+		document.getElementById("loadpreset").value = "custom";
+
+	}
 }
 
 // *****************************************************************
@@ -218,6 +256,8 @@ currentNeighbourhood.load = function( A ){
 }
 
 // Fill the entries of the neighbourhood selection menu in HTML
-for ( var x in neighbourhoods ){
-document.getElementById("neighbourhoodSelect").innerHTML = document.getElementById("neighbourhoodSelect").innerHTML+'<option value='+x.toString()+'> '+neighbourhoods[x].name+' </option>';
+currentNeighbourhood.createMenu = function(){
+	for ( var x in neighbourhoods ){
+		document.getElementById("neighbourhoodSelect").innerHTML = document.getElementById("neighbourhoodSelect").innerHTML+'<option value='+x.toString()+'> '+neighbourhoods[x].name+' </option>';
+	}
 }

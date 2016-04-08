@@ -7,7 +7,7 @@
 // Currently the rule sets are stored as values in arrays. Ideally this could be done using image files which are then
 // easily imported into the rule texture. Need a means of sorting cross site loading though.
 
-var presets = { rule101: new ruleSet(1,2), rule90: new ruleSet(1,2), rule184: new ruleSet(1,2), three: new ruleSet(1,3) };
+var presets = { rule101: new ruleSet(1,2), rule90: new ruleSet(1,2), rule184: new ruleSet(1,2), R1S3: new ruleSet(1,3), R1S4: new ruleSet(1,4), R2S2: new ruleSet(2,2), R2S3: new ruleSet(2,3) };
 
 	// ====== RULE 101 ======
 	presets.rule101.name = "Rule 101";
@@ -41,10 +41,28 @@ var presets = { rule101: new ruleSet(1,2), rule90: new ruleSet(1,2), rule184: ne
 	presets.rule184.setResultValue(4,255, 0, 0, 255);
 
 	// ====== THREE COLOR STATES =======
-	presets.three.name = "3 States";
-	presets.three.setStateValue(0,255,0,0,255);
-	presets.three.setStateValue(1,0,255,0,255);
-	presets.three.permuations();
+	presets.R1S3.name = "R=1, S=3 (blank)";
+	presets.R1S3.setStateValue(0,255,0,0,255);
+	presets.R1S3.setStateValue(1,0,255,0,255);
+	presets.R1S3.permuations();
+
+	// ====== FOUR COLOR STATES =======
+	presets.R1S4.name = "R=1, S=4 (blank)";
+	presets.R1S4.setStateValue(0,255,0,0,255);
+	presets.R1S4.setStateValue(1,0,255,0,255);
+	presets.R1S4.setStateValue(2,0,0,255,255);
+	presets.R1S4.permuations();
+
+	// ====== RANGE TWO ======
+	presets.R2S2.name = "R=2, S=2 (blank)";
+	presets.R2S2.setStateValue(0,255,0,0,255);
+	presets.R2S2.permuations();
+
+	// ====== RANGE TWO, THREE STATES ======
+	presets.R2S3.name = "R=2, S=3 (blank)";
+	presets.R2S3.setStateValue(0,255,0,0,255);
+	presets.R2S3.setStateValue(1,0,255,0,255);
+	presets.R2S3.permuations();
 
 // Create a dropdown menu of presets
 for ( var x in presets ){

@@ -7,7 +7,7 @@
 // Currently the rule sets are stored as values in arrays. Ideally this could be done using image files which are then
 // easily imported into the rule texture. Need a means of sorting cross site loading though.
 
-var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10), highLife: new ruleSet(10,10), twoD: new ruleSet(5,11) };
+var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10), highLife: new ruleSet(10,10) };
 
 	// Conway's game of life ruleset
 	presets.gameOfLife.name 		= "Game of Life";
@@ -172,29 +172,6 @@ var presets = { gameOfLife: new ruleSet(10,10), dayAndNight: new ruleSet(10,10),
 	presets.highLife.setAlive(9,8);
 
 	presets.highLife.setAlive(9,9);
-
-	// 2-D ruleset
-	presets.twoD.name = "Two-Dimensional";
-
-	// States
-	presets.twoD.setAlive(0,0);
-	presets.twoD.setValue(0,2,0,255,0,255);
-
-	// Neighbours
-	presets.twoD.setAlive(2,3);
-	presets.twoD.setAlive(3,3);
-	presets.twoD.setValue(4,3,0,255,0,255);
-	presets.twoD.setAlive(3,4);
-	presets.twoD.setValue(4,4,0,255,0,255);
-	presets.twoD.setValue(4,4,0,255,0,255);
-
-	// Rules
-	presets.twoD.setAlive(1,0);
-	presets.twoD.setAlive(2,0);
-	presets.twoD.setAlive(3,0);
-	presets.twoD.setValue(4,0,0,255,0,255);
-	presets.twoD.setValue(4,1,0,255,0,255);
-	presets.twoD.setAlive(2,2);
 
 // Create a dropdown menu of presets
 for ( var x in presets ){

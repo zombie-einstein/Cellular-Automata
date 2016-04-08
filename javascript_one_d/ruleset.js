@@ -44,6 +44,13 @@ ruleSet.prototype.setResultValue = function( n, r, g, b, a ){
 
 }
 
+// Set a result value from a rule value
+ruleSet.prototype.setResultFromState = function( n, m ){
+
+	this.setResultValue( n, this.stateData[4*m], this.stateData[4*m+1], this.stateData[4*m+2], this.stateData[4*m+3] );
+
+}
+
 // Set a rule vale from a state
 ruleSet.prototype.setRuleFromState = function( x, y, n ){
 
@@ -54,11 +61,11 @@ ruleSet.prototype.setRuleFromState = function( x, y, n ){
 // Generate permuatations of states
 ruleSet.prototype.permuations = function(){
 
-	for ( var i = 0; i < this.dimensions.x-1; i++ ){		 										// Iterate over cell positions
-	var row = 0;																				 										// Counts current row
-		for( var j = 0; j < Math.pow(this.numStates, (i+1)); j++ ){					// Number if distinct states in column
+	for ( var i = 0; i < this.dimensions.x-1; i++ ){		 											// Iterate over cell positions
+	var row = 0;																				 											// Counts current row
+		for( var j = 0; j < Math.pow(this.numStates, (i+1)); j++ ){							// Number if distinct states in column
 				for( var k = 0; k < Math.pow(this.numStates,2*this.range-i); k++ ){	// Size of block of distinct color
-					this.setRuleFromState( i, row, j%this.numStates );							// Set this color for each cell in block
+					this.setRuleFromState( i, row, j%this.numStates );								// Set this color for each cell in block
 					row++;
 				}}}
 }
@@ -92,14 +99,14 @@ currentRuleSet.stateCanvas.dimensions.y = currentRuleSet.ruleCanvas.id.height;
 currentRuleSet.ruleCanvas.initWebGL();
 currentRuleSet.stateCanvas.initWebGL();
 
-// Attach HTML 2D canvas for text overlay
-currentRuleSet.ruleCanvas.textCanvas = {};
-currentRuleSet.ruleCanvas.textCanvas.id = document.getElementById("ruletextoverlay");
-currentRuleSet.ruleCanvas.textCanvas.context = currentRuleSet.ruleCanvas.textCanvas.id.getContext("2d");
-currentRuleSet.ruleCanvas.textCanvas.width = currentRuleSet.ruleCanvas.id.width;
-currentRuleSet.ruleCanvas.textCanvas.height = currentRuleSet.ruleCanvas.id.height;
-currentRuleSet.ruleCanvas.textCanvas.context.font = "12px Arial";
-currentRuleSet.ruleCanvas.textCanvas.context.fillStyle = "rgba(255,255,255,0.75)";
+// Attach HTML 2D canvas for text/line overlay
+currentRuleSet.textCanvas = {};
+currentRuleSet.textCanvas.id = document.getElementById("ruletextoverlay");
+currentRuleSet.textCanvas.context = currentRuleSet.textCanvas.id.getContext("2d");
+currentRuleSet.textCanvas.width = currentRuleSet.ruleCanvas.id.width;
+currentRuleSet.textCanvas.height = currentRuleSet.ruleCanvas.id.height;
+currentRuleSet.textCanvas.context.font = "14px Arial";
+currentRuleSet.textCanvas.context.lineWidth = 3;
 
 // Simple display shader to display rule texture
 currentRuleSet.ruleCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
@@ -148,35 +155,42 @@ currentRuleSet.pushRuleToMain = function(){
 currentRuleSet.renderTextures = function(){
 
 	this.ruleCanvas.gl.useProgram( this.ruleCanvas.programs.display.program );
-  this.ruleCanvas.gl.uniform4f( this.ruleCanvas.programs.display.colorLocation, aliveColor[0], aliveColor[1] ,aliveColor[2], 0 );	// Set color shift to achieve live cell color
+  this.ruleCanvas.gl.uniform4f( this.ruleCanvas.programs.display.colorLocation, currentColorScheme.alive[0], currentColorScheme.alive[1] ,currentColorScheme.alive[2], 0 );	// Set color shift to achieve live cell color
   this.ruleCanvas.gl.bindTexture( this.ruleCanvas.gl.TEXTURE_2D, this.ruleCanvas.textures.ruleset.data );	// Bind texture
   this.ruleCanvas.gl.viewport( 0, 0, this.ruleCanvas.dimensions.x, this.ruleCanvas.dimensions.y );
   this.ruleCanvas.programs.display.render( this.ruleCanvas.gl );
 
 	this.stateCanvas.gl.useProgram( this.stateCanvas.programs.display.program );
-  this.stateCanvas.gl.uniform4f( this.stateCanvas.programs.display.colorLocation, aliveColor[0], aliveColor[1] ,aliveColor[2], 0 );	// Set color shift to achieve live cell color
+  this.stateCanvas.gl.uniform4f( this.stateCanvas.programs.display.colorLocation, currentColorScheme.alive[0], currentColorScheme.alive[1] ,currentColorScheme.alive[2], 0 );	// Set color shift to achieve live cell color
   this.stateCanvas.gl.bindTexture( this.stateCanvas.gl.TEXTURE_2D, this.stateCanvas.textures.states.data );	// Bind texture
   this.stateCanvas.gl.viewport( 0, 0, this.stateCanvas.dimensions.x, this.stateCanvas.dimensions.y );
   this.stateCanvas.programs.display.render( this.stateCanvas.gl );
 
+	currentRuleSet.renderoverlay();
+
 }
-/*
-ruleCanvas.renderText = function(){
+
+// Set overlay color
+currentRuleSet.setOverlayColor = function( color ){
+
+	this.textCanvas.context.strokeStyle = color;
+	this.textCanvas.context.fillStyle 	= color;
+
+}
+
+// Render lines and text over rule texture
+currentRuleSet.renderoverlay = function(){
 
 		this.textCanvas.context.clearRect(0,0,this.textCanvas.width,this.textCanvas.height);
-		this.textCanvas.context.fillText("Neighbour", this.textCanvas.width-60 ,12);
-		this.textCanvas.context.fillText("states", this.textCanvas.width-60 ,24);
-		this.textCanvas.context.fillText("Updated", this.textCanvas.width-50 ,this.textCanvas.height-20);
-		this.textCanvas.context.fillText("state", this.textCanvas.width-50 ,this.textCanvas.height-10);
-		this.textCanvas.context.rotate( Math.PI/2 );
-		this.textCanvas.context.fillText("Current", this.textCanvas.width-35 ,-10);
-		this.textCanvas.context.restore();
+		this.textCanvas.context.fillText("Permutations", 5 ,15);
+		this.textCanvas.context.beginPath();
+		this.textCanvas.context.moveTo((this.dimensions.x-1)*this.textCanvas.width/this.dimensions.x+2,0);
+		this.textCanvas.context.lineTo((this.dimensions.x-1)*this.textCanvas.width/this.dimensions.x+2,this.textCanvas.height);
+		this.textCanvas.context.stroke();
 }
-*/
+
 currentRuleSet.ruleClick = function( event ){
 
-	this.name = "Custom";
-	document.getElementById("loadpreset").value = "custom";
 	// Get mouse position and convert to cell grid number
 	var mousePos 	= this.ruleCanvas.getMousePos( event );
 	var x = Math.floor(mousePos.x * this.dimensions.x / this.ruleCanvas.dimensions.x );
@@ -190,12 +204,14 @@ currentRuleSet.ruleClick = function( event ){
 		}
 		else{	this.setResultValue(y,0,0,0,0); }
 
+		this.name = "Custom";
+		document.getElementById("loadpreset").value = "custom";
+
+		this.loadTextures();
+		this.renderTextures();
+		this.pushRuleToMain();
+
 	}
-
-	this.loadTextures();
-	this.renderTextures();
-	this.pushRuleToMain();
-
 }
 
 currentRuleSet.stateClick = function(event){
@@ -212,5 +228,32 @@ currentRuleSet.stateClick = function(event){
 	this.loadTextures();
 	this.renderTextures();
 	this.pushRuleToMain();
+
+}
+
+currentRuleSet.setRandomResults = function(){
+
+	for( var i=0; i < this.dimensions.y; i++ ){
+		this.setResultFromState( i, Math.floor(Math.random()*this.numStates) );
+	}
+
+	this.loadTextures();
+	this.renderTextures();
+	this.pushRuleToMain();
+
+}
+
+currentRuleSet.loadRenderAndPush = function(){
+
+	this.loadTextures();
+	this.renderTextures();
+	this.pushRuleToMain();
+
+}
+
+currentRuleSet.updatePermutations = function(){
+
+	this.permuations();
+	this.loadRenderAndPush();
 
 }

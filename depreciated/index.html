@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<title>Game of Life C.A.</title>
+<link rel="stylesheet" href="CSS/main.css">
+<link rel="shortcut icon" href="CSS/CA.ico">
+</head>
+
+<body id= "body" onresize = "resizeFunction()">
+
+
+
+<div id="menus"  class="main noBorder double">
+<div id="internal" class="main noBorder">
+
+<h1 class="main noBorder" style="margin: 5px"> GAME OF LIFE </h1>
+<h3>By Zombie-Einstein</h3>
+
+<p >
+Cellular automaton based on John Conway's game of life. 
+At each turn each cell measures the state of it's neighbours and  
+then updates it's state based on it's current state and the number of alive neighbours.
+</p>
+
+Fork this project on<br>
+
+<a href="https://github.com/zombie-einstein/Cellular-Automata" target="_blank" >
+<object>
+<svg   xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" id="logo" version="1.1" viewBox="200 0 125 140" height="25" width="125" style="fill:#ffffff"><metadata id="metadata23"/><defs id="defs21"/><g id="surface1111" transform="translate(-41.491525,-217.22034)"><path id="path5" d="m140.38 278.65-40.36 0c-1.04 0-1.89 0.84-1.89 1.89l0 19.73c0 1.04 0.84 1.89 1.89 1.89l15.74 0 0 24.52c0 0-3.54 1.2-13.31 1.2-11.53 0-27.64-4.21-27.64-39.63 0-35.42 16.77-40.09 32.52-40.09 13.63 0 19.5 2.4 23.24 3.56 1.17 0.36 2.26-0.81 2.26-1.85l4.5-19.07c0-0.49-0.16-1.07-0.72-1.47-1.52-1.08-10.77-6.26-34.16-6.26-26.94 0-54.57 11.46-54.57 66.56 0 55.1 31.64 63.31 58.3 63.31 22.08 0 35.47-9.43 35.47-9.43 0.55-0.3 0.61-1.08 0.61-1.43l0-61.54c0-1.04-0.85-1.89-1.89-1.89M348.35 229.66c0-1.05-0.83-1.89-1.87-1.89l-22.72 0c-1.04 0-1.88 0.84-1.88 1.89 0 0.01 0 43.91 0 43.91l-35.42 0 0-43.91c0-1.05-0.84-1.89-1.87-1.89l-22.72 0c-1.04 0-1.88 0.84-1.88 1.89l0 118.9c0 1.05 0.84 1.91 1.88 1.91l22.72 0c1.04 0 1.88-0.86 1.88-1.91l0-50.86 35.42 0c0 0-0.06 50.85-0.06 50.86 0 1.05 0.84 1.91 1.88 1.91l22.77 0c1.04 0 1.88-0.86 1.88-1.91zm0 0M183.25 245.27c0-8.18-6.56-14.8-14.65-14.8-8.09 0-14.65 6.61-14.65 14.8 0 8.17 6.57 14.8 14.65 14.8 8.09 0 14.65-6.63 14.65-14.8M181.63 323.48l0-54.88c0-1.04-0.84-1.89-1.88-1.89l-22.65 0c-1.04 0-1.97 1.07-1.97 2.11l0 78.64c0 2.31 1.44 3 3.3 3l20.41 0c2.24 0 2.79-1.1 2.79-3.04zm0 0M434.71 266.89l-22.55 0c-1.03 0-1.87 0.85-1.87 1.9l0 58.3c0 0-5.73 4.2-13.86 4.2-8.13 0-10.29-3.69-10.29-11.65l0-50.84c0-1.05-0.84-1.9-1.87-1.9l-22.88 0c-1.04 0-1.88 0.85-1.88 1.9l0 54.7c0 23.64 13.18 29.43 31.31 29.43 14.87 0 26.86-8.21 26.86-8.21 0 0 0.57 4.33 0.83 4.84 0.26 0.51 0.93 1.03 1.66 1.03L434.72 350.5c1.04 0 1.88-0.85 1.88-1.89l0-79.82c0-1.05-0.84-1.9-1.88-1.9M487.45 331.21c-7.82-0.24-13.12-3.79-13.12-3.79l0-37.66c0 0 5.23-3.21 11.65-3.78 8.12-0.73 15.95 1.73 15.95 21.09 0 20.43-3.53 24.46-14.47 24.13m8.89-66.99c-12.81 0-21.52 5.71-21.52 5.71l0-40.27c0-1.05-0.84-1.89-1.87-1.89l-22.79 0c-1.04 0-1.88 0.84-1.88 1.89l0 118.9c0 1.05 0.84 1.91 1.88 1.91l15.81 0c0.71 0 1.25-0.37 1.65-1.01 0.39-0.64 0.96-5.48 0.96-5.48 0 0 9.32 8.83 26.96 8.83 20.71 0 32.58-10.5 32.58-47.16 0-36.65-18.96-41.44-31.78-41.44M246.93 266.7l-17.04 0c0 0-0.02-22.51-0.02-22.52 0-0.85-0.44-1.28-1.43-1.28l-23.23 0c-0.9 0-1.39 0.4-1.39 1.27l0 23.27c0 0-11.64 2.81-12.43 3.04-0.79 0.23-1.36 0.95-1.36 1.82l0 14.62c0 1.05 0.84 1.9 1.88 1.9l11.91 0 0 35.18c0 26.13 18.33 28.7 30.7 28.7 5.65 0 12.41-1.81 13.53-2.23 0.68-0.25 1.07-0.95 1.07-1.7l0.02-16.09c0-1.05-0.89-1.9-1.88-1.9-0.99 0-3.54 0.41-6.15 0.41-8.37 0-11.21-3.89-11.21-8.93 0-5.03 0-33.43 0-33.43l17.04 0c1.04 0 1.88-0.85 1.88-1.9l0-18.32c0-1.05-0.84-1.89-1.88-1.89" class="s0"/></g></svg>
+</object>
+</a>
+
+<a href="index_(webGL).html" style="text-decoration:none">
+<h2 class="bordersTop"> WebGL version </h2>
+<p class="main noBorder"> Click here to switch to a version of this simulation running on WebGL. It contains less features (currently being improved), but a the display and rule calculation are performed by the graphics card, it allows for a much larger number of cells with no slowdown.</p>
+</a>
+
+<h2 class="bordersTop"> Controls </h2>
+
+<button                  onclick="stepSim()"   class="main" > Step  </button>
+<button id="startbutton" onclick="startSim()"  class="main" > Start </button>
+<button id="stopbutton"  onclick="pauseSim()"  class="main" > Stop  </button>
+<button                  onclick="killAll()"   class="main" > Clear </button>
+
+<strong>Speed:</strong>
+
+faster &#8674; slower
+
+<input type="range" class="main slider-width100" id="speedRange" value="1000" max="2000" min="5">
+<button class="main" onclick="getSimSpeed()" > Update </button>
+
+<h2 class="bordersTop"> Space </h2>
+<form class="main" onsubmit="return false" >
+
+  Width:&nbsp;
+  <input type="number" class="main" id="numCellsWidthForm" min="2" max="1000" value ="100" step="1" >
+  cells <br>
+  Height:
+  <input type="number" class="main" id="numCellsHeightForm" min="2" max="500" value ="50" step="1" >
+  cells <br>
+
+</form>
+
+  <button class="main" onclick="updateGrid()"> Clear Cells & Update Size </button>
+
+<form>
+
+  Topology:
+  <select class="main" id="topology" onchange="changeTopology()">
+    <option value="torus" >  Torus </option>
+    <option value="flat"  >  Bounded  </option>
+  </select><br>  
+  Von Neumann:
+  <select class="main" id="vonneumann" onchange="changeVonNeumann()">
+    <option value="false" >  False </option>
+    <option value="true"  >  True  </option>
+  </select><br>
+</form>
+
+<h2 class="bordersTop"> Algorithm </h2>
+
+<form class="main" onsubmit="return false">
+  Load Preset Rules
+  <select class="main" id="loadpreset" onchange="loadAndUpdatePreset()"> 
+      <option value="custom" >  Custom </option>
+  </select>
+</form>
+
+<button class="main" onclick="randomRuleSet()"> Random </button><br>
+
+<form class="main" name= "ruleformtop" onsubmit="return false">
+  Number of Rules:
+  <input type="number" class="main" id="numberofrules" min="1" max="20" step="1" onchange="updateNumRules()" >
+</form>
+
+<!-- Rule forms are generated here by javascript -->
+
+<button class="main padding centred" onclick="updateRuleset()"> Update  Ruleset </button><br>
+
+<form >
+
+  Choose Updating Method
+ 
+  <select id="updatemethod" class="main" onchange="changeUpdateMethod()"></select>
+</form>
+
+<p id="updatedescription" > </p>
+
+<form> 
+Show cells that will update:
+  <select id="showupdatingcells" class="main" onchange="changeShowUpdating()" > 
+  <option value="false" > No </option>
+  <option value="rgba(255,255,255,0.5)" > White </option>
+  <option value="rgba(0,0,0,0.5)" > Black </option>
+  </select>
+</form>
+
+
+<h2 class="bordersTop"> Cells </h2>
+
+When paused, click on a cell to:
+
+<form>
+	<!-- Form options are created dynamically from array of patterns (see patterns.js) -->
+	<select id="presetlist" class="main" > </select>
+</form>
+
+<h2 class="bordersTop"> Colours Scheme</h2>
+
+<form>
+  <!-- Form entries are generated by javascript (see color.js) --> 
+  Color Scheme
+  <select class="main" id="chooseColorScheme"  onchange="changeColorScheme()"> </select><br>
+  Dead Cells
+  <select class="main" id="choosedeadcolor" onchange="changeBackgroundColor()" > </select><br>
+  Alive Cells
+  <select class="main" id="choosealivecolor" onchange="changeAliveColor()" > </select><br>
+  Text
+  <select class="main" id="choosemenucolor" onchange="changeTextColor()" > </select><br>
+</form>
+
+</div>
+</div>
+
+
+
+<canvas id="canvas" class="main noBorder"  onclick="clickEvent(event)" >
+Too bad your browser does not support the HTML5 canvas.
+</canvas>
+
+<script src ="javascript/vector.js"			  ></script>
+<script src ="javascript/cells.js"			  ></script>
+<script src ="javascript/canvas.js"			  ></script>
+<script src ="javascript/patterns.js"		  ></script>
+<script src ="javascript/ruleset.js"      ></script>
+<script src ="javascript/presets.js"  		></script>
+<script src ="javascript/color.js"  		  ></script>
+<script src ="javascript/HTML_controls.js"></script>
+<script src ="javascript/update_method.js"></script>
+<script src ="javascript/ca_main.js"      ></script>
+<!--<script src ="javascript/web_gl.js"       ></script>-->
+
+</body>
+
+</html>

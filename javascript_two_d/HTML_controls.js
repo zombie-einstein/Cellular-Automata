@@ -69,60 +69,10 @@ function fillRandomCells(){
 // Change color schemes from menu
 function changeColorScheme(){
 
-	currentColorScheme = eval(document.getElementById("chooseColorScheme").value);
-	currentColorScheme.clearMenus();
-	currentColorScheme.createMenus();
-	changeBackgroundColor();
-	changeAliveColor();
-	changeTextColor();
+	currentColorScheme.loadColorScheme( eval(document.getElementById("chooseColorScheme").value) );
 
-}
-
-// Change background & dead cell color from HTML element and re-render
-function changeBackgroundColor(){
-
-	deadColor	= document.getElementById("choosedeadcolor").value;
-
-	document.getElementById("body").style.backgroundColor = deadColor;
-
-	mainCanvas.renderCells();
-
-	// Update color of HTML elements
-	var elementsToChange = document.getElementsByClassName("main");
-	for ( var i = 0; i < elementsToChange.length; i++ ){
-		elementsToChange[i].style.backgroundColor = deadColor;
-
-	}
-
-}
-
-// Change the color of alive cells and re-render
-function changeAliveColor(){
-	// Convert HTML hex value to normalized RGB values
-	aliveColor = convertHex( document.getElementById("choosealivecolor").value ).map(function(x){return x/255;});
-	// Subtract live cell color used for calculation
-	aliveColor[0] = aliveColor[0]-1;
-	// re-render
-	mainCanvas.renderCells();
+	ruleCanvas.setOverlayColor(currentColorScheme.menu);
+	ruleCanvas.renderText();
 	ruleCanvas.renderRules();
-
-}
-
-// Change menu and logo colors using HTML element
-function changeTextColor(){
-	var textColor	= document.getElementById("choosemenucolor").value;
-
-	document.getElementById("logo").style.fill = textColor;
-
-	var elementsToChange = document.getElementsByClassName("main");
-	for ( var i = 0; i < elementsToChange.length; i++ ){
-		elementsToChange[i].style.color = textColor;
-		elementsToChange[i].style.borderColor = textColor;
-	}
-	var elementsToChange = document.getElementsByClassName("bordersTop");
-	for ( var i = 0; i < elementsToChange.length; i++ ){
-		elementsToChange[i].style.color = textColor;
-		elementsToChange[i].style.borderColor = textColor;
-	}
-
+	mainCanvas.renderCells();
 }

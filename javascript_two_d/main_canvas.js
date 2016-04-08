@@ -95,14 +95,6 @@ mainCanvas.fillRandomCells = function( rate ){
 
 }
 
-mainCanvas.startOneD = function(){
-
-  for ( var i = 0; i < this.textures.front.dimensions.y; i++ ){
-    this.textures.front.setPixelValue( this.gl, 2, i, 0,255,0,255 );
-  }
-  this.renderCells();
-}
-
 // Refresh front and back textures at new resolution
 mainCanvas.updateCellDimensions = function( x, y ){
 
@@ -116,7 +108,7 @@ mainCanvas.renderCells = function(){
 
   this.gl.useProgram( this.programs.display.program );
   // Set color shift to achieve live cell color
-  this.gl.uniform4f( this.programs.display.colorLocation, aliveColor[0], aliveColor[1] ,aliveColor[2], 0 );
+  this.gl.uniform4f( this.programs.display.colorLocation, currentColorScheme.alive[0], currentColorScheme.alive[1] ,currentColorScheme.alive[2], 0 );
   // Bind texture
   this.gl.activeTexture( this.gl.TEXTURE0 );
   this.gl.bindTexture( this.gl.TEXTURE_2D, this.textures.front.data );
@@ -217,8 +209,8 @@ mainCanvas.startSim = function(){
     this.run();
     this.paused	= false;
     // Lighten start button to indicate status
-    document.getElementById("startbutton").style.backgroundColor = LightenDarkenColor(deadColor,40);
-    document.getElementById("stopbutton").style.backgroundColor  = deadColor;
+    document.getElementById("startbutton").style.backgroundColor = currentColorScheme.highlight;
+    document.getElementById("stopbutton").style.backgroundColor  = currentColorScheme.dead;
   }
   else { return; }
 
@@ -233,8 +225,8 @@ mainCanvas.pauseSim = function(){
     this.stop();
     this.paused = true;
 		// Lighten pause button to indicate status
-		document.getElementById("startbutton").style.backgroundColor = deadColor;
-		document.getElementById("stopbutton").style.backgroundColor  = LightenDarkenColor(deadColor,40);
+		document.getElementById("startbutton").style.backgroundColor = currentColorScheme.dead;
+		document.getElementById("stopbutton").style.backgroundColor  = currentColorScheme.highlight;
 	}
 	else{ return; }
 
