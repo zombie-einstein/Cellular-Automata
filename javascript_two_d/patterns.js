@@ -41,7 +41,10 @@ pattern.prototype.printPattern = function( location ){
 
 						case 'O':
 
-						mainCanvas.setPixelValue( location.x+n, location.y-m, document.getElementById("RCanvas").value, document.getElementById("GCanvas").value,document.getElementById("BCanvas").value, document.getElementById("ACanvas").value );
+						mainCanvas.setPixelValue( location.x+n, location.y-m, currentRuleSet.stateData[4*currentRuleSet.selectedColor],
+																																	currentRuleSet.stateData[4*currentRuleSet.selectedColor+1],
+																																	currentRuleSet.stateData[4*currentRuleSet.selectedColor+2],
+																																	currentRuleSet.stateData[4*currentRuleSet.selectedColor+3] );
 						//changePixelState( location.x+n, location.y-m, 1 );
 
 					break;

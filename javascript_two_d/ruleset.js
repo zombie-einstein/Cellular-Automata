@@ -1,208 +1,289 @@
 'use strict';
 
 // *********************************************************************
-// ******** CLASS AND METHODS FOR GOL RULESET **************************
+// ******** CLASS AND METHODS FOR 1-D RULESET **************************
 // *********************************************************************
 
-function ruleSet( x, y ){
 
-	this.name;				// Ruleset name
-	this.dimensions = new vec( x, y );
+// ruleSet constructor for n neighbours and s states (excluding the dead state 0,0,0,0 )
+function ruleSet( n, s ){
 
-	this.data = new Uint8Array( 4*x*y );
+	this.name;																							// Ruleset name
+	this.numNeighbours	= n;																// Range of neighbours
+	this.numStates 			= s;																// Number of states
+	this.dimensions 		= new vec( n+s+1, binomial(s+n,n)+1 );	// Dimensions of ruleset
+	this.stateData			= new Uint8Array( 4*(s+1) );
+
+	this.rules					= [];
+
 
 }
 
-// Set a single pixels value
-ruleSet.prototype.setValue = function( x, y, r, g, b, a ){
+// Add rule to Ruleset
+ruleSet.prototype.addRule = function( x, y, n ){
 
-	this.data[(x+y*this.dimensions.x)*4] 		= r;
-	this.data[(x+y*this.dimensions.x)*4+1]	= g;
-	this.data[(x+y*this.dimensions.x)*4+2]	= b;
-	this.data[(x+y*this.dimensions.x)*4+3]	= a;
+	this.rules.splice( this.rules.length, 0, x, y, n );
 
 }
 
-// Set a single pixel to alive
-ruleSet.prototype.setAlive = function( x, y ){
+// Set state cell colour value
+ruleSet.prototype.setStateValue = function( n, r, g, b, a ){
 
-	this.setValue( x, y, 255, 0, 0, 255 );
+	this.stateData[n*4] 	= r;
+	this.stateData[n*4+1]	= g;
+	this.stateData[n*4+2]	= b;
+	this.stateData[n*4+3]	= a;
 
 }
 
+// ******* CURRENT RULESET STRUCTURE AND ATTACHED TEXTURES *********
 
-var ruleCanvas = new WEBGLCANVAS( "rulecanvas" );
+var currentRuleSet = new ruleSet(0,0);
+
+currentRuleSet.selectedColor = 1;	// Current color selected for rule cell toggling
+
+// Initialize WebGL context for the two canvases
+currentRuleSet.ruleCanvas  = new WEBGLCANVAS( "rulecanvas" );
+currentRuleSet.stateCanvas = new WEBGLCANVAS( "statecanvas" );
 
 // Get dimensions from HTML
-ruleCanvas.dimensions.x = ruleCanvas.id.width;
-ruleCanvas.dimensions.y = ruleCanvas.id.height;
+currentRuleSet.ruleCanvas.dimensions.x  = currentRuleSet.ruleCanvas.id.width;
+currentRuleSet.ruleCanvas.dimensions.y  = currentRuleSet.ruleCanvas.id.height;
+currentRuleSet.stateCanvas.dimensions.x = currentRuleSet.ruleCanvas.id.width;
+currentRuleSet.stateCanvas.dimensions.y = currentRuleSet.ruleCanvas.id.height;
 
 // Create WebGL context for this context
-ruleCanvas.initWebGL();
+currentRuleSet.ruleCanvas.initWebGL();
+currentRuleSet.stateCanvas.initWebGL();
 
-// Attach HTML 2D canvas for text overlay
-ruleCanvas.textCanvas = {};
-ruleCanvas.textCanvas.id = document.getElementById("ruletextoverlay");
-ruleCanvas.textCanvas.context = ruleCanvas.textCanvas.id.getContext("2d");
-ruleCanvas.textCanvas.width = ruleCanvas.id.width;
-ruleCanvas.textCanvas.height = ruleCanvas.id.height;
-ruleCanvas.textCanvas.context.font = "12px Arial";
-ruleCanvas.textCanvas.context.fillStyle = "#000000";
-
+// Attach HTML 2D canvas for text/line overlay
+currentRuleSet.textCanvas = {};
+currentRuleSet.textCanvas.id = document.getElementById("ruletextoverlay");
+currentRuleSet.textCanvas.context = currentRuleSet.textCanvas.id.getContext("2d");
+currentRuleSet.textCanvas.width = currentRuleSet.ruleCanvas.id.width;
+currentRuleSet.textCanvas.height = currentRuleSet.ruleCanvas.id.height;
+currentRuleSet.textCanvas.context.font = "14px Arial";
+currentRuleSet.textCanvas.context.lineWidth =2;
 
 // Simple display shader to display rule texture
-ruleCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
-
-// Shader program to display lines
-ruleCanvas.programs.lines = {};
-ruleCanvas.programs.lines.program = initProgram( ruleCanvas.gl, "2d-vertex-lines", "2d-fragment-lines" );
-ruleCanvas.programs.lines.verticesLocation = ruleCanvas.gl.getAttribLocation( ruleCanvas.programs.lines.program, "a_vertices" ); // Set location for position attribute
+currentRuleSet.ruleCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
+currentRuleSet.stateCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
 
 // Add color shift location to display (to get correct live cell color)
-ruleCanvas.programs.display.addUniform( ruleCanvas.gl, "colorLocation", "u_colorShift" );
-
-// Object for the current ruleset in use
-ruleCanvas.currentRuleSet = new ruleSet(0,0);
+currentRuleSet.ruleCanvas.programs.display.addUniform( currentRuleSet.ruleCanvas.gl, "colorLocation", "u_colorShift" );
+currentRuleSet.stateCanvas.programs.display.addUniform( currentRuleSet.stateCanvas.gl, "colorLocation", "u_colorShift" );
 
 // Only one texture required to display ruleset
-ruleCanvas.textures.ruleset = new TEXTURE;
+currentRuleSet.ruleCanvas.textures.ruleset = new TEXTURE;
+currentRuleSet.stateCanvas.textures.states = new TEXTURE;
 
 // *********************************************
 // ********* FUNCTION DEFINITIONS **************
 // *********************************************
 
-// Load a preset ruleset
-ruleCanvas.loadPreset = function( preset ){
 
-	this.currentRuleSet.name = preset.name;
-	this.currentRuleSet.dimensions.x = preset.dimensions.x;
-	this.currentRuleSet.dimensions.y = preset.dimensions.y;
-	this.currentRuleSet.data = preset.data.slice();
+// Set rule cell colour value
+currentRuleSet.setRuleValue = function( x, y, r, g, b, a ){
 
-	this.loadRuleTexture();
-	this.renderRules();
-	this.pushRuleToMain();
+	this.ruleData[(x+this.dimensions.x*y)*4] 		= r;
+	this.ruleData[(x+this.dimensions.x*y)*4+1]	= g;
+	this.ruleData[(x+this.dimensions.x*y)*4+2]	= b;
+	this.ruleData[(x+this.dimensions.x*y)*4+3]	= a;
+
 }
 
-ruleCanvas.setOverlayColor = function( color ){
+// Set a rule vale from a state
+currentRuleSet.setRuleFromState = function( x, y, n ){
 
-	this.textCanvas.context.strokeStyle = color;
-	this.textCanvas.context.fillStyle = color;
+	this.ruleData[(x+this.dimensions.x*y)*4] 		= this.stateData[4*n];
+	this.ruleData[(x+this.dimensions.x*y)*4+1]	= this.stateData[4*n+1];
+	this.ruleData[(x+this.dimensions.x*y)*4+2]	= this.stateData[4*n+2];
+	this.ruleData[(x+this.dimensions.x*y)*4+3]	= this.stateData[4*n+3];
+
+}
+
+// Generate permuatations of states
+currentRuleSet.permuations = function(){
+
+	for ( var i = 0; i < this.numNeighbours; i++ ){ 					// Set bottom unused row to black
+			this.setRuleValue( i, 0, 0, 0, 0, 255 );
+	}
+
+	for ( var i = 0; i < this.numStates+1; i++ ){								// Current states at bottom of texture
+			this.setRuleFromState( this.numNeighbours+i, 0, i );
+	}
+
+	var y = 1;
+
+	for ( var i = 0; i < this.numNeighbours+1; i++ ){
+			for ( var j = 0; j < this.numNeighbours+1-i; j++ ){
+					for ( var k = 0; k < this.numNeighbours+1-i-j; k++ ){
+
+							for ( var a = 0; a < i; a++ ){ this.setRuleFromState( a, y, 3 ); }
+							for ( var a = 0; a < j; a++ ){ this.setRuleFromState( a+i, y, 2 ); }
+							for ( var a = 0; a < k; a++ ){ this.setRuleFromState( a+i+j, y, 1 ); }
+							y++;
+
+					}
+			}
+	}
+}
+
+currentRuleSet.loadRuleset = function( a ){
+
+	this.name 					= a.name;
+	this.numNeighbours 	= a.numNeighbours;
+	this.numStates 			= a.numStates;
+	this.dimensions.assign( a.dimensions );
+
+	this.stateData 			= a.stateData.slice();
+	this.ruleData 			= new Uint8Array( 4*this.dimensions.x*this.dimensions.y );	// Ruleset values
+	this.permuations();
+
+	for ( var i = 0; i < a.rules.length; i+=3 ){
+			this.setRuleFromState( this.numNeighbours+a.rules[i], a.rules[i+1]+1, a.rules[i+2] );
+	}
+}
+
+
+// Load a preset ruleset
+currentRuleSet.loadPreset = function( preset ){
+
+	this.loadRuleset( preset );
+
+	this.loadTextures();
+	this.renderTextures();
+	this.pushRuleToMain();
 
 }
 
 // Load the current rule-set texture
-ruleCanvas.loadRuleTexture = function(){
+currentRuleSet.loadTextures = function(){
 
-	this.textures.ruleset.loadO( this.gl, this.currentRuleSet.dimensions.x, this.currentRuleSet.dimensions.y, this.currentRuleSet.data  );
+
+	this.stateCanvas.textures.states.loadO( this.stateCanvas.gl, this.numStates+1, 1, this.stateData );
+	this.ruleCanvas.textures.ruleset.loadO( this.ruleCanvas.gl, this.dimensions.x, this.dimensions.y, this.ruleData );
 
 }
 
 // Push the current ruleset to the main canvas rule texture
-ruleCanvas.pushRuleToMain = function(){
+currentRuleSet.pushRuleToMain = function(){
 
-	mainCanvas.loadRuleset( this.currentRuleSet );
+	mainCanvas.loadRuleset( this );
 
 }
 
 // Render the current rule-set texture to the canvas
-ruleCanvas.renderRules = function(){
+currentRuleSet.renderTextures = function(){
 
-	this.gl.useProgram( this.programs.display.program );
-  // Set color shift to achieve live cell color
-  this.gl.uniform4f( this.programs.display.colorLocation, currentColorScheme.alive[0], currentColorScheme.alive[1] ,currentColorScheme.alive[2], 0 );
-  // Bind texture
-  this.gl.activeTexture( this.gl.TEXTURE0 );
-  this.gl.bindTexture( this.gl.TEXTURE_2D, this.textures.ruleset.data );
-  this.gl.viewport( 0, 0, this.dimensions.x, this.dimensions.y );
-  this.programs.display.render( this.gl );
+	this.ruleCanvas.gl.useProgram( this.ruleCanvas.programs.display.program );
+  this.ruleCanvas.gl.uniform4f( this.ruleCanvas.programs.display.colorLocation, currentColorScheme.alive[0], currentColorScheme.alive[1] ,currentColorScheme.alive[2], 0 );	// Set color shift to achieve live cell color
+  this.ruleCanvas.gl.bindTexture( this.ruleCanvas.gl.TEXTURE_2D, this.ruleCanvas.textures.ruleset.data );	// Bind texture
+  this.ruleCanvas.gl.viewport( 0, 0, this.ruleCanvas.dimensions.x, this.ruleCanvas.dimensions.y );
+  this.ruleCanvas.programs.display.render( this.ruleCanvas.gl );
 
-	// Render lines over texture to deliniate where rulws apply
-	this.gl.useProgram( this.programs.lines.program );
-  // provide line coordinates
-  var lineCoOrds = this.gl.createBuffer();
-  this.gl.bindBuffer( this.gl.ARRAY_BUFFER, lineCoOrds );
-  this.gl.bufferData( this.gl.ARRAY_BUFFER, new Float32Array( [ -1.0, 1.0-8*2/this.textures.ruleset.dimensions.y,
-																																 1.0, 1.0-8*2/this.textures.ruleset.dimensions.y,
-																																 2/this.textures.ruleset.dimensions.x-1.0, 1.0,
-																																 2/this.textures.ruleset.dimensions.x-1.0,-1.0 ] ), this.gl.STATIC_DRAW );
-  this.gl.enableVertexAttribArray( this.programs.lines.verticesLocation );
-  this.gl.vertexAttribPointer( this.programs.lines.verticesLocation, 2, this.gl.FLOAT, false, 0, 0 );
-	this.gl.drawArrays( this.gl.LINES, 0, 4 );
+	this.stateCanvas.gl.useProgram( this.stateCanvas.programs.display.program );
+  this.stateCanvas.gl.uniform4f( this.stateCanvas.programs.display.colorLocation, currentColorScheme.alive[0], currentColorScheme.alive[1] ,currentColorScheme.alive[2], 0 );	// Set color shift to achieve live cell color
+  this.stateCanvas.gl.bindTexture( this.stateCanvas.gl.TEXTURE_2D, this.stateCanvas.textures.states.data );	// Bind texture
+  this.stateCanvas.gl.viewport( 0, 0, this.stateCanvas.dimensions.x, this.stateCanvas.dimensions.y );
+  this.stateCanvas.programs.display.render( this.stateCanvas.gl );
+
+	currentRuleSet.renderoverlay();
 
 }
 
-ruleCanvas.renderText = function(){
+// Set overlay color
+currentRuleSet.setOverlayColor = function( color ){
+
+	this.textCanvas.context.strokeStyle = color;
+	this.textCanvas.context.fillStyle 	= color;
+
+}
+
+// Render lines and text over rule texture
+currentRuleSet.renderoverlay = function(){
 
 		this.textCanvas.context.clearRect(0,0,this.textCanvas.width,this.textCanvas.height);
-		this.textCanvas.context.fillText("Neighbour", this.textCanvas.width-60 ,12);
-		this.textCanvas.context.fillText("states", this.textCanvas.width-60 ,24);
-		this.textCanvas.context.fillText("Updated", this.textCanvas.width-50 ,this.textCanvas.height-20);
-		this.textCanvas.context.fillText("state", this.textCanvas.width-50 ,this.textCanvas.height-10);
-		this.textCanvas.context.rotate( Math.PI/2 );
-		this.textCanvas.context.fillText("Current", this.textCanvas.width-35 ,-10);
-		this.textCanvas.context.rotate( -Math.PI/2 );
+		this.textCanvas.context.fillText("Permutations", 5 ,15);
+		this.textCanvas.context.beginPath();
+		this.textCanvas.context.moveTo(this.numNeighbours*this.textCanvas.width/this.dimensions.x,0);
+		this.textCanvas.context.lineTo(this.numNeighbours*this.textCanvas.width/this.dimensions.x,this.textCanvas.height);
+		this.textCanvas.context.stroke();
+		this.textCanvas.context.beginPath();
+		this.textCanvas.context.moveTo(0,this.textCanvas.height-this.textCanvas.height/this.dimensions.y);
+		this.textCanvas.context.lineTo(this.textCanvas.width,this.textCanvas.height-this.textCanvas.height/this.dimensions.y);
+		this.textCanvas.context.stroke();
 }
 
-ruleCanvas.clickEvent = function( event ){
+currentRuleSet.ruleClick = function( event ){
 
-	this.currentRuleSet.name = "Custom";
-	document.getElementById("loadpreset").value = "custom";
 	// Get mouse position and convert to cell grid number
-	var mousePos 	= this.getMousePos( event );
-	var x = Math.floor(mousePos.x * this.currentRuleSet.dimensions.x / this.dimensions.x );
-	var y = Math.floor(mousePos.y * this.currentRuleSet.dimensions.y / this.dimensions.y  );
+	var mousePos 	= this.ruleCanvas.getMousePos( event );
+	var x = Math.floor(mousePos.x * this.dimensions.x / this.ruleCanvas.dimensions.x );
+	var y = Math.floor(mousePos.y * this.dimensions.y / this.ruleCanvas.dimensions.y  );
+	var n = 4*(x+this.dimensions.x*y);
 
-	var n = 4*( x + this.currentRuleSet.dimensions.x * y );
-
-	if ( x > 0 || y < this.currentRuleSet.dimensions.y-8 ){
-		if ( this.currentRuleSet.data[n] == 0 && this.currentRuleSet.data[n+1] == 0 && this.currentRuleSet.data[n+2] == 0 && this.currentRuleSet.data[n+3] == 0 ){
-			this.currentRuleSet.data[n] 	= document.getElementById("Rrule").value;
-			this.currentRuleSet.data[n+1] = document.getElementById("Grule").value;
-			this.currentRuleSet.data[n+2] = document.getElementById("Brule").value;
-			this.currentRuleSet.data[n+3] = document.getElementById("Arule").value;;
+	if ( x > this.numNeighbours-1 && y > 0 ){
+		if ( this.ruleData[n] == 0 && this.ruleData[n+1] == 0 && this.ruleData[n+2] == 0 && this.ruleData[n+3] == 0 ){
+			this.setRuleFromState( x, y, this.selectedColor );
 		}
-		else{	this.currentRuleSet.data[n] = 0;
-					this.currentRuleSet.data[n+1] = 0;
-					this.currentRuleSet.data[n+2] = 0;
-					this.currentRuleSet.data[n+3] = 0;	}
-	}
+		else{	this.setRuleFromState(x,y,0); }
 
-	this.loadRuleTexture();
-	this.renderRules();
+		this.name = "Custom";
+		document.getElementById("loadpreset").value = "custom";
+
+		this.loadTextures();
+		this.renderTextures();
+		this.pushRuleToMain();
+
+	}
+}
+
+currentRuleSet.stateClick = function(event){
+
+	var mousePos 	= this.stateCanvas.getMousePos( event );
+	var x = Math.floor(mousePos.x * (this.numStates+1) / this.stateCanvas.dimensions.x );
+
+	if ( x > 0 ){ this.selectedColor = x;	}
+}
+
+currentRuleSet.setRandomRules = function(){
+
+	for ( var i=0; i < this.numStates+1; i++ ){
+		for ( var j = 0; j < this.dimensions.y-1; j++ ){
+				this.setRuleFromState( this.numNeighbours+i, j+1, Math.floor(Math.random()*(this.numStates+1)) );
+		}
+	}
+	this.name = "Random"
+	document.getElementById("loadpreset").value = "random";
+	this.loadTextures();
+	this.renderTextures();
 	this.pushRuleToMain();
 
 }
 
-ruleCanvas.clickEventSimple = function( event ){
+currentRuleSet.loadRenderAndPush = function(){
 
-	// Get mouse position and convert to cell grid number
-	var mousePos 	= this.getMousePos( event );
-	var x = Math.floor(mousePos.x * this.currentRuleSet.dimensions.x / this.dimensions.x );
-	var y = Math.floor(mousePos.y * this.currentRuleSet.dimensions.y / this.dimensions.y  );
+	this.loadTextures();
+	this.renderTextures();
+	this.pushRuleToMain();
 
-	var n = 4*( x + this.currentRuleSet.dimensions.x * y );
+}
 
-	if ( x > 0 && y < this.currentRuleSet.dimensions.y-8 ){
-		if ( this.currentRuleSet.data[n] == 0 && this.currentRuleSet.data[n+1] == 0 && this.currentRuleSet.data[n+2] == 0 && this.currentRuleSet.data[n+3] == 0 ){
-			this.currentRuleSet.data[n] 	= 255;
-			this.currentRuleSet.data[n+1] = 0;
-			this.currentRuleSet.data[n+2] = 0;
-			this.currentRuleSet.data[n+3] = 255;
-		}
-		else{	this.currentRuleSet.data[n] = 0;
-					this.currentRuleSet.data[n+1] = 0;
-					this.currentRuleSet.data[n+2] = 0;
-					this.currentRuleSet.data[n+3] = 0;	}
+currentRuleSet.updatePermutations = function(){
 
-		this.loadRuleTexture();
-		this.renderRules();
-		this.pushRuleToMain();
+	this.permuations();
+	this.loadRenderAndPush();
 
-		this.currentRuleSet.name = "Custom";
-		document.getElementById("loadpreset").value = "custom";
+}
 
-	}
+function binomial(n, k) {
+
+    var coeff = 1;
+    for (var x = n-k+1; x <= n; x++) coeff *= x;
+    for (x = 1; x <= k; x++) coeff /= x;
+    return coeff;
+
 }
 
 // *****************************************************************
@@ -222,25 +303,25 @@ var currentNeighbourhood = new NEIGHBOURHOOD( "Current")
 
 // Object containing preset neighbourhood patterns
 // (Adding a neigbourhood here will make it show up in the HTML menu)
-var neighbourhoods = { full: new NEIGHBOURHOOD("Full"),
-											 vonNeumann: new NEIGHBOURHOOD("Von Neumann"),
-											 LColumn: 	new NEIGHBOURHOOD("L.H. Column"),
-											 RColumn: 	new NEIGHBOURHOOD("R.H. Column"),
-											 BLCorner:	new NEIGHBOURHOOD("B.L. Corner"),
-											 TRCorner:	new NEIGHBOURHOOD("T.R. Corner"),
-											 OneDLeft:	new NEIGHBOURHOOD("1-D Left"),
-											 OneDRight:	new NEIGHBOURHOOD("1-D Right"),
+var neighbourhoods = { full: new NEIGHBOURHOOD("Full (8)"),
+											 vonNeumann: new NEIGHBOURHOOD("Von Neumann (4)"),
+											 //LColumn: 	new NEIGHBOURHOOD("L.H. Column"),
+											 //RColumn: 	new NEIGHBOURHOOD("R.H. Column"),
+											 //BLCorner:	new NEIGHBOURHOOD("B.L. Corner"),
+											 //TRCorner:	new NEIGHBOURHOOD("T.R. Corner"),
+											 //OneDLeft:	new NEIGHBOURHOOD("1-D Left"),
+											 //OneDRight:	new NEIGHBOURHOOD("1-D Right"),
 										 };
 
 	// NOTE these arrays must have an even length
-	neighbourhoods.full.array 			= [ -1,-1,-1,0,-1,1,0,-1,0,1,1,-1,1,0,1,1 ];
-	neighbourhoods.vonNeumann.array = [ -1,0,0,-1,0,1,1,0 ];
-	neighbourhoods.LColumn.array 		= [ -1,-1,-1,0,-1,1 ];
-	neighbourhoods.RColumn.array 		= [  1,-1, 1,0, 1,1 ];
-	neighbourhoods.BLCorner.array 	= [ -1,-1,-1,0,-1,1,0,-1,1,-1];
-	neighbourhoods.TRCorner.array 	= [ -1,1,0,1,1,-1,1,0,1,1 ];
-	neighbourhoods.OneDLeft.array 	= [ -1,-1,-1,1 ];
-	neighbourhoods.OneDRight.array 	= [  1,-1,1,1 ];
+	neighbourhoods.full.array 			= [ -1,-1,-1, 0,-1, 1, 0,-1, 0, 1, 1,-1, 1, 0, 1, 1 ];
+	neighbourhoods.vonNeumann.array = [ -1, 0, 0,-1, 0, 1, 1, 0 ];
+	//neighbourhoods.LColumn.array 		= [ -1,-1,-1, 0,-1, 1 ];
+	//neighbourhoods.RColumn.array 		= [  1,-1, 1,0, 1,1 ];
+	//neighbourhoods.BLCorner.array 	= [ -1,-1,-1,0,-1,1,0,-1,1,-1];
+	//neighbourhoods.TRCorner.array 	= [ -1,1,0,1,1,-1,1,0,1,1 ];
+	//neighbourhoods.OneDLeft.array 	= [ -1,-1,-1,1 ];
+	//neighbourhoods.OneDRight.array 	= [  1,-1,1,1 ];
 
 // *********************************************
 // ********* FUNCTION DEFINITIONS **************

@@ -55,7 +55,7 @@ function changeNeighbourhood(){
 // load a preset and update the HTML forms
 function loadAndUpdatePreset(){
 
-	ruleCanvas.loadPreset( presets[ document.getElementById("loadpreset").value] );
+	currentRuleSet.loadPreset( presets[ document.getElementById("loadpreset").value] );
 
 }
 
@@ -71,8 +71,7 @@ function changeColorScheme(){
 
 	currentColorScheme.loadColorScheme( eval(document.getElementById("chooseColorScheme").value) );
 
-	ruleCanvas.setOverlayColor(currentColorScheme.menu);
-	ruleCanvas.renderText();
-	ruleCanvas.renderRules();
+	currentRuleSet.setOverlayColor(currentColorScheme.menu);
+	currentRuleSet.renderTextures();
 	mainCanvas.renderCells();
 }

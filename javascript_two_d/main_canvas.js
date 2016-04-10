@@ -19,16 +19,15 @@ mainCanvas.initWebGL();
 
 // Add display and rule based shaders to this object
 mainCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
-mainCanvas.addProgram( "rules"  , "2d-vertex-rules", "2d-fragment-rules"   );
+mainCanvas.addProgram( "rules"  , "2d-vertex-shader", "2d-fragment-rules"   );
 
 // ====== Add required uniform locations =======
 
 // Add color shift location to display (to get correct live cell color)
 mainCanvas.programs.display.addUniform( mainCanvas.gl, "colorLocation", "u_colorShift" );
-// Add texture size location to rule shader
-mainCanvas.programs.rules.addUniform( mainCanvas.gl, "textureSizeLocation", "u_textureSize" );
-// Add ruleset texture location to rule shader
-mainCanvas.programs.rules.addUniform( mainCanvas.gl, "ruleSizeLocation", "u_ruleSize" );
+// Add texture and ruleset pixel size locations
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "backPixelLocation", "u_backPixel" );
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "rulePixelLocation", "u_rulePixel" );
 // Get texture locations
 mainCanvas.programs.rules.addUniform( mainCanvas.gl, "backText0Location", "u_backText;" );
 mainCanvas.programs.rules.addUniform( mainCanvas.gl, "ruleText1Location", "u_rulesText" );
@@ -47,10 +46,10 @@ mainCanvas.textures.rule  = new TEXTURE;   // Texture which encodes ruleset
 
 // ======= Simultation Variables =======
 
-mainCanvas.animReq = undefined;      // Initialize timestep variable outside scope of animation function
+mainCanvas.animReq = undefined;         // Initialize timestep variable outside scope of animation function
 mainCanvas.timeout = undefined;
-mainCanvas.fps;         // Simulation rate
-mainCanvas.paused = true; // Simulation status switch (initially false)
+mainCanvas.fps     = undefined;         // Simulation rate
+mainCanvas.paused  = true; // Simulation status switch (initially false)
 
 
 // *************************************************
@@ -60,7 +59,7 @@ mainCanvas.paused = true; // Simulation status switch (initially false)
 // Load ruleset to rule texture
 mainCanvas.loadRuleset = function( ruleset ){
 
-  this.textures.rule.loadO( this.gl, ruleset.dimensions.x, ruleset.dimensions.y, ruleset.data );
+  this.textures.rule.loadO( this.gl, ruleset.dimensions.x, ruleset.dimensions.y, ruleset.ruleData );
   console.log(ruleset.name+" ruleset loaded");
 
 }
@@ -74,9 +73,6 @@ mainCanvas.loadNeighbours = function( neigbourhood ){
     this.gl.uniform2i( this.programs.rules.neighbours[i], neigbourhood[2*i], neigbourhood[2*i+1] );
 
   }
-  // Send number of neighbours to shader
-  this.gl.uniform1i( this.programs.rules.numNeighbourLocation, neigbourhood.length/2 );
-
 }
 
 // Clear the cells
@@ -91,7 +87,10 @@ mainCanvas.clearCells = function(){
 // Randomly set values of front texture pixels to alive or dead
 mainCanvas.fillRandomCells = function( rate ){
 
-  this.textures.front.fillRandomR( this.gl, document.getElementById("RCanvas").value, document.getElementById("GCanvas").value,document.getElementById("BCanvas").value, document.getElementById("ACanvas").value, rate  );
+  this.textures.front.fillRandomR( this.gl, currentRuleSet.stateData[4*currentRuleSet.selectedColor],
+                                            currentRuleSet.stateData[4*currentRuleSet.selectedColor+1],
+                                            currentRuleSet.stateData[4*currentRuleSet.selectedColor+2],
+                                            currentRuleSet.stateData[4*currentRuleSet.selectedColor+3], rate  );
 
 }
 
@@ -141,7 +140,8 @@ mainCanvas.mainLoop = function(){
   // Attach ruleset texture
   this.gl.activeTexture(this.gl.TEXTURE1);
   this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.rule.data);
-  this.gl.uniform2f( this.programs.rules.ruleSizeLocation, this.textures.rule.dimensions.x, this.textures.rule.dimensions.y );
+  this.gl.uniform2f( this.programs.rules.rulePixelLocation, 1/this.textures.rule.dimensions.x, 1/this.textures.rule.dimensions.y );
+  this.gl.uniform1i( this.programs.rules.numNeighbourLocation, currentRuleSet.numNeighbours );
 
   // Start to draw with front texture
   this.gl.activeTexture(this.gl.TEXTURE0);
@@ -150,8 +150,8 @@ mainCanvas.mainLoop = function(){
   // Set buffer viewport
   this.gl.viewport( 0, 0, this.textures.front.dimensions.x, this.textures.front.dimensions.y );
 
-  // Send texture size (for pixel measure)
-  this.gl.uniform2f( this.programs.rules.textureSizeLocation, this.textures.front.dimensions.x, this.textures.front.dimensions.y );
+  // Send texture pixel size
+  this.gl.uniform2f( this.programs.rules.backPixelLocation, 1/this.textures.front.dimensions.x, 1/this.textures.front.dimensions.y );
 
   // Render to texture "back"
   this.programs.rules.render( this.gl );
@@ -179,7 +179,10 @@ mainCanvas.setPixelValue = function( x, y, r, g, b, a ){
 // Switch the state of a front texture pixel
 mainCanvas.switchPixelState = function( x, y ){
   // Switch pixels between no color and colour provided from HTML
-  this.textures.front.getPixelValue( this.gl, x, y ).some(function(x){ return x > 0; }) ? this.setPixelValue( x, y, 0,0,0,0 ) : this.setPixelValue( x, y, document.getElementById("RCanvas").value, document.getElementById("GCanvas").value,document.getElementById("BCanvas").value, document.getElementById("ACanvas").value );
+  this.textures.front.getPixelValue( this.gl, x, y ).some(function(x){ return x > 0; }) ? this.setPixelValue( x, y, 0,0,0,0 ) : this.setPixelValue( x, y, currentRuleSet.stateData[4*currentRuleSet.selectedColor],
+                                                                                                                                                          currentRuleSet.stateData[4*currentRuleSet.selectedColor+1],
+                                                                                                                                                          currentRuleSet.stateData[4*currentRuleSet.selectedColor+2],
+                                                                                                                                                          currentRuleSet.stateData[4*currentRuleSet.selectedColor+3] );
 
 }
 

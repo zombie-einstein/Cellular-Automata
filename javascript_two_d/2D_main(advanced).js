@@ -30,14 +30,12 @@ createPatternMenu();
 currentColorScheme.createColorSchemeMenu();
 currentColorScheme.loadColorScheme( eval(document.getElementById("chooseColorScheme").value) );
 
+// Load the game of life ruleset to the current ruleset
+currentRuleSet.loadPreset( presets.gameOfLife );
+document.getElementById("loadpreset").value = "gameOfLife";
+
 // Initial fill cells randomly
 fillRandomCells(0.5);
-
-// Load the game of life ruleset to the current ruleset
-ruleCanvas.loadPreset( presets.gameOfLife );
-ruleCanvas.setOverlayColor(currentColorScheme.menu);
-ruleCanvas.renderText();
-document.getElementById("loadpreset").value = "gameOfLife";
 
 // Load the full neighbourhood property
 currentNeighbourhood.load(neighbourhoods.full);
