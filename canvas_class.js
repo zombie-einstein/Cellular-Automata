@@ -1,6 +1,7 @@
 'use strict';
 
-// ====== General WebGL program class ====== //
+// ====== GENERAL WEBGL PROGRAM CLASS ====== //
+// Constructor
 function PROGRAM(){
 
   this.program;           // Actual shader program
@@ -9,21 +10,23 @@ function PROGRAM(){
 
 }
 
+// Initialize a WebGL context and get the appropriatte attribute locations
 PROGRAM.prototype.initialize = function( gl, vertex, fragment ){
 
   this.program = initProgram( gl, vertex, fragment );                         // Get shader program from HTML
   this.positionLocation = gl.getAttribLocation( this.program, "a_position" ); // Set location for position attribute
   this.texCoordLocation = gl.getAttribLocation( this.program, "a_texCoord" ); // Set location for texture coordinates
 
-  console.log("Program created");
+  //console.log("Program created");
 }
 
 PROGRAM.prototype.addUniform = function( gl, newUniform, location ){
 
   this[newUniform] = gl.getUniformLocation( this.program, location );
-  console.log(newUniform+" added");
+  //console.log(newUniform+" added");
 }
 
+// Render the current attached texture, without any scaling etc.
 PROGRAM.prototype.render = function( gl ){
 
   // Clear framebuffer
@@ -54,6 +57,7 @@ function TEXTURE(){
 
 }
 
+// Load a repeating texture from a array of data
 TEXTURE.prototype.loadR = function( gl, w, h, data ){
 
   this.data = gl.createTexture(); // Create texture
@@ -73,12 +77,32 @@ TEXTURE.prototype.loadR = function( gl, w, h, data ){
 
 }
 
+// Reset a texture to all (0,0,0,0) values
 TEXTURE.prototype.clearR = function( gl ){
 
   this.loadR( gl, this.dimensions.x, this.dimensions.y );
 
 }
 
+// Fill the texture randomly with cells of a certain colour
+TEXTURE.prototype.fillRandomR = function( gl, r, g, b, a, rate ){
+
+  this.clearR( gl );
+  var randomData = new Uint8Array( 4*this.dimensions.x*this.dimensions.y );
+
+  for ( var i = 0; i < randomData.length; i+=4 ){
+    if ( Math.random() < rate ){
+      randomData[i]   = r;
+      randomData[i+1] = g;
+      randomData[i+2] = b;
+      randomData[i+3] = a;
+    }
+  }
+  this.loadR( gl, this.dimensions.x, this.dimensions.y, randomData );
+  console.log("Texture randomly filled");
+}
+
+// Make the first row of the texture random i.e. random first row seed for C.A.
 TEXTURE.prototype.randomFirstR = function( gl, r, g, b, a, rate ){
 
   this.clearR( gl );
@@ -96,6 +120,7 @@ TEXTURE.prototype.randomFirstR = function( gl, r, g, b, a, rate ){
   console.log("Texture randomly filled");
 }
 
+// Load a non-repeating, possible odd dimensioned texture from data
 TEXTURE.prototype.loadO = function( gl, w, h, data ){
 
   this.data = gl.createTexture(); // Create texture
@@ -115,6 +140,8 @@ TEXTURE.prototype.loadO = function( gl, w, h, data ){
 
 }
 
+// Load an odd texture from an image (currently unused due to cross sight scripting issues)
+// Ideally could be used as means of storing an importing rulesets?
 TEXTURE.prototype.loadOFromImage = function( gl, w, h, filename ){
 
   this.data = gl.createTexture();
@@ -138,6 +165,7 @@ TEXTURE.prototype.loadOFromImage = function( gl, w, h, filename ){
   image.src = filename;
 }
 
+// Get a textures pixel value at a given point
 TEXTURE.prototype.getPixelValue = function( gl, x, y ){
 
   var framebuffer = gl.createFramebuffer();
@@ -150,6 +178,7 @@ TEXTURE.prototype.getPixelValue = function( gl, x, y ){
 
 }
 
+// Set the value of a certain pixel
 TEXTURE.prototype.setPixelValue = function( gl, x, y, r, g, b, a ){
 
   gl.bindTexture( gl.TEXTURE_2D, this.data );
@@ -158,8 +187,8 @@ TEXTURE.prototype.setPixelValue = function( gl, x, y, r, g, b, a ){
 
 }
 
-// ======== General WebGL canvas class ======== //
-
+// ======== GENERAL WEBGL CANVAS CLASS ======== //
+// Constructor
 function WEBGLCANVAS( ID ){
 
   this.id         = document.getElementById(ID);       // HTML object ID
@@ -172,6 +201,7 @@ function WEBGLCANVAS( ID ){
 
 }
 
+// Resize the canvas context
 WEBGLCANVAS.prototype.resize = function(){
 
   this.id.width = this.dimensions.x;
@@ -179,6 +209,7 @@ WEBGLCANVAS.prototype.resize = function(){
 
 }
 
+// Get the mouse cursor position on the canvas
 WEBGLCANVAS.prototype.getMousePos = function( event ){
 
   var rect 		= this.id.getBoundingClientRect();
@@ -199,6 +230,7 @@ WEBGLCANVAS.prototype.initWebGL = function(){
   else{ alert("WebGL failed to start!"); }    // Alert message if WebGL fails
 }
 
+// Attach a program to a canvas context
 WEBGLCANVAS.prototype.addProgram = function( newProgram, vertex, fragment ){
 
   this.programs[newProgram] = new PROGRAM;
@@ -208,7 +240,7 @@ WEBGLCANVAS.prototype.addProgram = function( newProgram, vertex, fragment ){
 }
 
 
-// ================ Initialize WebGL, return alert if initialization fails ==============
+//============== INITIALIZE WEBGL, RETURN ALERT IF INITIALIZATION FAILS ==============
 function initWebGL( canvas ){
 
   var gl = null;
@@ -229,7 +261,7 @@ function initWebGL( canvas ){
 
 }
 
-// ================= Shader construction below here ================= //
+// ================= SHADER CONSTRUCTION BELOW HERE ================= //
 
 // Initialize shaders & return program
 function initProgram( gl, vertex, fragment ) {
@@ -260,8 +292,7 @@ function initProgram( gl, vertex, fragment ) {
 function getShader(gl, id) {
   var shaderScript = document.getElementById(id);
 
-  // Didn't find an element with the specified ID; abort.
-
+  // Didn't find an element with the specified ID; abort
   if (!shaderScript) {
     return null;
   }

@@ -7,10 +7,27 @@
 // Currently the rule sets are stored as values in arrays. Ideally this could be done using image files which are then
 // easily imported into the rule texture. Need a means of sorting cross site loading though.
 
-var presets = { rule101: new ruleSet(1,2), rule90: new ruleSet(1,2), rule184: new ruleSet(1,2), R1S3: new ruleSet(1,3), R1S4: new ruleSet(1,4), R2S2: new ruleSet(2,2), R2S3: new ruleSet(2,3) };
+var presets = {  rule30: new ruleSet(1,2),
+								 rule90: new ruleSet(1,2),
+								 rule101: new ruleSet(1,2),
+								 rule184: new ruleSet(1,2),
+								 R1S3: new ruleSet(1,3),
+								 R1S4: new ruleSet(1,4),
+								 R2S2: new ruleSet(2,2),
+								 R2S3: new ruleSet(2,3) };
+
+	// ====== RULE 30 ======
+	presets.rule30.name = "Rule 30";
+	presets.rule30.setStateValue(0, 255, 0, 0, 255);
+	presets.rule30.permuations();
+
+	presets.rule30.setResultValue(3,255, 0, 0, 255);
+	presets.rule30.setResultValue(4,255, 0, 0, 255);
+	presets.rule30.setResultValue(5,255, 0, 0, 255);
+	presets.rule30.setResultValue(6,255, 0, 0, 255);
 
 	// ====== RULE 101 ======
-	presets.rule101.name = "Rule 101";
+	presets.rule101.name = "Rule 110";
 	presets.rule101.setStateValue(0, 255, 0, 0, 255);
 	presets.rule101.permuations();
 
@@ -19,6 +36,7 @@ var presets = { rule101: new ruleSet(1,2), rule90: new ruleSet(1,2), rule184: ne
 	presets.rule101.setResultValue(4,255, 0, 0, 255);
 	presets.rule101.setResultValue(5,255, 0, 0, 255);
 	presets.rule101.setResultValue(6,255, 0, 0, 255);
+
 
 	// ====== RULE 90 ======
 	presets.rule90.name = "Rule 90";

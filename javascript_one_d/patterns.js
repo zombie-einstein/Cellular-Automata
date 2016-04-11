@@ -74,16 +74,7 @@ function createPatternMenu(){
 	document.getElementById("presetlist").innerHTML+= '<option value="random5" > Random 5x5 </option>';
 	document.getElementById("presetlist").innerHTML+= '<option value="random10"> Random 10x10 </option>';
 	document.getElementById("presetlist").innerHTML+= '<option value="random50"> Random 50x50 </option>';
-	// Add each pattern type to the list
-	//for ( x in patternArray ){
-	//	document.getElementById("presetlist").innerHTML+= '<option disabled > ── '+patternArray[x].name+' ─── </option>';
-		// Create menu entry for each pattern, and set value to point to pattern
-	//	for ( var n = 0; n < patternArray[x].patterns.length; n++ ){
 
-	//		document.getElementById("presetlist").innerHTML+= '<option value="patternArray.'+x.toString()+'.patterns['+n.toString()+']"> '+patternArray[x].patterns[n].name+' </option>';
-
-	//	}
-	//}
 }
 
 // Create a random block of a given size
@@ -98,42 +89,4 @@ function createRandomBlock( x, y ){
 			}
 	}
 	return randomBlock;
-}
-
-// "Game Of Life Title"
-function createTitle(){
-	var title = new pattern(20,20);
-	// - G - O - L -
-
-	title.map[0]	= 'XOOOOX'+'X'+'XOOOOX'+'X'+'OOOOOO';
-	title.map[1]	= 'OXXXXO'+'X'+'OXXXXO'+'X'+'XXXXXO';
-	title.map[2]	= 'OXXOXO'+'X'+'OXXXXO'+'X'+'XXXXXO';
-	title.map[3]	= 'XOXOOX'+'X'+'XOOOOX'+'X'+'XXXXXO';
-	title.map[4]	= 'XXXXXX'+'X'+'XXXXXX'+'X'+'XXXXXX';
-
-	// - A - F - I -
-
-	title.map[5]	= 'XOOOOO'+'X'+'OOOOOO'+'X'+'OXXXXO';
-	title.map[6]	= 'OXOXXX'+'X'+'OXOXXX'+'X'+'OOOOOO';
-	title.map[7]	= 'OXOXXX'+'X'+'OXOXXX'+'X'+'OXXXXO';
-	title.map[8]	= 'XOOOOO'+'X'+'OXXXXX'+'X'+'OXXXXO';
-	title.map[9]	= 'XXXXXX'+'X'+'XXXXXX'+'X'+'XXXXXX';
-
-	// - M -  - F -
-
-	title.map[10]	= 'OOOOOO'+'X'+'XXXXXX'+'X'+'OOOOOO';
-	title.map[11]	= 'XOXXXX'+'X'+'XXXXXX'+'X'+'OXOXXX';
-	title.map[12]	= 'XXOXXX'+'X'+'XXXXXX'+'X'+'OXOXXX';
-	title.map[13]	= 'XOXXXX'+'X'+'XXXXXX'+'X'+'OXXXXX';
-	title.map[14]	= 'OOOOOO'+'X'+'XXXXXX'+'X'+'XXXXXX';
-
-	// - E -  - E -
-
-	title.map[15]	= 'XXXXXX'+'X'+'XXXXXX'+'X'+'OOOOOO';
-	title.map[16]	= 'OOOOOO'+'X'+'XXXXXX'+'X'+'OXOXXO';
-	title.map[17]	= 'OXOXXO'+'X'+'XXXXXX'+'X'+'OXOXXO';
-	title.map[18]	= 'OXOXXO'+'X'+'XXXXXX'+'X'+'OXXXXO';
-	title.map[19]	= 'OXXXXO'+'X'+'XXXXXX'+'X'+'XXXXXX';
-
-	return title;
 }
