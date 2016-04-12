@@ -48,7 +48,6 @@ mainCanvas.textures.rule  = new TEXTURE;   // Texture which encodes ruleset
 
 mainCanvas.animReq = undefined;         // Initialize timestep variable outside scope of animation function
 mainCanvas.timeout = undefined;
-mainCanvas.fps     = undefined;         // Simulation rate
 mainCanvas.paused  = true; // Simulation status switch (initially false)
 
 
@@ -193,7 +192,7 @@ mainCanvas.run = function(){
 
   this.timeout =  setTimeout(function(){
       mainCanvas.animReq = window.requestAnimationFrame(function(){mainCanvas.run();});
-      mainCanvas.stepSim() }, 1000/this.fps );
+      mainCanvas.stepSim() }, 1000/document.getElementById("speedRange").value );
 
 }
 

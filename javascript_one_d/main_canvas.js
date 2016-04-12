@@ -46,7 +46,6 @@ mainCanvas.textures.rule  = new TEXTURE;   // Texture which encodes ruleset
 mainCanvas.currentRow = 1.0;
 mainCanvas.animReq    = undefined;      // Initialize timestep variable outside scope of animation function
 mainCanvas.timeout    = undefined;
-mainCanvas.fps        = undefined;         // Simulation rate
 mainCanvas.paused     = true; // Simulation status switch (initially false)
 
 
@@ -155,6 +154,10 @@ mainCanvas.mainLoop = function(){
 
   this.currentRow = ( this.currentRow +1.0 ) % this.textures.front.dimensions.y;
 
+  if ( document.getElementById("loopMode").value == "f" && this.currentRow == 0 ){
+    this.pauseSim();
+  }
+
 }
 
 // Set the value of a pixel of front texture
@@ -179,8 +182,7 @@ mainCanvas.run = function(){
 
   this.timeout =  setTimeout(function(){
       mainCanvas.animReq = window.requestAnimationFrame(function(){mainCanvas.run();});
-      mainCanvas.stepSim() }, 1000/this.fps );
-
+      mainCanvas.stepSim() }, 1000/document.getElementById("speedRange").value );
 }
 
 // Pause the simultation

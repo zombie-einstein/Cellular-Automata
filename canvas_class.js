@@ -225,7 +225,7 @@ WEBGLCANVAS.prototype.initWebGL = function(){
   if( this.gl ){
     this.gl.clearColor( 0.0, 0.0, 0.0, 0.0 ); // Set canvas background transparent
     this.gl.clear( this.gl.COLOR_BUFFER_BIT );
-    console.log("WebGL initialized");
+    //console.log("WebGL initialized");
   }
   else{ alert("WebGL failed to start!"); }    // Alert message if WebGL fails
 }
@@ -235,7 +235,7 @@ WEBGLCANVAS.prototype.addProgram = function( newProgram, vertex, fragment ){
 
   this.programs[newProgram] = new PROGRAM;
   this.programs[newProgram].initialize( this.gl, vertex, fragment );
-  console.log("Program "+newProgram+" loaded");
+  //console.log("Program "+newProgram+" loaded");
 
 }
 

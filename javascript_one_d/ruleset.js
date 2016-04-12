@@ -70,6 +70,7 @@ ruleSet.prototype.permuations = function(){
 				}}}
 }
 
+// Load a ruleset
 ruleSet.prototype.loadRuleset = function( a ){
 
 	this.name 			= a.name;
@@ -86,6 +87,7 @@ ruleSet.prototype.loadRuleset = function( a ){
 
 var currentRuleSet = new ruleSet(0,0);
 
+// State and ruleset WebGL canvases
 currentRuleSet.ruleCanvas  = new WEBGLCANVAS( "rulecanvas" );
 currentRuleSet.stateCanvas = new WEBGLCANVAS( "statecanvas" );
 
@@ -94,6 +96,9 @@ currentRuleSet.ruleCanvas.dimensions.x = currentRuleSet.ruleCanvas.id.width;
 currentRuleSet.ruleCanvas.dimensions.y = currentRuleSet.ruleCanvas.id.height;
 currentRuleSet.stateCanvas.dimensions.x = currentRuleSet.ruleCanvas.id.width;
 currentRuleSet.stateCanvas.dimensions.y = currentRuleSet.ruleCanvas.id.height;
+
+// Store the number of possible rulesets from the current configuration
+currentRuleSet.numberOfRules = 0;
 
 // Create WebGL context for this context
 currentRuleSet.ruleCanvas.initWebGL();
@@ -124,6 +129,7 @@ currentRuleSet.stateCanvas.textures.states = new TEXTURE;
 // ********* FUNCTION DEFINITIONS **************
 // *********************************************
 
+
 // Load a preset ruleset
 currentRuleSet.loadPreset = function( preset ){
 
@@ -132,6 +138,10 @@ currentRuleSet.loadPreset = function( preset ){
 	this.loadTextures();
 	this.renderTextures();
 	this.pushRuleToMain();
+
+	this.numberOfRules = Math.pow(this.numStates, this.dimensions.y);
+
+	document.getElementById("ruleCode").max = this.numberOfRules-1;
 
 }
 
@@ -151,7 +161,7 @@ currentRuleSet.pushRuleToMain = function(){
 
 }
 
-// Render the current rule-set texture to the canvas
+// Render the current rule-set textures to the two rule canvas'
 currentRuleSet.renderTextures = function(){
 
 	this.ruleCanvas.gl.useProgram( this.ruleCanvas.programs.display.program );
@@ -189,6 +199,7 @@ currentRuleSet.renderoverlay = function(){
 		this.textCanvas.context.stroke();
 }
 
+// When the rule canavas is clicked on toggle the cell color ( color value taken from HTML )
 currentRuleSet.ruleClick = function( event ){
 
 	// Get mouse position and convert to cell grid number
@@ -214,6 +225,7 @@ currentRuleSet.ruleClick = function( event ){
 	}
 }
 
+// When the state canvas is clicked on toggle the cell value
 currentRuleSet.stateClick = function(event){
 	this.name = "Custom";
 	document.getElementById("loadpreset").value = "custom";
@@ -231,6 +243,7 @@ currentRuleSet.stateClick = function(event){
 
 }
 
+// Generate a random ruleset from the state color values
 currentRuleSet.setRandomResults = function(){
 
 	for( var i=0; i < this.dimensions.y; i++ ){
@@ -243,6 +256,35 @@ currentRuleSet.setRandomResults = function(){
 
 }
 
+// Set the current rules from an integern by resolving state in base of states
+currentRuleSet.setResultFromInt = function( n ){
+
+	if ( n > this.numberOfRules-1 ){ alert("Value outside range of rules"); return; }
+
+	var s = n.toString(this.numStates);			// Convert number to string
+	this.name = n.toString();
+	var values = [];												// Store values in this
+	for ( var i = 0; i < s.length; i++ ){
+			values[i] = parseInt( s[i] );				// Transfer string values into the array
+	}
+
+	values.reverse();												// Reverse this string to get it in
+																					// the right direction for ruleset
+
+	for ( var i = s.length; i < this.dimensions.y; i++ ){
+			values[i] = 0;											// Set remaining values to 0
+			//values.unshift(0);
+	}
+
+	for ( var i = 0; i < this.dimensions.y; i ++ ){
+			this.setResultFromState( i, values[i]);	// Set the ruleset values from these values
+	}
+
+	this.loadRenderAndPush();
+
+}
+
+// Creat new textures, render them to the canvases and push the rule texture to the main canvas
 currentRuleSet.loadRenderAndPush = function(){
 
 	this.loadTextures();
@@ -251,6 +293,7 @@ currentRuleSet.loadRenderAndPush = function(){
 
 }
 
+// Update the rule permutations from the current state colors
 currentRuleSet.updatePermutations = function(){
 
 	this.permuations();

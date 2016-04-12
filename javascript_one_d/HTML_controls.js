@@ -4,18 +4,6 @@
 // **** FUNCTIONS USED BY HTML CONTROLS ****
 // *****************************************
 
-// Get sim speed from HTML
-function getSimSpeed(){
-	// If the simulation is running pause and restart to
-	// avoid problem of continually increasing speed
-	if ( mainCanvas.paused == false ){
-		mainCanvas.pauseSim();
-		mainCanvas.fps = document.getElementById("speedRange").value;
-		mainCanvas.startSim();
-	}
-	else{ mainCanvas.fps = document.getElementById("speedRange").value; }
-}
-
 // Clear all the cells
 function clearCells(){
 
@@ -53,10 +41,17 @@ function changeNeighbourhood(){
 
 }
 
-// load a preset and update the HTML forms
+// Load a preset and update the HTML forms
 function loadAndUpdatePreset(){
 
 	currentRuleSet.loadPreset( presets[ document.getElementById("loadpreset").value] );
+
+}
+
+// Set a rulset from value of HTML form
+function loadRuleFromHTMLInt(){
+
+	currentRuleSet.setResultFromInt( parseInt(document.getElementById("ruleCode").value) );
 
 }
 
