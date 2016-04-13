@@ -23,9 +23,6 @@ mainCanvas.textures.front.loadR( mainCanvas.gl, cells.n.x, cells.n.y );
 // Get simulation speed from HTML
 mainCanvas.speed 	= document.getElementById("speedRange").value;
 
-// Make a menu of pattern types in HTML
-createPatternMenu();
-
 // Make menu of and get colourscheme from HTML
 currentColorScheme.createColorSchemeMenu();
 currentColorScheme.loadColorScheme( eval(document.getElementById("chooseColorScheme").value) );

@@ -252,32 +252,33 @@ mainCanvas.clickEvent = function( event ){
 	var y = Math.floor(mousePos.y /cells.d.y);
 	var mouseVec = new vec( x, y );
 
-	// Print desired pattern
-	switch ( document.getElementById("presetlist").value ){
-
-		case "single":
 			this.switchPixelState( mouseVec.x, mouseVec.y );
 			this.renderCells();
 			break;
 
-		case "random5":
-			var random = createRandomBlock(5,5);
-			random.printPattern( mouseVec );
-			break;
+}
 
-		case "random10":
-			var random = createRandomBlock(10,10);
-			random.printPattern( mouseVec );
-			break;
+// Set an intial seed from an integer value
+mainCanvas.setSeedFromInt = function( n ){
 
-		case "random50":
-			var random = createRandomBlock(50,50);
-			random.printPattern( mouseVec );
-			break;
+  this.currentRow = 1.0;  // Reset to first row
 
-		default:
-			eval(document.getElementById("presetlist").value).printPattern( mouseVec );
+  this.clearCells();
 
+  var s = n.toString(currentRuleSet.numStates);			// Convert number to string
+
+  var values = [];												// Store individual digit values in this
+
+  for ( var i = 0; i < s.length; i++ ){
+			values[i] = parseInt( s[i] );				// Transfer string values into the array
 	}
+  
+  var start = Math.floor(this.textures.front.dimensions.x/2) - Math.floor(values.length/2);
+
+  for ( var i = 0; i < values.length; i++ ){
+			this.setPixelValue( start+i, 0, currentRuleSet.stateData[4*values[i]],currentRuleSet.stateData[4*values[i]+1],currentRuleSet.stateData[4*values[i]+2],currentRuleSet.stateData[4*values[i]+3] );
+	}
+
+	this.renderCells();
 
 }

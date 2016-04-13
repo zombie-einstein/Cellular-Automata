@@ -71,3 +71,9 @@ function changeColorScheme(){
 	mainCanvas.renderCells();
 
 }
+
+function setSeedFromHTMLInt(){
+
+	mainCanvas.setSeedFromInt( parseInt(document.getElementById("seedint").value) );
+
+}

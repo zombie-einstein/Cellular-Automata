@@ -1,10 +1,32 @@
 .main 	{		color: #ffffff;
-				background-color: #ffffff;
-				font-family:sans-serif;
-				border-color: #ffffff;
-			 	border-style:solid;
-				border-width: 1px;
+						background-color: #ffffff;
+						font-family:sans-serif;
+						border-color: #ffffff;
+			 			border-style:solid;
+						border-width: 1px;
 			}
+
+.tooltip {	}
+
+.tooltip:hover .tooltiptext { visibility: visible;}
+
+			/* Tooltip text */
+.tooltip .tooltiptext {
+			    visibility: hidden;
+			    max-width: 50 px;
+			    text-align: left;
+			    padding: 5px;
+			    border-radius: 5px;
+
+			    /* Position the tooltip text - see examples below! */
+			    position: absolute;
+					top: 	20px;
+    			left: 250px;
+			    z-index: 1;
+			}
+
+.alignLeft{ float: left;display: inline-block; }
+.alignRight{ float: right;display: inline-block; }
 
 .noBorder {		border-width: 0px ;	}
 

@@ -246,6 +246,8 @@ currentRuleSet.stateClick = function(event){
 // Generate a random ruleset from the state color values
 currentRuleSet.setRandomResults = function(){
 
+	this.name = "Random";
+
 	for( var i=0; i < this.dimensions.y; i++ ){
 		this.setResultFromState( i, Math.floor(Math.random()*this.numStates) );
 	}
