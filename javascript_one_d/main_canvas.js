@@ -11,6 +11,8 @@ var mainCanvas = new WEBGLCANVAS( "canvas" );
 mainCanvas.dimensions.x = window.innerWidth-document.getElementById("menus").offsetWidth;
 mainCanvas.dimensions.y = window.innerHeight;
 
+mainCanvas.currentViewport = [0,0,mainCanvas.dimensions.x,mainCanvas.dimensions.y];
+
 // Set canvas dimensions from these values
 mainCanvas.resize();
 
@@ -18,8 +20,10 @@ mainCanvas.resize();
 mainCanvas.initWebGL();
 
 // Add display and rule based shaders to this object
-mainCanvas.addProgram( "display", "2d-vertex-shader", "2d-fragment-display" );
-mainCanvas.addProgram( "rules"  , "2d-vertex-shader", "2d-fragment-rules"   );
+mainCanvas.addProgram( "display" , "2d-vertex-shader", "2d-fragment-display" );
+mainCanvas.addProgram( "rules"   , "2d-vertex-shader", "2d-fragment-rules"   );
+mainCanvas.addProgram( "analysis", "2d-vertex-shader", "2d-fragment-analysis");
+mainCanvas.addProgram( "analysisB", "2d-vertex-shader", "2d-fragment-analysisB");
 
 // ====== Add required uniform locations =======
 
@@ -27,26 +31,40 @@ mainCanvas.addProgram( "rules"  , "2d-vertex-shader", "2d-fragment-rules"   );
 mainCanvas.programs.display.addUniform( mainCanvas.gl, "colorLocation", "u_colorShift" );
 
 // Add (all the!!) uniforms for rule frament shader
-mainCanvas.programs.rules.addUniform( mainCanvas.gl, "currentRowLocation", "u_currentRow" );
-mainCanvas.programs.rules.addUniform( mainCanvas.gl, "numStatesLocation", "u_numStates" );
-mainCanvas.programs.rules.addUniform( mainCanvas.gl, "rangeLocation", "u_range" );
-mainCanvas.programs.rules.addUniform( mainCanvas.gl, "textPixelLocation", "u_textPixel" );
-mainCanvas.programs.rules.addUniform( mainCanvas.gl, "rulePixelLocation", "u_rulePixel" );
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "currentRowLocation", "u_currentRow" );  // Value of currently updateing row
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "numStatesLocation", "u_numStates" );    // Num of states provided by ruleset
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "rangeLocation", "u_range" );            // Range of neighbours comsidered by cell
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "textPixelLocation", "u_textPixel" );    // Measure of one pixel of front texture
+mainCanvas.programs.rules.addUniform( mainCanvas.gl, "rulePixelLocation", "u_rulePixel" );    // Measure of one pixel for rule texture
 
 // Get texture locations
 mainCanvas.programs.rules.addUniform( mainCanvas.gl, "backText0Location", "u_backText;" );
 mainCanvas.programs.rules.addUniform( mainCanvas.gl, "ruleText1Location", "u_rulesText" );
 
+// Uniforms and textures for analysis program
+mainCanvas.programs.analysis.addUniform( mainCanvas.gl, "textPixelLocation", "u_textPixel" );
+mainCanvas.programs.analysis.addUniform( mainCanvas.gl, "frontTextLocation", "u_frontText" );
+
+// Add (all the!!) uniforms for second analysis frament shader
+mainCanvas.programs.analysisB.addUniform( mainCanvas.gl, "frontText0Location", "u_frontText;" );
+mainCanvas.programs.analysisB.addUniform( mainCanvas.gl, "ruleText1Location", "u_rulesText" );
+mainCanvas.programs.analysisB.addUniform( mainCanvas.gl, "numStatesLocation", "u_numStates" );    // Num of states provided by ruleset
+mainCanvas.programs.analysisB.addUniform( mainCanvas.gl, "rangeLocation", "u_range" );            // Range of neighbours comsidered by cell
+mainCanvas.programs.analysisB.addUniform( mainCanvas.gl, "textPixelLocation", "u_textPixel" );    // Measure of one pixel of front texture
+mainCanvas.programs.analysisB.addUniform( mainCanvas.gl, "rulePixelLocation", "u_rulePixel" );    // Measure of one pixel for rule texture
+
 // ======= Add Required Textures =======
-mainCanvas.textures.front = new TEXTURE;  // Display texture
-mainCanvas.textures.back  = new TEXTURE;   // Back texture for purpose of updating state
-mainCanvas.textures.rule  = new TEXTURE;   // Texture which encodes ruleset
+mainCanvas.textures.front    = new TEXTURE;  // Display texture
+mainCanvas.textures.back     = new TEXTURE;  // Back texture for purpose of updating state
+mainCanvas.textures.rule     = new TEXTURE;  // Texture which encodes ruleset
+mainCanvas.textures.analysis = new TEXTURE;  // Texture used to store analytics about cells
+mainCanvas.textures.analysisB= new TEXTURE;  // Texture used to store rule number values
 
 // ======= Simultation Variables =======
 mainCanvas.currentRow = 1.0;
 mainCanvas.animReq    = undefined;      // Initialize timestep variable outside scope of animation function
 mainCanvas.timeout    = undefined;
-mainCanvas.paused     = true; // Simulation status switch (initially false)
+mainCanvas.paused     = true;           // Simulation status switch (initially false)
 
 
 // *************************************************
@@ -64,8 +82,10 @@ mainCanvas.loadRuleset = function( ruleset ){
 // Clear the cells
 mainCanvas.clearCells = function(){
 
-  this.textures.front.clearR( this.gl );
-  this.textures.back.clearR( this.gl );
+  for ( var x in this.textures ){
+    if( x != "rule" ) this.textures[x].clearR( this.gl );
+  }
+
   this.renderCells();
 
 }
@@ -81,8 +101,9 @@ mainCanvas.randomSeed = function( rate ){
 // Refresh front and back textures at new resolution
 mainCanvas.updateCellDimensions = function( x, y ){
 
-  this.textures.back.loadR( this.gl, x, y );
-  this.textures.front.loadR( this.gl, x, y );
+  for ( var t in this.textures ){
+    if( t != "rule" ) this.textures[t].loadR( this.gl, x, y );
+  }
 
 }
 
@@ -95,8 +116,91 @@ mainCanvas.renderCells = function(){
   // Bind texture
   this.gl.activeTexture( this.gl.TEXTURE0 );
   this.gl.bindTexture( this.gl.TEXTURE_2D, this.textures.front.data );
-  this.gl.viewport( 0, 0, this.dimensions.x, this.dimensions.y );
+  this.gl.viewport( this.currentViewport[0], this.currentViewport[1], this.currentViewport[2], this.currentViewport[3] );
   this.programs.display.render( this.gl );
+
+}
+
+// Render the analysis texture to the canvas
+mainCanvas.renderAnalysis = function(){
+
+  this.gl.useProgram( this.programs.display.program );
+  // Set color shift to achieve live cell color
+  this.gl.uniform4f( this.programs.display.colorLocation, 0,0,0,0 );
+  // Bind texture
+  this.gl.activeTexture( this.gl.TEXTURE0 );
+  this.gl.bindTexture( this.gl.TEXTURE_2D, this.textures.analysisB.data );
+  this.gl.viewport( this.currentViewport[0], this.currentViewport[1], this.currentViewport[2], this.currentViewport[3] );
+  this.programs.display.render( this.gl );
+
+}
+
+// Apply analysis to current textures
+mainCanvas.applyAnalysis = function(){
+
+  this.gl.useProgram( this.programs.analysis.program );
+
+  this.gl.uniform2f( this.programs.analysis.textPixelLocation, 1/(this.textures.front.dimensions.x), 1/(this.textures.front.dimensions.y) );
+
+  // ======= Create framebuffer and attach analysis texture ======= //
+
+  //Create framebuffer
+  var framebuffer = this.gl.createFramebuffer();
+
+  this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, framebuffer );
+  this.gl.framebufferTexture2D( this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textures.analysis.data, 0 );
+
+  // Set texture for current state
+  this.gl.uniform1i(this.programs.analysis.frontTextLocation, 0);  // texture unit 0
+  this.gl.activeTexture(this.gl.TEXTURE0);
+  this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.front.data);
+
+  // Set buffer viewport
+  this.gl.viewport( 0, 0, this.textures.front.dimensions.x, this.textures.front.dimensions.y );
+
+  this.programs.analysis.render( this.gl );                 // Render to analysis texture
+  this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );     // Unbind framebuffer
+
+}
+
+
+// Apply analysis to current textures
+mainCanvas.applyAnalysisB = function(){
+
+  this.gl.useProgram( this.programs.analysisB.program );
+
+  // Send all appropriate uniforms to program
+  this.gl.uniform1i( this.programs.analysisB.numStatesLocation, currentRuleSet.numStates );
+  this.gl.uniform1i( this.programs.analysisB.rangeLocation, currentRuleSet.range );
+  this.gl.uniform2f( this.programs.analysisB.rulePixelLocation, 1/(currentRuleSet.dimensions.x), 1/(currentRuleSet.dimensions.y) );
+  this.gl.uniform2f( this.programs.analysisB.textPixelLocation, 1/(this.textures.front.dimensions.x), 1/(this.textures.front.dimensions.y) );
+
+  // ======= Create framebuffer and attach analysis texture ======= //
+
+  //Create framebuffer
+  var framebuffer = this.gl.createFramebuffer();
+
+  this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, framebuffer );
+  this.gl.framebufferTexture2D( this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textures.analysisB.data, 0 );
+
+  // Set texture units for current ruleset
+  this.gl.uniform1i(this.programs.analysisB.frontText0Location, 0);  // texture unit 0
+  this.gl.uniform1i(this.programs.analysisB.ruleText1Location, 1);  // texture unit 1
+
+  // Attach ruleset texture
+  this.gl.activeTexture(this.gl.TEXTURE1);
+  this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.rule.data);
+
+  // Start to draw with front texture
+  this.gl.activeTexture(this.gl.TEXTURE0);
+  this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.front.data);
+
+  // Set buffer viewport
+  this.gl.viewport( 0, 0, this.textures.front.dimensions.x, this.textures.front.dimensions.y );
+
+  this.programs.analysis.render( this.gl );                 // Render to analysis texture
+
+  this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, null );     // Unbind framebuffer
 
 }
 
@@ -120,7 +224,7 @@ mainCanvas.mainLoop = function(){
   // Bind framebuffer
   this.gl.bindFramebuffer( this.gl.FRAMEBUFFER, framebuffer );
 
-  // Attach the back texture
+  // Attach the back texture to framebuffer
   this.gl.framebufferTexture2D( this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textures.back.data, 0 );
 
   // Set texture units for current ruleset
@@ -237,8 +341,10 @@ mainCanvas.windowResize = function(){
 	// Applying scaling to cell dimensions
 	cells.d.x 	*= xScaling;
 	cells.d.y 	*= yScaling;
+  this.currentViewport[2] *= xScaling;
+  this.currentViewport[3] *= yScaling;
 	// Reset resolution of WebGL and re-render
-	this.gl.viewport(0, 0, this.dimensions.x, this.dimensions.y );
+	this.gl.viewport( this.currentViewport[0], this.currentViewport[1], this.currentViewport[2], this.currentViewport[3] );
 	this.renderCells();
 
 }
@@ -252,9 +358,8 @@ mainCanvas.clickEvent = function( event ){
 	var y = Math.floor(mousePos.y /cells.d.y);
 	var mouseVec = new vec( x, y );
 
-			this.switchPixelState( mouseVec.x, mouseVec.y );
-			this.renderCells();
-			break;
+	this.switchPixelState( mouseVec.x, mouseVec.y );
+	this.renderCells();
 
 }
 
@@ -272,7 +377,7 @@ mainCanvas.setSeedFromInt = function( n ){
   for ( var i = 0; i < s.length; i++ ){
 			values[i] = parseInt( s[i] );				// Transfer string values into the array
 	}
-  
+
   var start = Math.floor(this.textures.front.dimensions.x/2) - Math.floor(values.length/2);
 
   for ( var i = 0; i < values.length; i++ ){
@@ -281,4 +386,47 @@ mainCanvas.setSeedFromInt = function( n ){
 
 	this.renderCells();
 
+}
+
+// Counts rule value of analysis texture
+mainCanvas.histogram = function(){
+
+  this.applyAnalysisB();  // Apply analysis of rules used
+
+  var sums = [];  // Store count of rule use
+
+  // Initialize all values to 0
+  var count = 0;
+  for ( var i = 0; i < currentRuleSet.dimensions.y ; i++ ){
+    sums.push(0);
+  }
+
+  // Count rule usage
+  for ( var i = 0; i < this.textures.front.dimensions.x; i++ ){
+    for ( var j = 0; j < this.textures.front.dimensions.y; j++ ){
+      sums[this.textures.analysisB.getPixelValue(this.gl, i,j)[0]]++;
+      //count++;
+    }
+  }
+
+  for ( var i = 0; i < currentRuleSet.dimensions.y ; i++ ){
+    sums[i] /= (this.textures.front.dimensions.x*this.textures.front.dimensions.y);
+  }
+
+  console.log( sums );
+
+  var histCanvas = document.getElementById("histCanvas");
+  var canvasContext = histCanvas.getContext("2d");
+
+  canvasContext.clearRect(0,0,histCanvas.width,histCanvas.height);
+	canvasContext.fillStyle = currentColorScheme.alive;
+
+  for ( var i = 0; i < currentRuleSet.dimensions.y ; i++ ){
+    canvasContext.fillRect( histCanvas.width*i*1/currentRuleSet.dimensions.y, histCanvas.height*(1-sums[i]), histCanvas.width/currentRuleSet.dimensions.y, histCanvas.height*sums[i] );
+  }
+
+  var averageSquare = sums.reduce( function(total,num){return total + num*num;} )/currentRuleSet.dimensions.y;
+  var variance = Math.sqrt( averageSquare - (1/currentRuleSet.dimensions.y)*(1/currentRuleSet.dimensions.y) );
+
+  console.log("S.D.: ", variance);
 }

@@ -44,6 +44,85 @@
 
     </script>
 
+    <!-- Shader used to apply analysis to current front texture -->
+
+    <script id="2d-fragment-analysis" type="x-shader/x-fragment">
+
+        precision mediump float;
+
+          // Previous state
+          uniform vec2 u_textPixel;      // One pixel distance
+          uniform sampler2D u_frontText; // Current texture
+
+          // Varying values passed from vertex shader
+          varying vec2 v_texCoord;
+
+          // Function returns colour value from previous state row
+          vec4 get(int x){ return texture2D( u_frontText, v_texCoord + u_textPixel*vec2( 0, x) );  }
+
+          void main(){
+
+              if  ( get(0) == get(-1) ){ gl_FragColor = 	vec4(0.0,0.0,0.0,1.0); }
+              else { gl_FragColor = 	vec4(1.0,0.0,0.0,0.0); }
+
+          } // End of main
+
+    </script>
+
+    <!-- Fragment shader which analysis value of rulesets being applied -->
+
+    <script id="2d-fragment-analysisB" type="x-shader/x-fragment">
+
+    precision mediump float;
+
+    uniform int u_numStates;  // Number of possible states
+    uniform int u_range;      // Range of neighbours considered
+
+    // Previous state
+    uniform vec2 u_textPixel;      // One pixel distance
+	  uniform sampler2D u_frontText;  // Actual Texture
+
+    // Ruleset
+    uniform vec2 u_rulePixel;      // One pixel distance
+    uniform sampler2D u_rulesText; // Ruleset texture
+
+    // Varying values passed from vertex shader
+	  varying vec2 v_texCoord;
+
+	  // Function returns colour value from previous state row
+    vec4 getNeighbour( int x ){ return texture2D( u_frontText, v_texCoord + u_textPixel*vec2( x-u_range, -1) );  }
+
+    // Returns color value of rule pixel
+    vec4 getRule( int x, int y ){ return texture2D( u_rulesText, 0.5*u_rulePixel+u_rulePixel*vec2( x, y ) ); }
+
+    void main(){
+
+        int row = 0 ; // What row off the rule texture are we on
+
+        // ( Loop over columns of ruleset i.e. 2*range +1 )
+        for ( int i = 0; i < 11; i++ ){
+
+          // Check current column against rule value
+          for ( int j = 0; j < 20; j++ ){
+
+            if( getNeighbour(i) == getRule( i, row ) ){ break; } // If state and rule value match then move to next column
+            else{ row += int(pow( float(u_numStates), float( 2*u_range-i ) )); }          // Else jump to next color value  in ruleset and continue loop
+
+          }
+
+          if( i == int(2*u_range) ){ break;} // Break out of loop when reached right edge of ruleset
+
+        }
+
+        float states = float((2*u_range+1)*u_numStates);
+
+        //gl_FragColor = vec4(0.5*(1.0-float(row)*1.0/states),0.5*float(row)*1.0/states,0.0,1.0) ; // Set cells color value from rule texture final column
+        gl_FragColor = vec4( float(row)*1.0/255.0, 0.0, 0.0, 1.0 );
+        //gl_FragColor = vec4( 3.0*1.0/255.0, 0.0, 0.0, 1.0 );
+
+    } // End of main
+
+    </script>
 
     <!-- Fragment shader program with 1-D ruleset-->
 
@@ -63,6 +142,10 @@
     // Ruleset
     uniform vec2 u_rulePixel;      // One pixel distance
     uniform sampler2D u_rulesText; // Ruleset texture
+
+    // Analytics textures (same dimensions as state textures)
+    // Used to get info about stats of texture out from shader
+    //uniform sampler2D u_analysisText;
 
     // Varying values passed from vertex shader
 	  varying vec2 v_texCoord;
@@ -99,7 +182,7 @@
 
       }
 
-      else{ gl_FragColor = 	texture2D( u_backText, v_texCoord ); }
+      else{ gl_FragColor = 	texture2D( u_backText, v_texCoord ); }  // If not update row then just copy back texture
 
     } // End of main
 
@@ -231,12 +314,12 @@ Width:
 </form>
 
 <strong>Possible States</strong>
-<canvas id="statecanvas" class="main " width="185" height=20 onclick="currentRuleSet.stateClick(event)"> </canvas>
+<canvas id="statecanvas" class="main " width="185" height="20" onclick="currentRuleSet.stateClick(event)"> </canvas>
 <button class="main" onclick="currentRuleSet.updatePermutations()" > Generate permutations </button><br>
 
 <strong>Update Rules</strong>
 <div class="main noBorder" style="position: relative">
-<canvas id="rulecanvas" class="main " width="185" height=300 >
+<canvas id="rulecanvas" class="main " width="185" height="300" >
 Too bad your browser does not support the HTML5 canvas.
 </canvas>
 <canvas id ="ruletextoverlay" class="canvasOverlay"   onclick="currentRuleSet.ruleClick(event)" width="185" height=300>
@@ -306,6 +389,10 @@ Too bad your browser does not support the HTML5 canvas.
   Color Scheme
   <select class="main" id="chooseColorScheme"  onchange="changeColorScheme()"> </select><br>
 </form>
+
+<h2 class="bordersTop"> Stats</h2>
+<button class="main" onclick="mainCanvas.histogram()" > Generate Histogram </button>
+<canvas id="histCanvas" class="main " width="200" height="200"> </canvas>
 
 </div>
 </div>

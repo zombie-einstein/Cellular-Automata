@@ -19,6 +19,8 @@ cells.d.y = mainCanvas.dimensions.y / cells.n.y;
 // Create main canvas textures from these values
 mainCanvas.textures.back.loadR( mainCanvas.gl, cells.n.x, cells.n.y );
 mainCanvas.textures.front.loadR( mainCanvas.gl, cells.n.x, cells.n.y );
+mainCanvas.textures.analysis.loadR( mainCanvas.gl, cells.n.x, cells.n.y );
+mainCanvas.textures.analysisB.loadR( mainCanvas.gl, cells.n.x, cells.n.y );
 
 // Get simulation speed from HTML
 mainCanvas.speed 	= document.getElementById("speedRange").value;

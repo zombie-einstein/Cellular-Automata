@@ -117,7 +117,7 @@ TEXTURE.prototype.randomFirstR = function( gl, r, g, b, a, rate ){
     }
   }
   this.loadR( gl, this.dimensions.x, this.dimensions.y, randomData );
-  console.log("Texture randomly filled");
+  console.log("Random seed set");
 }
 
 // Load a non-repeating, possible odd dimensioned texture from data
@@ -247,7 +247,7 @@ function initWebGL( canvas ){
 
   try {
     // Try to grab the standard context. If it fails, fallback to experimental.
-    gl = canvas.getContext("webgl", { premultipliedAlpha: false }) || canvas.getContext("experimental-webgl");
+    gl = canvas.getContext("webgl", { premultipliedAlpha: false, preserveDrawingBuffer: true }) || canvas.getContext("experimental-webgl" , {preserveDrawingBuffer: true} );
   }
   catch(e) {}
 
